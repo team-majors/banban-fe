@@ -1,3 +1,4 @@
+import React from 'react';
 import { forwardRef } from 'react';
 import type { IconProps } from '@/types/IconProps';
 
@@ -11,6 +12,7 @@ export const CloseIcon = forwardRef<SVGSVGElement, IconProps>(
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
         style={{ color: color }}
+        aria-label='close modal'
         {...props}
       >
         <path 

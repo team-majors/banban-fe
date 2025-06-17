@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { FloatingButton } from '@/components/button';
+import { FloatingButton } from '@/components/common/Button';
 
 const meta: Meta<typeof FloatingButton> = {
-  title: 'components/button/FloatingButton',
+  title: 'components/common/Button/FloatingButton',
   component: FloatingButton,
   tags: ["autodocs"],
   argTypes: {

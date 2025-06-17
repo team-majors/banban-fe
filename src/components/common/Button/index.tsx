@@ -1,0 +1,1 @@
+export { FloatingButton } from '@/components/common/Button/Floating/FloatingButton';

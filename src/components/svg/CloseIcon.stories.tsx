@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { CloseIcon } from '@/components/svg';
 
 const meta: Meta<typeof CloseIcon> = {
-  title: 'Icons/CloseIcon',
+  title: 'components/icons/CloseIcon',
   component: CloseIcon,
   argTypes: {
     width: { control: { type: 'number', min: 8, max: 128 } },

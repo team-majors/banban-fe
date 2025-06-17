@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AddIcon } from '@/components/svg';
 
 const meta: Meta<typeof AddIcon> = {
-  title: 'Icons/AddIcon',
+  title: 'components/icons/AddIcon',
   component: AddIcon,
   argTypes: {
     width: { control: { type: 'number', min: 8, max: 128 } },

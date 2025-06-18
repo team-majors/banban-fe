@@ -12,6 +12,8 @@ const BackgroundStyle = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
 `;
 
 interface StateProp {

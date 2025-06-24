@@ -16,22 +16,6 @@ interface GradientBorderProps {
   background?: string;
 }
 
-const GradientBorder = styled.div<GradientBorderProps>`
-  display: inline-block;
-  padding: 2px;
-  border-radius: 16px;
-  background: ${({ background }) =>
-    background || "linear-gradient(to right, #ec4899, #d946ef)"};
-`;
-
-const StyledImageWrapper = styled.div<StyledImageWrapperProps>`
-  width: ${({ size }) => size || 40}px;
-  height: ${({ size }) => size || 40}px;
-  border-radius: 16px;
-  overflow: hidden;
-  background-color: white;
-`;
-
 export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
   return (
     <GradientBorder background={background}>
@@ -48,3 +32,19 @@ export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
     </GradientBorder>
   );
 };
+
+const GradientBorder = styled.div<GradientBorderProps>`
+  display: inline-block;
+  padding: 2px;
+  border-radius: 16px;
+  background: ${({ background }) =>
+    background || "linear-gradient(to right, #ec4899, #d946ef)"};
+`;
+
+const StyledImageWrapper = styled.div<StyledImageWrapperProps>`
+  width: ${({ size }) => size || 40}px;
+  height: ${({ size }) => size || 40}px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: white;
+`;

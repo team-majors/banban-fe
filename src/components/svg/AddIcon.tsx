@@ -1,6 +1,6 @@
-import React from 'react';
-import { forwardRef } from 'react';
-import type { IconProps } from '@/types/IconProps';
+import React from "react";
+import { forwardRef } from "react";
+import type { IconProps } from "@/types/iconProps";
 
 export const AddIcon = forwardRef<SVGSVGElement, IconProps>(
   ({ width = 32, height = 32, color, ...props }, ref) => {
@@ -12,7 +12,7 @@ export const AddIcon = forwardRef<SVGSVGElement, IconProps>(
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
         style={{ color: color }}
-        aria-label='open modal'
+        aria-label="open modal"
         {...props}
       >
         <path
@@ -20,8 +20,8 @@ export const AddIcon = forwardRef<SVGSVGElement, IconProps>(
           fill="currentColor"
         />
       </svg>
-    )
+    );
   }
 );
 
-AddIcon.displayName = 'AddIcon';
+AddIcon.displayName = "AddIcon";

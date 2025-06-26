@@ -1,6 +1,6 @@
 import React from "react";
 import { forwardRef } from "react";
-import type { IconProps } from "@/types/IconProps";
+import type { IconProps } from "@/types/iconProps";
 
 export const CloseIcon = forwardRef<SVGSVGElement, IconProps>(
   ({ width = 32, height = 32, color, ...props }, ref) => {

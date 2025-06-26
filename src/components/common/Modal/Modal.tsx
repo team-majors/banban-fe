@@ -3,7 +3,7 @@
 import styled from "styled-components";
 import React, { ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { CloseThickIcon } from "@/components/svg/CloseIcon";
+import { CloseThickIcon } from "@/components/svg";
 
 interface ModalProps {
   isOpen: boolean;

@@ -1,23 +1,30 @@
 'use client'
 
-import React from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
+import styled, { css } from 'styled-components';
 import { CSSProperties } from 'styled-components';
 import { DefaultButton } from '@/components/common/Button';
 
 type SelectOptionGroupStyleProps = Pick<CSSProperties, 'width' | 'height' | 'rowGap'>
 
+type selectOption = 'firstOption' | 'secondOption' | 'none';
+
 interface SelectOptionGroupProps extends SelectOptionGroupStyleProps {
-  firstOption: string
-  secondOption: string
+  firstOptionString: string
+  secondOptionString: string
+  onChange: (internalState: selectOption) => selectOption;
 }
 
 interface GradientStyleProps {
   fromColor: string;
   toColor: string;
+  isIdle: boolean;
+  isSelected: boolean;
 }
 
-const ButtonStyle = styled(DefaultButton)<GradientStyleProps>`
+const ButtonStyle = styled(DefaultButton).withConfig({
+  shouldForwardProp: (prop) => !['fromColor', 'toColor', 'isIdle', 'isSelected'].includes(prop)
+})<GradientStyleProps>`
   display: flex;
   justify-content: center;
 
@@ -63,9 +70,53 @@ const ButtonStyle = styled(DefaultButton)<GradientStyleProps>`
     background-clip: text;
     color: transparent;
   }
+
+  ${({ isSelected, isIdle }) => {
+    if (isIdle === true) {
+      return css``
+    }
+
+    if (isIdle === false && isSelected === false) {
+      return css`
+        &::before {
+
+        }
+
+        & > div {
+          background: #808080;
+          background-clip: text;
+          color: transparent;
+        }
+      `
+    }
+
+    if (isSelected === true) {
+      return css`
+        & > div {
+          background: white;
+          background-clip: text;
+          color: transparent;
+        }
+
+        &::before {
+          opacity: 1;
+        }
+      `
+    } else {
+      return css`
+        & > div {
+          z-index: 2;
+          color: #b9b9b9;
+          transition: all 0.4s ease;
+        }
+      `
+    }
+  }}
 `
 
-const SelectOptionGroupStyle = styled.div<SelectOptionGroupStyleProps>`
+const SelectOptionGroupStyle = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['rowGap'].includes(prop)
+})<SelectOptionGroupStyleProps>`
   width: ${({ width }) => width};
   height: ${({ height }) => height};
 
@@ -74,14 +125,32 @@ const SelectOptionGroupStyle = styled.div<SelectOptionGroupStyleProps>`
   row-gap: ${({ rowGap }) => rowGap};
 `
 
-export const SelectOptionGroup = ({ firstOption, secondOption, ...styleProps }: SelectOptionGroupProps) => {
+export const SelectOptionGroup = ({ firstOptionString, secondOptionString, onChange, ...styleProps }: SelectOptionGroupProps) => {
+  const [selectState, setSelectState] = useState<selectOption>('none');
+
+  useEffect(() => {
+    onChange(selectState);
+  }, [selectState, onChange])
+
   return (
     <SelectOptionGroupStyle {...styleProps}>
-      <ButtonStyle fromColor="#FF05CE" toColor="#FF474F">
-        {firstOption}
+      <ButtonStyle 
+        fromColor="#FF05CE" 
+        toColor="#FF474F" 
+        isIdle={selectState === 'none'}
+        isSelected={selectState === 'firstOption'} 
+        onClick={() => setSelectState('firstOption')}
+      >
+        {firstOptionString}
       </ButtonStyle>
-      <ButtonStyle fromColor="#6142FF" toColor="#1478FF">
-        {secondOption}
+      <ButtonStyle 
+        fromColor="#6142FF"
+        toColor="#1478FF"
+        isIdle={selectState === 'none'}
+        isSelected={selectState === 'secondOption'}
+        onClick={() => setSelectState('secondOption')}
+      >
+        {secondOptionString}
       </ButtonStyle>
     </SelectOptionGroupStyle>
   )

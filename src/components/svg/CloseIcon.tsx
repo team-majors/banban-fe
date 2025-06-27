@@ -32,6 +32,7 @@ export const CloseThickIcon = forwardRef<SVGSVGElement, IconProps>(
   ({ width = 32, height = 32, color, ...props }, ref) => {
     return (
       <svg
+        fill="currentColor"
         ref={ref}
         width={width}
         height={height}

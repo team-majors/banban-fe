@@ -21,7 +21,7 @@ export const LoginButton = ({
     <StyledButton
       role="button"
       color={color}
-      fontcolor={fontcolor}
+      $fontcolor={fontcolor}
       disabled={disabled}
       aria-disabled={disabled}
       {...props}
@@ -32,13 +32,19 @@ export const LoginButton = ({
   );
 };
 
-const StyledButton = styled.button<{ fontcolor: string }>`
+interface StyledButtonProps {
+  $fontcolor: string;
+  color: string;
+  disabled: boolean;
+}
+
+const StyledButton = styled.button<StyledButtonProps>`
   height: 44px;
   display: flex;
   align-self: stretch;
   padding: 10px;
   padding-right: 88px;
-  color: ${({ fontcolor }) => fontcolor};
+  color: ${(props) => props.$fontcolor};
   background-color: ${({ color }) => color};
   font-size: 15px;
   line-height: 24px;

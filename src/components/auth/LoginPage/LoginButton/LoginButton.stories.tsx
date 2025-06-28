@@ -1,6 +1,5 @@
-// src/components/LoginButton/LoginButton.stories.tsx
 import React from "react";
-import { LoginButton } from "./LoginButton";
+import { LoginButton } from ".";
 import Image from "next/image";
 import { Meta, StoryObj } from "@storybook/nextjs-vite";
 

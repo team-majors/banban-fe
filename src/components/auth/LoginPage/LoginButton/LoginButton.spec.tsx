@@ -2,7 +2,7 @@ import React from "react";
 import { screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import render from "@/utils/test/render";
-import { LoginButton } from "./LoginButton";
+import { LoginButton } from ".";
 import { vi } from "vitest";
 
 describe("LoginButton", () => {

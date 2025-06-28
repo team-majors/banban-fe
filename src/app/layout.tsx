@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
-import { pretendardSans } from "../fonts/variables";
+import { pretendardSans } from "../../public/fonts/variables";
 import { NextProvider } from "./providers";
+import Header from "@/components/layout/Header";
 export const metadata: Metadata = {
   title: "ban:ban",
   description:
@@ -16,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${pretendardSans.variable} antialiased`}>
-        <NextProvider>{children}</NextProvider>
+        <NextProvider>
+          <Header isLoggedIn isNew />
+          {children}
+        </NextProvider>
         <div id="modal-root"></div>
       </body>
     </html>

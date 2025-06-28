@@ -1,27 +1,29 @@
-import BanBan from "@/components/svg/BanBan";
 import React from "react";
 import styled from "styled-components";
 import Title from "@/components/svg/Title";
 import Image from "next/image";
-import { LoginButton } from "./LoginButton/LoginButton";
-import { SocialLoginType } from "@/types/socialLogin";
+import { LoginButton } from "./LoginButton";
+import { BanBanLogo } from "@/components/svg";
+import { SocialLoginButtonConfig } from "@/types/socialLogin";
 
 export default function LoginPage() {
-  const loginButtons: SocialLoginType[] = [
+  const loginButtons: SocialLoginButtonConfig[] = [
     {
       id: "naver",
       text: "네이버로 로그인",
       backgroundColor: "#03C75A",
       fontColor: "#FFF",
       iconSrc: "/naver.png",
-      onClick: () => {},
+      onClick: () => {
+        console.log("TODO: implement Social login");
+      },
     },
   ];
 
   return (
     <LoginContainer>
       <LogoContainer>
-        <BanBan />
+        <BanBanLogo />
       </LogoContainer>
       <Divider />
       <MainContentsContainer>
@@ -39,20 +41,16 @@ export default function LoginPage() {
         />
       </MainContentsContainer>
       <LoginButtonContainer>
-        <span className="text-[#535862] text-[14px]">
-          회원가입 없이 바로 3초만에 시작하기 🚀
-        </span>
+        <QuickStartText>회원가입 없이 바로 3초만에 시작하기 🚀</QuickStartText>
         <LoginButtonWrapper>
-          {/**디자인 가이드 좀 더 알아봐야 할 듯.. */}
-          <Image
-            style={{
-              height: "44px",
-            }}
-            src={"/kakao_login_large_wide.png"}
-            width={300}
-            height={44}
-            alt="kakao_login_btn"
-          />
+          <KakaoButtonWrapper>
+            <Image
+              src={"/kakao_login_large_wide.png"}
+              width={300}
+              height={44}
+              alt="kakao_login_btn"
+            />
+          </KakaoButtonWrapper>
           {loginButtons.map((button) => (
             <LoginButton
               key={button.id}
@@ -64,7 +62,7 @@ export default function LoginPage() {
                   src={button.iconSrc}
                   width={24}
                   height={24}
-                  alt="kakao_login"
+                  alt={`login_btn_img ${button.text}`}
                   style={{
                     height: "24px",
                     objectFit: "cover",
@@ -78,7 +76,9 @@ export default function LoginPage() {
           ))}
         </LoginButtonWrapper>
       </LoginButtonContainer>
-      <Ask>문의하기</Ask>
+      <Ask as="a" href="/contact">
+        문의하기
+      </Ask>
     </LoginContainer>
   );
 }
@@ -91,6 +91,7 @@ const LoginContainer = styled.div`
   align-items: center;
   gap: 40px;
   padding: 32px 0px;
+  background-color: white;
   border-radius: 24px;
   border: 1px solid #e9eaeb;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
@@ -159,4 +160,13 @@ const Ask = styled.span`
   color: #535862;
   font-size: 14px;
   font-weight: 500;
+`;
+
+const KakaoButtonWrapper = styled.div`
+  cursor: pointer;
+`;
+
+const QuickStartText = styled.span`
+  color: #535862;
+  font-size: 14px;
 `;

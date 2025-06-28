@@ -1,4 +1,4 @@
-export interface SocialLoginType {
+export interface SocialLoginButtonConfig {
   id: "kakao" | "google" | "naver";
   text: string;
   backgroundColor: string;

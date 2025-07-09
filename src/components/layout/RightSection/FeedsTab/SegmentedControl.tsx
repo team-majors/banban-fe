@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 
 interface SegmentedControlProps extends React.HTMLAttributes<HTMLDivElement> {
   itemLabels: string[];
@@ -26,10 +26,6 @@ export default function SegmentedControl({
     const currentWidth = itemRefs.current[idx]?.clientWidth ?? 0;
     return sum + (currentWidth - 24) / 2;
   };
-
-  useEffect(() => {
-    console.log(selectedIdx);
-  }, [selectedIdx]);
 
   useLayoutEffect(() => {
     const distance = calculateIndicatorLeft(selectedIdx);
@@ -83,7 +79,7 @@ const StyledItem = styled.button<{ $isSelected: boolean }>`
 const SegmentedControlItem = styled.div<{ $left: number }>`
   position: absolute;
 
-  bottom: 0;
+  bottom: -4px;
 
   left: ${({ $left }) => `${$left}px`};
 

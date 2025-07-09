@@ -2,13 +2,17 @@
 
 import styled from "styled-components";
 import SegmentedControl from "./SegmentedControl";
+import ToggleButton from "./ToggleButton";
+import { useState } from "react";
 
 export default function FeedsTab() {
+  const [isSquadChecked, setIsSquadChecked] = useState(false);
+
   return (
     <StyledContainer>
       <SegmentedControl itemLabels={["최신순", "좋아요순", "댓글순"]} />
       <StyledSquad>
-        <div>Squad</div>
+        <ToggleButton isChecked={isSquadChecked} onChange={setIsSquadChecked} />
       </StyledSquad>
     </StyledContainer>
   );
@@ -19,7 +23,7 @@ const StyledContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 10px;
+  padding: 5px 0;
 `;
 
 const StyledSquad = styled.div`

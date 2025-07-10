@@ -5,6 +5,7 @@ export default function RightSection() {
   return (
     <StyledFeedsContainer>
       <FeedsTab />
+      <div className="border-t border-[#F3F3F3] mt-1" />
     </StyledFeedsContainer>
   );
 }
@@ -16,6 +17,8 @@ const StyledFeedsContainer = styled.div`
   background-color: #fff;
   padding: 10px;
   border-radius: 8px 8px 0 0;
+
+  gap: 10px;
 
   margin-top: 16px;
 

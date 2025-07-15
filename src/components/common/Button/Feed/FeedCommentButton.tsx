@@ -1,19 +1,18 @@
 'use client';
 
-import { useState } from "react"; 
-import HeartIcon from "@/components/svg/HeartIcon";
+import { useState } from "react";
+import { CommentIcon } from "@/components/svg/CommentIcon";
 import styled from "styled-components";
 
-export default function HeartButton() {
-  const [liked, setLiked] = useState<boolean>(false);
-  const [count, setCount] = useState<number>(0);
+export function FeedCommentButton() {
+  const [commented, setCommented] = useState<boolean>(false);
+  const [count] = useState<number>(0)
 
   return (
     <StyledButton onClick={() => {
-      setLiked(!liked);
-      setCount(liked ? count - 1 : count + 1);
+      setCommented(!commented);
     }}>
-      <HeartIcon $isActive={liked} />
+      <CommentIcon />
       <StyledSpan>{count}</StyledSpan>
     </StyledButton>
   )
@@ -22,7 +21,6 @@ export default function HeartButton() {
 const StyledButton = styled.button`
   display: flex;
   gap: 4px;
-
   align-items: center;
   cursor: pointer;
 `;

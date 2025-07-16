@@ -40,7 +40,7 @@ export const Page: React.FC = () => {
         <ul>
           <li>
             Use a higher-level connected component. Storybook helps you compose
-            such data from the "args" of child component stories
+            such data from the `args` of child component stories
           </li>
           <li>
             Assemble data in the page component from your services. You can mock
@@ -48,7 +48,7 @@ export const Page: React.FC = () => {
           </li>
         </ul>
         <p>
-          Get a guided tutorial on component-driven development at{" "}
+          Get a guided tutorial on component-driven development at
           <a
             href="https://storybook.js.org/tutorials/"
             target="_blank"

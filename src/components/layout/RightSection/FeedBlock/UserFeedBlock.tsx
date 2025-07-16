@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Avatar } from "@/components/common/Avatar"
 import { FeedHeartButton, FeedCommentButton } from "@/components/common/Button";
+import { MoreIcon } from "@/components/svg/MoreIcon";
 
 export function UserFeedBlock() {
   return (
@@ -12,8 +13,13 @@ export function UserFeedBlock() {
       />
       <StyledContentContainer>
         <StyledTitleContainer>
-          <StyledTitle>minty_day</StyledTitle>
-          <StyledCreatedAt>2시간 전</StyledCreatedAt>
+          <StyledTitleWrapper>
+            <StyledTitle>minty_day</StyledTitle>
+            <StyledCreatedAt>2시간 전</StyledCreatedAt>
+          </StyledTitleWrapper>
+          <StyledMoreButton>
+            <MoreIcon />
+          </StyledMoreButton>
         </StyledTitleContainer>
 
         <StyledBodyContainer>
@@ -51,6 +57,14 @@ const StyledContentContainer = styled.div`
 const StyledTitleContainer = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+`;
+
+const StyledTitleWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
   justify-content: start;
   align-items: center;
   gap: 8px;
@@ -82,3 +96,12 @@ const StyledIconButtonContainer = styled.div`
 
   gap: 10px;
 `;
+
+const StyledMoreButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+`;
+

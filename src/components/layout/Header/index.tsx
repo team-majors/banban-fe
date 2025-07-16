@@ -8,60 +8,149 @@ import styled from "styled-components";
 interface HeaderProps {
   isLoggedIn: boolean;
   isNew: boolean;
+  onLogin?: () => void;
+  onRegister?: () => void;
+  onNotificationClick?: () => void;
+  onProfileClick?: () => void;
 }
+
 export default function Header({
   isLoggedIn = false,
   isNew = false,
+  onLogin,
+  onRegister,
+  onNotificationClick,
+  onProfileClick,
 }: HeaderProps) {
+  const handleLogin = () => {
+    onLogin?.();
+  };
+
+  const handleRegister = () => {
+    onRegister?.();
+  };
+
+  const handleNotification = () => {
+    onNotificationClick?.();
+  };
+
+  const handleProfile = () => {
+    onProfileClick?.();
+  };
   return (
-    <StyledHeader>
-      <BanBanWrapper>
+    <Container>
+      <LogoArea>
         <BanBanLogo />
-      </BanBanWrapper>
-      <ButtonContainer>
+      </LogoArea>
+      <Actions>
         {isLoggedIn ? (
-          <>
-            <IconWrapper>
-              <BellIcon />
-              {isNew && <DotIndicator />}
-            </IconWrapper>
-            <IconWrapper>
-              <UserIcon />
-            </IconWrapper>
-          </>
+          <LoggedInIcons
+            isNew={isNew}
+            handleNotification={handleNotification}
+            handleProfile={handleProfile}
+          />
         ) : (
-          <>
-            <TransparentButton>로그인</TransparentButton>
-            <PrimaryButton>회원가입</PrimaryButton>
-          </>
+          <AuthButtons
+            handleLogin={handleLogin}
+            handleRegister={handleRegister}
+          />
         )}
-      </ButtonContainer>
-    </StyledHeader>
+      </Actions>
+    </Container>
   );
 }
 
-const StyledHeader = styled.div`
+function LoggedInIcons({
+  isNew,
+  handleNotification,
+  handleProfile,
+}: {
+  isNew: boolean;
+  handleNotification: () => void;
+  handleProfile: () => void;
+}) {
+  return (
+    <>
+      <IconButton aria-label="알림" onClick={handleNotification}>
+        <BellIcon />
+        {isNew && <NotificationDot />}
+      </IconButton>
+      <IconButton aria-label="프로필" onClick={handleProfile}>
+        <UserIcon />
+      </IconButton>
+    </>
+  );
+}
+
+interface AuthButtonsInterface {
+  handleLogin: () => void;
+  handleRegister: () => void;
+}
+function AuthButtons({ handleLogin, handleRegister }: AuthButtonsInterface) {
+  return (
+    <>
+      <TransparentButton onClick={handleLogin}>로그인</TransparentButton>
+      <PrimaryButton onClick={handleRegister}>회원가입</PrimaryButton>
+    </>
+  );
+}
+
+const COLOR = {
+  background: "#f9f8ff",
+  text: "#535862",
+  primary: "#3f13ff",
+  white: "#ffffff",
+};
+
+const Z_INDEX = {
+  header: 999,
+};
+
+const Container = styled.header`
   position: fixed;
   left: 0;
   right: 0;
   margin: 0 auto;
   z-index: 999;
-  max-width: 1440px;
-  height: 80px;
+  height: 64px;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0px 32px;
-  background-color: #f9f8ff;
+  background-color: ${COLOR.background};
+  z-index: ${Z_INDEX.header};
 `;
 
-const BanBanWrapper = styled.div`
+const LogoArea = styled.div`
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
 `;
 
-const ButtonContainer = styled.div`
+const IconButton = styled.button`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 8px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(63, 19, 255, 0.1);
+  }
+
+  &:focus {
+    outline: 2px solid #3e13ff6c;
+    outline-offset: 2px;
+  }
+`;
+
+const Actions = styled.div`
   margin-left: auto;
   height: 100%;
   display: flex;
@@ -70,36 +159,25 @@ const ButtonContainer = styled.div`
   gap: 12px;
 `;
 
-const TransparentButton = styled(DefaultButton)`
+const ButtonBase = styled(DefaultButton)`
+  border: none;
+  width: 86px;
+  height: 44px;
+  padding: 10px 18px;
+  font-size: 16px;
+`;
+
+const TransparentButton = styled(ButtonBase)`
   background-color: transparent;
-  color: #535862;
-  border: none;
-  width: 78px;
-  height: 44px;
-  padding: 10px 18px;
-  font-size: 16px;
+  color: ${COLOR.text};
 `;
 
-const PrimaryButton = styled(DefaultButton)`
-  background-color: #3f13ff;
-  color: white;
-  border: none;
-  width: 92px;
-  height: 44px;
-  padding: 10px 18px;
-  font-size: 16px;
+const PrimaryButton = styled(ButtonBase)`
+  background-color: ${COLOR.primary};
+  color: ${COLOR.white};
 `;
 
-const IconWrapper = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 48px;
-  height: 48px;
-`;
-
-const DotIndicator = styled(DotIcon)`
+const NotificationDot = styled(DotIcon)`
   position: absolute;
   right: 13px;
   top: 9px;

@@ -1,11 +1,11 @@
 "use client";
 
-import LoginPage from "@/components/auth/LoginPage/LoginPage";
+import LeftSection from "@/components/layout/LeftSection/LeftSection";
 
 export default function Home() {
   return (
-    <div className="relative h-[100dvh] mx-auto w-fit pt-20">
-      <LoginPage />
+    <div className="relative h-[100dvh] mx-auto w-fit pt-[64px]">
+      <LeftSection />
     </div>
   );
 }

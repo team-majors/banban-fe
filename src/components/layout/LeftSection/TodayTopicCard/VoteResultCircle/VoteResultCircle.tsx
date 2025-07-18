@@ -6,10 +6,10 @@ import { easeQuadInOut } from "d3-ease";
 export default function VoteResultCircle() {
   return (
     <AnimatedProgressProvider
-      duration={1}
       valueStart={0}
       valueEnd={60}
       easingFunction={easeQuadInOut}
+      duration={1}
     >
       {(value: number) => {
         return (

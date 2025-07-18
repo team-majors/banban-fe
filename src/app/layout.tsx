@@ -3,6 +3,8 @@ import "../styles/globals.css";
 import { pretendardSans } from "../../public/fonts/variables";
 import { NextProvider } from "./providers";
 import Header from "@/components/layout/Header";
+import StyledComponentsRegistry from "@/lib/registry";
+
 export const metadata: Metadata = {
   title: "ban:ban",
   description:
@@ -17,11 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${pretendardSans.variable} antialiased`}>
-        <NextProvider>
-          <Header isLoggedIn isNew />
-          {children}
-        </NextProvider>
-        <div id="modal-root"></div>
+        <StyledComponentsRegistry>
+          <NextProvider>
+            <Header isLoggedIn isNew />
+            {children}
+          </NextProvider>
+          <div id="modal-root"></div>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );

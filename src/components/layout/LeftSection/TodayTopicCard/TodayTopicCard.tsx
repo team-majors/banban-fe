@@ -86,6 +86,9 @@ const CountdownDescription = styled.div`
 `;
 
 const VoteResultCircleContainer = styled.div`
-  padding: 8px 10px;
+  display: flex;
+  justify-content: center;
+  margin: 8px;
+  padding: 0px 10px;
   max-height: 280px;
 `;

@@ -3,6 +3,7 @@ import "../styles/globals.css";
 import { pretendardSans } from "../../public/fonts/variables";
 import { NextProvider } from "./providers";
 import Header from "@/components/layout/Header";
+import GlobalModalRenderer from "@/components/common/GlobalModalRenderer";
 export const metadata: Metadata = {
   title: "ban:ban",
   description:
@@ -20,6 +21,7 @@ export default function RootLayout({
         <NextProvider>
           <Header isLoggedIn isNew />
           {children}
+          <GlobalModalRenderer />
         </NextProvider>
         <div id="modal-root"></div>
       </body>

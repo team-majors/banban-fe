@@ -1,22 +1,33 @@
-'use client';
+"use client";
 
-import { useState } from "react"; 
+import { useState } from "react";
 import HeartIcon from "@/components/svg/HeartIcon";
 import styled from "styled-components";
+import useAuth from "@/hooks/useAuth";
+import useLoginModal from "@/hooks/useLoginModal";
 
 export function FeedHeartButton() {
+  const { openLoginModal } = useLoginModal();
+  const { isLoggedIn } = useAuth();
+
   const [liked, setLiked] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
 
-  return (
-    <StyledButton onClick={() => {
+  const handleClick = () => {
+    if (isLoggedIn) {
       setLiked(!liked);
       setCount(liked ? count - 1 : count + 1);
-    }}>
+    } else {
+      openLoginModal();
+    }
+  };
+
+  return (
+    <StyledButton onClick={handleClick}>
       <HeartIcon $isActive={liked} />
       <StyledSpan>{count}</StyledSpan>
     </StyledButton>
-  )
+  );
 }
 
 const StyledButton = styled.button`

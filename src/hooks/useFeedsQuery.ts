@@ -9,12 +9,12 @@ const useFeedsQuery = () => {
       getFeeds({ lastId: pageParam as number, size: 8 }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
-      if (!lastPage.hasNext) {
+      if (!lastPage.data.hasNext) {
         return undefined;
       }
-      
-      const lastFeed = lastPage.data[lastPage.data.length - 1];
-      return lastFeed?.id;
+
+      const lastFeed = lastPage.data.content[lastPage.data.content.length - 1];
+      return lastFeed?.feedId;
     },
   });
 };

@@ -10,20 +10,22 @@ const getMockFeeds = ({
   return new Promise((resolve) => {
     setTimeout(() => {
       const startIndex = last_id
-        ? mockFeeds.findIndex((feed) => feed.id === last_id) + 1
+        ? mockFeeds.findIndex((feed) => feed.feed_id === last_id) + 1
         : 0;
 
-      const data = mockFeeds.slice(startIndex, startIndex + size);
-
-      const hasNext = startIndex + size < mockFeeds.length;
+      const feeds = mockFeeds.slice(startIndex, startIndex + size);
+      
+      const data = {
+        content: feeds,
+        has_next: startIndex + size < mockFeeds.length,
+        size: feeds.length * 4,
+        number_of_elements: feeds.length,
+      };
 
       const response: MockFeedsResponse = {
         code: 200,
         status: "SUCCESS",
         data: data,
-        hasNext: hasNext,
-        size: size,
-        numberOfElements: data.length,
       };
       
       resolve(response);

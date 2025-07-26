@@ -1,26 +1,34 @@
 interface User {
   userId: number;
   username: string;
-  profileImage: string;
+  profileImage: string | null;
 }
 
 interface AdMeta {
   campaignId: string;
-  ctaLabel: string;
+  category: string;
 }
 
 interface Feed {
-  id: number;
-  type: "USER" | "AD";
-  user: User;
+  feedId: number;
+  type: "NORMAL" | "AD" | "POLL";
+  author: User;
   content: string;
-  adUrl: null | string;
-  adMeta: AdMeta | string;
+  adUrl: string | null;
+  adMeta: AdMeta | null;
   createdAt: string;
   likeCount: number;
   commentCount: number;
   isLiked: boolean;
   isMine: boolean;
+  userVoteOptionId: number | null;
+}
+
+interface FeedsData {
+  content: Feed[];
+  hasNext: boolean;
+  size: number;
+  numberOfElements: number;
 }
 
 interface FeedsRequest {
@@ -31,11 +39,7 @@ interface FeedsRequest {
 interface FeedsResponse {
   code: number;
   status: "SUCCESS" | "FAIL";
-  data: Feed[];
-  hasNext: boolean;
-  size: number;
-  numberOfElements: number;
+  data: FeedsData;
 }
 
-// User는 추후 User 타입으로 변경. 충돌 가능성 때문에 여기에 두겠습니다.
-export type { Feed, User, AdMeta, FeedsRequest, FeedsResponse };
+export type { AdMeta, Feed, FeedsRequest, FeedsResponse, User };

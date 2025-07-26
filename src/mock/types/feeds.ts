@@ -1,26 +1,34 @@
 interface MockUser {
-  user_id: number | null;
+  user_id: number;
   username: string;
-  profile_image: string;
+  profile_image: string | null;
 }
 
 interface MockAdMeta {
-  campaignId: string;
-  ctaLabel: string;
+  campaign_id: string;
+  category: string;
 }
 
 interface MockFeed {
-  id: number;
-  type: "USER" | "AD";
-  user: MockUser;
+  feed_id: number;
+  type: "NORMAL" | "AD" | "POLL";
+  author: MockUser;
   content: string;
   ad_url: string | null;
   ad_meta: MockAdMeta | null;
   created_at: string;
   like_count: number;
   comment_count: number;
-  isLiked: boolean;
-  isMine: boolean;
+  is_liked: boolean;
+  is_mine: boolean;
+  user_vote_option_id: number | null;
+}
+
+interface MockFeedsData {
+  content: MockFeed[];
+  has_next: boolean;
+  size: number;
+  number_of_elements: number;
 }
 
 interface MockFeedsRequest {
@@ -31,10 +39,7 @@ interface MockFeedsRequest {
 interface MockFeedsResponse {
   code: number;
   status: "SUCCESS" | "FAIL";
-  data: MockFeed[];
-  hasNext: boolean;
-  size: number;
-  numberOfElements: number;
+  data: MockFeedsData;
 }
 
-export type { MockAdMeta, MockFeed, MockFeedsRequest, MockFeedsResponse, MockUser };
+export type { MockAdMeta, MockFeed, MockFeedsRequest, MockFeedsResponse, MockFeedsData, MockUser };

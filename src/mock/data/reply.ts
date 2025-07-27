@@ -12,7 +12,7 @@ const mockReplies: MockReplyContent[] = (() => {
       arr.push({
         id: feedId * 1000 + i,
         feed_id: feedId,
-        content: `Feed ${feedId}의 댓글 ${i + 1}번입니다.`,
+        content: `Feed ${feedId}의 댓글 ${i}번입니다.`,
         author: {
           user_id: 1000 + ((feedId + i) % 50),
           username: `User${((feedId + i) % 50) + 1}`,

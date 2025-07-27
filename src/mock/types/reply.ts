@@ -24,6 +24,12 @@ interface MockReplyData {
   number_of_elements: number;
 }
 
+interface MockReplyRequest {
+  feed_id: number;
+  last_id: number | null;
+  size: number;
+}
+
 interface MockReplyResponse {
   code: number;
   status: "SUCCESS" | "FAIL";
@@ -34,5 +40,6 @@ export type {
   MockReplyUser,
   MockReplyContent,
   MockReplyData,
+  MockReplyRequest,
   MockReplyResponse,
 };

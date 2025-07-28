@@ -41,12 +41,14 @@ const StyledContainer = styled.div`
 `;
 
 const StyledContentContainer = styled.div`
+  width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
 `;
 
 const StyledTitleContainer = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

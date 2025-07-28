@@ -1,56 +1,36 @@
 import styled from "styled-components";
-import FeedsTab from "./FeedsTab/FeedsTab";
-import FeedStream from "./FeedStream";
-import { createContext, useState, Dispatch, useRef } from "react";
-import { useCalculatedHeight } from "./useCalculateHeight";
-
-export const SectionContext = createContext<{
-  sectionStatus: "feeds" | "comments";
-  setSectionStatus: Dispatch<React.SetStateAction<"feeds" | "comments">>;
-}>({
-  sectionStatus: "feeds",
-  setSectionStatus: () => {},
-});
+import FeedsPanel from "./FeedsPanel";
+import { useState, useRef } from "react";
+import { useCalculatedHeight } from "./hooks/useCalculateHeight";
+import { CommentsPanel } from "./CommentsPanel";
+import { SectionContext } from "./SectionContext";
+import type { Feed } from "@/types/feeds";
 
 export default function RightSection() {
   const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">(
     "feeds",
   );
+
+  const [targetFeed, setTargetFeed] = useState<Feed | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const calculatedHeight = useCalculatedHeight(containerRef);
 
   const value = {
     sectionStatus,
     setSectionStatus,
+    targetFeed,
+    setTargetFeed,
   };
 
   return (
     <SectionContext.Provider value={value}>
       <StyledContainer $calculatedHeight={calculatedHeight} ref={containerRef}>
-        {sectionStatus === "feeds" ? (
-          <>
-            <FeedsTab />
-            <StyledDivider />
-            <FeedStream />
-          </>
-        ) : (
-          <StyledCommentsContainer>comments</StyledCommentsContainer>
-        )}
+        {sectionStatus === "feeds" ? <FeedsPanel /> : <CommentsPanel />}
       </StyledContainer>
     </SectionContext.Provider>
   );
 }
-
-const StyledCommentsContainer = styled.div`
-  width: inherit;
-
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  padding: 10px 16px;
-
-  align-items: start;
-`;
 
 const StyledContainer = styled.div<{ $calculatedHeight?: number }>`
   width: 430px;
@@ -76,7 +56,3 @@ const StyledContainer = styled.div<{ $calculatedHeight?: number }>`
   box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.15);
 `;
 
-const StyledDivider = styled.div`
-  border-top: 1px solid #f3f3f3;
-  margin: 4px 0 0 0;
-`;

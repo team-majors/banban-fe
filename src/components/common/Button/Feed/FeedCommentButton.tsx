@@ -3,19 +3,20 @@
 import { useState } from "react";
 import { CommentIcon } from "@/components/svg/CommentIcon";
 import styled from "styled-components";
-import { useContext } from "react";
-import { SectionContext } from "@/components/layout/RightSection/RightSection";
 
-export function FeedCommentButton({ commentCount }: { commentCount: number }) {
-  const [commented, setCommented] = useState<boolean>(false);
+export function FeedCommentButton({
+  commentCount,
+  onClick,
+}: {
+  commentCount: number;
+  onClick: () => void;
+}) {
   const [count] = useState<number>(commentCount);
-  const { sectionStatus, setSectionStatus } = useContext(SectionContext);
 
   return (
     <StyledButton
       onClick={() => {
-        setCommented(!commented);
-        setSectionStatus(commented ? "feeds" : "comments");
+        onClick();
       }}
     >
       <CommentIcon />

@@ -12,7 +12,7 @@ const CommentBlock = ({ feedProps }: { feedProps: Feed }) => {
   return (
     <StyledContainer>
       <StyledLeftPadding />
-      <CornerDownRightIcon size={24} color="#DADADA" />
+      <CornerDownRightIcon size={44} color="#DADADA" />
       <Avatar
         src={feedProps.author.profileImage || ""}
         alt="사용자 프로필 이미지"
@@ -47,7 +47,7 @@ const CommentBlock = ({ feedProps }: { feedProps: Feed }) => {
 }
 
 const StyledLeftPadding = styled.div`
-  padding: 0 10px;
+  padding: 0 5px;
 `;
 
 const StyledContainer = styled.div`

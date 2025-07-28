@@ -16,7 +16,7 @@ const getMockReplies = ({
         .sort((a, b) => a.id - b.id);
 
       const startIndex = last_id
-        ? filteredReplies.findIndex((reply) => reply.id === last_id)
+        ? filteredReplies.findIndex((reply) => reply.id === last_id) + 1
         : 0;
 
       const replies = filteredReplies.slice(startIndex, startIndex + size);

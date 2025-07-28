@@ -54,7 +54,12 @@ const StyledFeedStreamContainer = styled.div`
   overflow: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
+
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  & > :first-child {
+    margin-top: 10px;
   }
 `;

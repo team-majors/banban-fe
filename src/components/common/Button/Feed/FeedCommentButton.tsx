@@ -4,9 +4,9 @@ import { useState } from "react";
 import { CommentIcon } from "@/components/svg/CommentIcon";
 import styled from "styled-components";
 
-export function FeedCommentButton() {
+export function FeedCommentButton({ commentCount }: { commentCount: number }) {
   const [commented, setCommented] = useState<boolean>(false);
-  const [count] = useState<number>(0)
+  const [count] = useState<number>(commentCount);
 
   return (
     <StyledButton onClick={() => {

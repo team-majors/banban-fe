@@ -6,24 +6,22 @@ import styled from "styled-components";
 import useAuth from "@/hooks/useAuth";
 import useLoginModal from "@/hooks/useLoginModal";
 
-export function FeedHeartButton() {
+
+export function FeedHeartButton({ likeCount }: { likeCount: number }) {
   const { openLoginModal } = useLoginModal();
   const { isLoggedIn } = useAuth();
-
+  
   const [liked, setLiked] = useState<boolean>(false);
-  const [count, setCount] = useState<number>(0);
+  const [count, setCount] = useState<number>(likeCount);
 
-  const handleClick = () => {
-    if (isLoggedIn) {
-      setLiked(!liked);
-      setCount(liked ? count - 1 : count + 1);
-    } else {
-      openLoginModal();
-    }
-  };
 
   return (
-    <StyledButton onClick={handleClick}>
+    <StyledButton
+      onClick={() => {
+        setLiked(!liked);
+        setCount(liked ? count - 1 : count + 1);
+      }}
+    >
       <HeartIcon $isActive={liked} />
       <StyledSpan>{count}</StyledSpan>
     </StyledButton>

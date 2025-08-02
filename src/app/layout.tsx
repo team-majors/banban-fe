@@ -6,6 +6,7 @@ import { NextProvider } from "./providers";
 import GlobalModalRenderer from "@/components/common/GlobalModalRenderer";
 import Header from "@/components/layout/Header";
 import StyledComponentsRegistry from "@/lib/registry";
+import { QueryProviders } from "./providers";
 
 export const metadata: Metadata = {
   title: "ban:ban",

@@ -1,23 +1,28 @@
 import styled from "styled-components";
 import { Avatar } from "@/components/common/Avatar"
+import type { Feed } from "@/types/feeds";
 
-export function AdFeedBlock() {
+interface AdFeedBlockProps {
+  feedProps: Feed;
+}
+
+export function AdFeedBlock({ feedProps }: AdFeedBlockProps) {
   return (
     <StyledContainer>
       <Avatar 
-        src="/AdAvatar.png" 
-        alt="사용자 프로필 이미지" 
+        src={feedProps.author.profileImage || ""}
+        alt="광고 프로필 이미지" 
         size={40}
         background="rgba(0, 0, 0, 0.00)"
       />
       <StyledContentContainer>
         <StyledTitleContainer>
-          <StyledTitle>dreamy_fox</StyledTitle>
+          <StyledTitle>{feedProps.author.username}</StyledTitle>
           <StyledCreatedAt>광고</StyledCreatedAt>
         </StyledTitleContainer>
         <StyledImageContainer src="/Ad.png" alt="광고 이미지" />
         <StyledBodyContainer>
-          일 안 해도 돈 들어오면 세상 행복할 듯... 그냥 쉬고 싶어요!
+          {feedProps.content}
         </StyledBodyContainer>
       </StyledContentContainer>
     </StyledContainer>

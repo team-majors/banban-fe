@@ -1,5 +1,3 @@
-import React from "react";
-
 const CornerDownRightIcon = ({
   size = 24,
   color = "#DADADA",

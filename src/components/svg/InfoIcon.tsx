@@ -1,4 +1,3 @@
-import React from "react";
 type IconProps = React.SVGProps<SVGSVGElement>;
 export const InfoIcon = (props: IconProps) => {
   return (

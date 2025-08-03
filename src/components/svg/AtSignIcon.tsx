@@ -1,6 +1,5 @@
-import React from "react";
-
 type IconProps = React.SVGProps<SVGSVGElement>;
+
 export const AtSignIcon = (props: IconProps) => {
   return (
     <svg

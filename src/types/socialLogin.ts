@@ -4,5 +4,4 @@ export interface SocialLoginButtonConfig {
   backgroundColor: string;
   fontColor: string;
   iconSrc: string;
-  onClick: () => void;
 }

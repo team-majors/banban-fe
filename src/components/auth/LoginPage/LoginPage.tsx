@@ -1,24 +1,20 @@
-import React from "react";
+
 import styled from "styled-components";
 import Title from "@/components/svg/Title";
 import Image from "next/image";
 import { LoginButton } from "./LoginButton";
 import { BanBanLogo } from "@/components/svg";
-import { SocialLoginButtonConfig } from "@/types/socialLogin";
+import { socialLoginButtons } from "@/constants/socialLoginButtons";
 
 export default function LoginPage() {
-  const loginButtons: SocialLoginButtonConfig[] = [
-    {
-      id: "naver",
-      text: "네이버로 로그인",
-      backgroundColor: "#03C75A",
-      fontColor: "#FFF",
-      iconSrc: "/naver.png",
-      onClick: () => {
-        console.log("TODO: implement Social login");
-      },
-    },
-  ];
+  const handleLogin = async (id: string) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/${id}`,
+    );
+    const { data: url } = await res.json();
+    console.log("Login url:", url);
+    window.location.href = url;
+  };
 
   return (
     <LoginContainer>
@@ -43,7 +39,10 @@ export default function LoginPage() {
       <LoginButtonContainer>
         <QuickStartText>회원가입 없이 바로 3초만에 시작하기 🚀</QuickStartText>
         <LoginButtonWrapper>
-          <KakaoButtonWrapper>
+          <KakaoButtonWrapper
+            role="button"
+            onClick={() => handleLogin("kakao")}
+          >
             <Image
               src={"/kakao_login_large_wide.png"}
               width={300}
@@ -51,10 +50,10 @@ export default function LoginPage() {
               alt="kakao_login_btn"
             />
           </KakaoButtonWrapper>
-          {loginButtons.map((button) => (
+          {socialLoginButtons.map((button) => (
             <LoginButton
               key={button.id}
-              onClick={button.onClick}
+              onClick={() => handleLogin(button.id)}
               fontcolor={button.fontColor}
               color={button.backgroundColor}
               icon={

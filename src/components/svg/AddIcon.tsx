@@ -1,5 +1,4 @@
 import { IconProps } from "@/types/props";
-import React from "react";
 import { forwardRef } from "react";
 
 export const AddIcon = forwardRef<SVGSVGElement, IconProps>(

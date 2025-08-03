@@ -35,7 +35,9 @@ export function UserFeedBlock({ feedProps }: UserFeedBlockProps) {
           </StyledMoreButton>
         </StyledTitleContainer>
 
+
         <StyledBodyContainer>{feedProps.content}</StyledBodyContainer>
+
 
         <StyledIconButtonContainer>
           <FeedHeartButton likeCount={feedProps.likeCount} />

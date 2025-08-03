@@ -3,10 +3,17 @@
 import { useState } from "react";
 import HeartIcon from "@/components/svg/HeartIcon";
 import styled from "styled-components";
+import useAuth from "@/hooks/useAuth";
+import useLoginModal from "@/hooks/useLoginModal";
+
 
 export function FeedHeartButton({ likeCount }: { likeCount: number }) {
+  const { openLoginModal } = useLoginModal();
+  const { isLoggedIn } = useAuth();
+  
   const [liked, setLiked] = useState<boolean>(false);
   const [count, setCount] = useState<number>(likeCount);
+
 
   return (
     <StyledButton

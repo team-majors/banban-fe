@@ -4,60 +4,56 @@ import React from "react";
 import { DefaultButton } from "@/components/common/Button";
 import { BellIcon, UserIcon, DotIcon, BanBanLogo } from "@/components/svg";
 import styled from "styled-components";
+import useAuth from "@/hooks/useAuth";
+import { usePathname, useRouter } from "next/navigation";
 
 interface HeaderProps {
-  isLoggedIn: boolean;
   isNew: boolean;
-  onLogin?: () => void;
   onRegister?: () => void;
   onNotificationClick?: () => void;
   onProfileClick?: () => void;
 }
 
 export default function Header({
-  isLoggedIn = false,
   isNew = false,
-  onLogin,
   onRegister,
   onNotificationClick,
   onProfileClick,
 }: HeaderProps) {
-  const handleLogin = () => {
-    onLogin?.();
-  };
+  const { isLoggedIn } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+  if (pathname === "/login") return null;
 
-  const handleRegister = () => {
-    onRegister?.();
-  };
+  const handleLogin = () => router.push("/login");
+  const handleRegister = () => onRegister?.();
+  const handleNotification = () => onNotificationClick?.();
+  const handleProfile = () => onProfileClick?.();
 
-  const handleNotification = () => {
-    onNotificationClick?.();
-  };
-
-  const handleProfile = () => {
-    onProfileClick?.();
-  };
-  return (
-    <Container>
-      <LogoArea>
-        <BanBanLogo />
-      </LogoArea>
-      <Actions>
-        {isLoggedIn ? (
-          <LoggedInIcons
-            isNew={isNew}
-            handleNotification={handleNotification}
-            handleProfile={handleProfile}
-          />
-        ) : (
-          <AuthButtons
-            handleLogin={handleLogin}
-            handleRegister={handleRegister}
-          />
-        )}
-      </Actions>
-    </Container>
-  );
+  if (typeof window !== "undefined" && window.location.pathname === "/login")
+    return null;
+  else
+    return (
+      <Container>
+        <LogoArea>
+          <BanBanLogo />
+        </LogoArea>
+        <Actions>
+          {isLoggedIn ? (
+            <LoggedInIcons
+              isNew={isNew}
+              handleNotification={handleNotification}
+              handleProfile={handleProfile}
+            />
+          ) : (
+            <AuthButtons
+              handleLogin={handleLogin}
+              handleRegister={handleRegister}
+            />
+          )}
+        </Actions>
+      </Container>
+    );
 }
 
 function LoggedInIcons({

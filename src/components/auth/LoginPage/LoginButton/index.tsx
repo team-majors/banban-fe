@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import styled from "styled-components";
 
@@ -7,6 +8,7 @@ export interface LoginButtonProps
   fontcolor: string;
   icon?: React.ReactNode;
   children?: React.ReactNode;
+  onClick: () => void;
 }
 
 export const LoginButton = ({
@@ -15,6 +17,7 @@ export const LoginButton = ({
   disabled = false,
   icon,
   children,
+  onClick,
   ...props
 }: LoginButtonProps) => {
   return (
@@ -25,6 +28,7 @@ export const LoginButton = ({
       disabled={disabled}
       aria-disabled={disabled}
       {...props}
+      onClick={onClick}
     >
       {icon && <IconWrapper>{icon}</IconWrapper>}
       {children}
@@ -36,6 +40,7 @@ interface StyledButtonProps {
   $fontcolor: string;
   color: string;
   disabled: boolean;
+  onClick: () => void;
 }
 
 const StyledButton = styled.button<StyledButtonProps>`

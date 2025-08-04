@@ -1,84 +1,12 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useToast } from "@/components/common/Toast/useToast";
+import CallbackPage from "@/components/auth/CallbackPage";
 import { Spinner } from "@/components/svg/Spinner";
-import styled from "styled-components";
-import useAuth from "@/hooks/useAuth";
+import { Suspense } from "react";
 
-export default function KakaoCallbackPage() {
-  const { showToast } = useToast();
-  const { login } = useAuth();
-  const searchParams = useSearchParams();
-  const [authCode, setAuthCode] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  // 1 URL에서 인증 코드 추출
-  useEffect(() => {
-    extractAuthCodeFromUrl();
-  }, []);
-
-  // 2 인증 후 응답 처리
-  useEffect(() => {
-    if (authCode !== "") {
-      handleLogin(authCode);
-    }
-  }, [authCode]);
-
-  const extractAuthCodeFromUrl = () => {
-    const code = searchParams?.get("code");
-    if (!code) {
-      setError("URL에서 인증 코드를 찾을 수 없습니다.");
-      setIsLoading(false);
-      return;
-    }
-    setAuthCode(code);
-  };
-
-  const handleLogin = async (code: string) => {
-    try {
-      await login({
-        code,
-        provider: "kakao",
-      });
-    } catch (err) {
-      console.error("로그인 실패:", err);
-      setError("로그인 요청에 실패했습니다.");
-      showToast({
-        type: "error",
-        message: "로그인 처리 실패: " + (err as Error).message,
-        duration: 1000,
-      });
-    } finally {
-      setIsLoading(false);
-      router.push("/");
-    }
-  };
-
-  if (isLoading) {
-    return <div className="text-base-white text-center pt-5">Loading...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="text-base-white text-center pt-5">Error: {error}</div>
-    );
-  }
-
+export default function Page() {
   return (
-    <Container>
-      <Spinner />
-    </Container>
+    <Suspense fallback={<Spinner />}>
+      <CallbackPage />
+    </Suspense>
   );
 }
-
-const Container = styled.div`
-  width: 100%;
-  height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;

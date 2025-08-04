@@ -1,6 +1,6 @@
 type IconProps = React.SVGProps<SVGSVGElement>;
 
-export const Title = ({ width, height }: IconProps) => {
+export const Title = ({ width = 298, height = 38 }: IconProps) => {
   return (
     <svg
       width={width ?? "298"}

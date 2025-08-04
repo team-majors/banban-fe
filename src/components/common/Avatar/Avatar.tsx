@@ -25,7 +25,11 @@ export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
           alt={alt}
           width={size}
           height={size}
-          style={{ objectFit: "cover", height: `${size}px` }}
+          style={{
+            objectFit: "cover",
+            width: "100%",
+            height: "100%",
+          }}
         />
       </StyledImageWrapper>
     </GradientBorder>

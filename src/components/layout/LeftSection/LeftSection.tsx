@@ -1,5 +1,3 @@
-import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
-import { UserMenu } from "@/components/common/UserMenu/UserMenu";
 import RealtimeFeedRanking from "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking";
 import TodayTopicCard from "@/components/layout/LeftSection/TodayTopicCard/TodayTopicCard";
 import styled from "styled-components";
@@ -9,8 +7,6 @@ export default function LeftSection() {
     <StyledContainer>
       <TodayTopicCard />
       <RealtimeFeedRanking />
-      <OptionsDropdown onHide={() => {}} onReport={() => {}} />
-      <UserMenu />
     </StyledContainer>
   );
 }

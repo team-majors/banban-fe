@@ -1,37 +1,63 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState } from "react";
 import { DefaultButton } from "@/components/common/Button";
 import { BellIcon, UserIcon, DotIcon, BanBanLogo } from "@/components/svg";
 import styled from "styled-components";
 import useAuth from "@/hooks/useAuth";
 import { usePathname, useRouter } from "next/navigation";
+import { UserMenu } from "@/components/common/UserMenu/UserMenu";
+import Image from "next/image";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 interface HeaderProps {
   isNew: boolean;
   onRegister?: () => void;
   onNotificationClick?: () => void;
-  onProfileClick?: () => void;
 }
 
 export default function Header({
   isNew = false,
   onRegister,
   onNotificationClick,
-  onProfileClick,
 }: HeaderProps) {
-  const { isLoggedIn } = useAuth();
+  const [isUserMenuOpen, setUserMenuOpen] = useState(false);
+  const { isLoggedIn, user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  if (pathname === "/login") return null;
+  const menuRef = useRef<HTMLDivElement>(null);
+  useClickOutside(menuRef, () => setUserMenuOpen(false), "click");
+
+  const handleToggleMenu = () => {
+    setUserMenuOpen((prev) => !prev);
+  };
+
+  const handleCloseMenu = () => {
+    setUserMenuOpen(false);
+  };
 
   const handleLogin = () => router.push("/login");
   const handleRegister = () => onRegister?.();
   const handleNotification = () => onNotificationClick?.();
-  const handleProfile = () => onProfileClick?.();
+  const handleProfile = () => handleToggleMenu();
 
-  if (typeof window !== "undefined" && window.location.pathname === "/login")
-    return null;
+  // useEffect(() => {
+  //   const handleClickOutside = (e: MouseEvent) => {
+  //     if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+  //       setUserMenuOpen(false);
+  //     }
+  //   };
+
+  //   if (isUserMenuOpen) {
+  //     document.addEventListener("click", handleClickOutside);
+  //   }
+
+  //   return () => {
+  //     document.removeEventListener("click", handleClickOutside);
+  //   };
+  // }, [isUserMenuOpen]);
+
+  if (pathname === "/login") return null;
   else
     return (
       <Container>
@@ -40,11 +66,17 @@ export default function Header({
         </LogoArea>
         <Actions>
           {isLoggedIn ? (
-            <LoggedInIcons
-              isNew={isNew}
-              handleNotification={handleNotification}
-              handleProfile={handleProfile}
-            />
+            <ButtonsWrapper>
+              <LoggedInIcons
+                isNew={isNew}
+                profileImageUrl={user?.profileImageUrl}
+                handleNotification={handleNotification}
+                handleProfile={handleProfile}
+              />
+              {isUserMenuOpen && (
+                <UserMenu onClose={() => handleCloseMenu()} ref={menuRef} />
+              )}
+            </ButtonsWrapper>
           ) : (
             <AuthButtons
               handleLogin={handleLogin}
@@ -58,10 +90,12 @@ export default function Header({
 
 function LoggedInIcons({
   isNew,
+  profileImageUrl,
   handleNotification,
   handleProfile,
 }: {
   isNew: boolean;
+  profileImageUrl?: string;
   handleNotification: () => void;
   handleProfile: () => void;
 }) {
@@ -72,7 +106,20 @@ function LoggedInIcons({
         {isNew && <NotificationDot />}
       </IconButton>
       <IconButton aria-label="프로필" onClick={handleProfile}>
-        <UserIcon />
+        {profileImageUrl ? (
+          <Image
+            src={profileImageUrl}
+            width={48}
+            height={48}
+            alt="userProfileImage"
+            objectFit="cover"
+            style={{
+              borderRadius: "50%",
+            }}
+          />
+        ) : (
+          <UserIcon />
+        )}
       </IconButton>
     </>
   );
@@ -177,4 +224,10 @@ const NotificationDot = styled(DotIcon)`
   position: absolute;
   right: 13px;
   top: 9px;
+`;
+
+const ButtonsWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
 `;

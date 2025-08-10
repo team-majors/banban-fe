@@ -41,22 +41,6 @@ export default function Header({
   const handleNotification = () => onNotificationClick?.();
   const handleProfile = () => handleToggleMenu();
 
-  // useEffect(() => {
-  //   const handleClickOutside = (e: MouseEvent) => {
-  //     if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-  //       setUserMenuOpen(false);
-  //     }
-  //   };
-
-  //   if (isUserMenuOpen) {
-  //     document.addEventListener("click", handleClickOutside);
-  //   }
-
-  //   return () => {
-  //     document.removeEventListener("click", handleClickOutside);
-  //   };
-  // }, [isUserMenuOpen]);
-
   if (pathname === "/login") return null;
   else
     return (

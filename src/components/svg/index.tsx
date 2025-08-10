@@ -10,3 +10,8 @@ export { ErrorIcon } from "./ErrorIcon";
 export { InfoIcon } from "./InfoIcon";
 export { UserIcon } from "./UserIcon";
 export { WarningIcon } from "./WarningIcon";
+export { WarningCircle } from "./WarningCircle";
+export { HelpCircleIcon } from "./HelpCircleIcon";
+export { UserProfileIcon } from "./UserProfileIcon";
+export { UsersIcon } from "./UsersIcon";
+export { LogoutIcon } from "./LogoutIcon";

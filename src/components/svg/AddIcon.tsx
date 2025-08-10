@@ -2,7 +2,7 @@ import { IconProps } from "@/types/props";
 import { forwardRef } from "react";
 
 export const AddIcon = forwardRef<SVGSVGElement, IconProps>(
-  ({ width = 32, height = 32, color, ...props }, ref) => {
+  ({ width = 32, height = 32, ...props }, ref) => {
     return (
       <svg
         ref={ref}
@@ -10,7 +10,7 @@ export const AddIcon = forwardRef<SVGSVGElement, IconProps>(
         height={height}
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ color: color }}
+        style={{ color: props.color }}
         aria-label="open modal"
         {...props}
       >

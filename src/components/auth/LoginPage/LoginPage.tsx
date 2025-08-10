@@ -1,10 +1,9 @@
-
 import styled from "styled-components";
-import Title from "@/components/svg/Title";
 import Image from "next/image";
 import { LoginButton } from "./LoginButton";
 import { BanBanLogo } from "@/components/svg";
 import { socialLoginButtons } from "@/constants/socialLoginButtons";
+import { Title } from "@/components/svg/Title";
 
 export default function LoginPage() {
   const handleLogin = async (id: string) => {

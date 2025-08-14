@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "styled-components";
-import React, { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { CloseThickIcon } from "@/components/svg";
 
@@ -49,7 +49,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
         {children}
       </ModalBox>
     </Dimmed>,
-    modalRoot
+    modalRoot,
   );
 };
 

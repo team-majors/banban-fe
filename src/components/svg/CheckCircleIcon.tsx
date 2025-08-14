@@ -1,5 +1,5 @@
-import React from "react";
 import type { IconProps } from "@/types/props";
+import React from "react";
 
 export const CheckCircleIcon = React.forwardRef<SVGSVGElement, IconProps>(
   ({ width = 32, height = 32, color, ...props }, ref) => (

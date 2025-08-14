@@ -1,5 +1,4 @@
 import { WarningCircle } from "@/components/svg";
-import React from "react";
 import styled from "styled-components";
 
 interface OptionsDropdownProps {

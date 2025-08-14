@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { CSSProperties } from "styled-components";
 import { DefaultButton } from "@/components/common/Button";

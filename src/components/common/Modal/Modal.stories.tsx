@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "./Modal";
 import styled from "styled-components";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";

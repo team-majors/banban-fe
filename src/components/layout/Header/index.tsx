@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { DefaultButton } from "@/components/common/Button";
 import { BellIcon, UserIcon, DotIcon, BanBanLogo } from "@/components/svg";
 import styled from "styled-components";
@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { UserMenu } from "@/components/common/UserMenu/UserMenu";
 import Image from "next/image";
 import { useClickOutside } from "@/hooks/useClickOutside";
+import HeaderSkeleton from "@/components/common/Skeleton/HeaderSkeleton";
 
 interface HeaderProps {
   isNew: boolean;
@@ -22,7 +23,7 @@ export default function Header({
   onNotificationClick,
 }: HeaderProps) {
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, logout, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,6 +43,8 @@ export default function Header({
   const handleProfile = () => handleToggleMenu();
 
   if (pathname === "/login") return null;
+
+  if (loading) return <HeaderSkeleton />;
   else
     return (
       <Container>
@@ -58,7 +61,11 @@ export default function Header({
                 handleProfile={handleProfile}
               />
               {isUserMenuOpen && (
-                <UserMenu onClose={() => handleCloseMenu()} ref={menuRef} />
+                <UserMenu
+                  onClose={() => handleCloseMenu()}
+                  onLogout={logout}
+                  ref={menuRef}
+                />
               )}
             </ButtonsWrapper>
           ) : (

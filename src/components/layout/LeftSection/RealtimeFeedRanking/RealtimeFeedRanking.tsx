@@ -1,5 +1,4 @@
 import ZapIcon from "@/components/svg/ZapIcon";
-import React from "react";
 import styled from "styled-components";
 import RankingItem from "./RankingItem";
 

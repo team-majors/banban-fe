@@ -9,6 +9,7 @@ import {
 
 interface MenuProps {
   onClose: () => void;
+  onLogout: () => void;
 }
 interface MenuItem {
   label: string;
@@ -17,7 +18,7 @@ interface MenuItem {
 }
 
 export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
-  ({ onClose }, ref) => {
+  ({ onClose, onLogout }, ref) => {
     const menuItems: MenuItem[] = [
       {
         label: "프로필",
@@ -40,6 +41,7 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
         icon: <UsersIcon />,
         onClick: () => {
           console.log("팀 정보");
+
           onClose();
         },
       },
@@ -48,6 +50,7 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
         icon: <LogoutIcon />,
         onClick: () => {
           console.log("로그아웃");
+          onLogout();
           onClose();
         },
       },

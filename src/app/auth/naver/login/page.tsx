@@ -6,7 +6,7 @@ import { Suspense } from "react";
 export default function Page() {
   return (
     <Suspense fallback={<Spinner />}>
-      <CallbackPage provider="kakao" />
+      <CallbackPage provider="naver" />
     </Suspense>
   );
 }

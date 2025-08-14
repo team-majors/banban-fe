@@ -15,6 +15,7 @@ interface AuthState {
   login: (params: {
     code: string;
     provider: "kakao" | "naver";
+    state?: string;
   }) => Promise<boolean>;
   logout: () => void;
   checkAuth: () => Promise<void>;
@@ -37,14 +38,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  login: async ({ code, provider }) => {
+  login: async ({ code, provider, state }) => {
     set({ loading: true, error: null });
 
     const deviceId = uuidv4();
     localStorage.setItem(STORAGE_KEYS.DEVICE_ID, deviceId);
 
     try {
-      const { response, data } = await getToken({ code, provider });
+      const { response, data } = await getToken({ code, provider, state });
 
       if (response.ok) {
         saveAccessToken(data.data.access_token);

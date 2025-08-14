@@ -7,7 +7,11 @@ import { Spinner } from "@/components/svg/Spinner";
 import styled from "styled-components";
 import useAuth from "@/hooks/useAuth";
 
-export default function CallbackPage() {
+export default function CallbackPage({
+  provider,
+}: {
+  provider: "kakao" | "naver";
+}) {
   const { showToast } = useToast();
   const { login } = useAuth();
   const searchParams = useSearchParams();
@@ -30,6 +34,7 @@ export default function CallbackPage() {
 
   const extractAuthCodeFromUrl = () => {
     const code = searchParams?.get("code");
+
     if (!code) {
       setError("URL에서 인증 코드를 찾을 수 없습니다.");
       setIsLoading(false);
@@ -39,10 +44,12 @@ export default function CallbackPage() {
   };
 
   const handleLogin = async (code: string) => {
+    const state = searchParams?.get("state") || undefined;
     try {
       await login({
         code,
-        provider: "kakao",
+        provider,
+        state,
       });
     } catch (err) {
       console.error("로그인 실패:", err);

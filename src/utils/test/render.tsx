@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 
 const createTestRenderer = async (component: ReactElement) => {
   const queryClient = new QueryClient({
@@ -19,7 +19,7 @@ const createTestRenderer = async (component: ReactElement) => {
     ...render(
       <QueryClientProvider client={queryClient}>
         {component}
-      </QueryClientProvider>
+      </QueryClientProvider>,
     ),
   };
 };

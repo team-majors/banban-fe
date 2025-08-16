@@ -9,8 +9,6 @@ const getFeeds = async ({
   const lastIdParam = lastId === 0 ? '' : `last_id=${lastId}&`;
   const res = await apiFetch(`/feeds?${lastIdParam}size=${size}`);
 
-  console.log(res);
-
   const convertedRes = camelcaseKeys(
     res as unknown as Record<string, unknown>,
     { deep: true },

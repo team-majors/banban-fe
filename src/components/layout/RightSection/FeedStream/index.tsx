@@ -27,7 +27,7 @@ export default function FeedStream() {
             return (
               <Fragment key={`page-${index}-item-${idx}`}>
                 {isSecondFromLast && hasNextPage && <div ref={scrollTrigger} />}
-                {item.type === "NORMAL" || item.type === "POLL" ? (
+                {item.type === "USER" || item.type === "POLL" ? (
                   <Block type="feed" feedProps={item} />
                 ) : (
                   <Block type="ad" feedProps={item} />

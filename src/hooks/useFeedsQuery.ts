@@ -14,7 +14,7 @@ const useFeedsQuery = () => {
       }
 
       const lastFeed = lastPage.data.content[lastPage.data.content.length - 1];
-      return lastFeed?.feedId;
+      return lastFeed?.id;
     },
   });
 };

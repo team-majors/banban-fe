@@ -1,8 +1,6 @@
-interface TitleProps {
-  width?: string;
-  height?: string;
-}
-export default function Title({ width, height }: TitleProps) {
+type IconProps = React.SVGProps<SVGSVGElement>;
+
+export const Title = ({ width = 298, height = 38 }: IconProps) => {
   return (
     <svg
       width={width ?? "298"}
@@ -17,4 +15,4 @@ export default function Title({ width, height }: TitleProps) {
       />
     </svg>
   );
-}
+};

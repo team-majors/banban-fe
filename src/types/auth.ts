@@ -1,7 +1,7 @@
 export interface User {
   username: string;
   email: string;
-  profile_image_url: string;
+  profileImageUrl: string;
   username_updated_at: string | null;
 }
 export interface LoginRequest {

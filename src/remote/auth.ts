@@ -3,11 +3,13 @@ import { TokenRequestResponse } from "@/types/auth";
 export async function getToken({
   code,
   provider,
+  state,
 }: {
   code: string;
   provider: "kakao" | "naver";
+  state?: string;
 }) {
-  const targetUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/oauth/${provider}/callback?code=${code}`;
+  const targetUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/oauth/${provider}/callback?code=${code}&state=${state}`;
 
   const response = await fetch(targetUrl, {
     method: "GET",

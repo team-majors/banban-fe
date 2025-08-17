@@ -1,6 +1,5 @@
 import RealtimeFeedRanking from "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking";
 import TodayTopicCard from "@/components/layout/LeftSection/TodayTopicCard/TodayTopicCard";
-import React from "react";
 import styled from "styled-components";
 
 export default function LeftSection() {

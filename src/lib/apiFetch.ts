@@ -17,10 +17,9 @@ export async function apiFetch<T>(
   const startTime = Date.now();
 
   if (refreshPromise) {
-    console.log("Waiting for ongoing token refresh...");
+    logger.info("Waiting for ongoing token refresh...", { url });
     const success = await refreshPromise;
     if (!success) {
-      logger.error("토큰 갱신 실패로 인한 요청 중단", { url });
       throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
     }
   }
@@ -42,6 +41,7 @@ export async function apiFetch<T>(
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
+    credentials: "include",
   });
 
   const duration = Date.now() - startTime;
@@ -60,17 +60,18 @@ export async function apiFetch<T>(
     logger.warn("액세스 토큰 만료 감지", { url, duration: `${duration}ms` });
 
     if (!isUserLoggedIn()) {
-      logger.warn("로그인 상태 아님 - 토큰 갱신 시도하지 않음", { url });
+      logger.warn("Access Token 없음 - 갱신 불가", { url });
       throw new Error("로그인이 필요합니다.");
     }
 
     if (!refreshPromise) {
       logger.info("토큰 갱신 시작");
-      refreshPromise = tryRefreshToken();
+      refreshPromise = tryRefreshToken().finally(() => {
+        refreshPromise = null;
+      });
     }
 
     const success = await refreshPromise;
-    refreshPromise = null;
 
     if (success) {
       logger.info("토큰 갱신 성공, 요청 재시도", { url });
@@ -82,18 +83,29 @@ export async function apiFetch<T>(
     }
   }
 
-  const errorBody = await res.json().catch(() => ({}));
-  const errorMessage =
-    extractErrorMessage(errorBody, res.status, context) || errorBody.message;
-
-  logger.error("API 요청 실패", {
-    url,
-    status: res.status,
-    duration: `${duration}ms`,
-    errorMessage,
-    errorBody,
-    context,
-  });
+  let errorMessage = "";
+  try {
+    const errorBody = await res.json();
+    errorMessage =
+      extractErrorMessage(errorBody, res.status, context) || errorBody.message;
+    logger.error("API 요청 실패", {
+      url,
+      status: res.status,
+      duration: `${duration}ms`,
+      errorBody,
+      context,
+    });
+  } catch {
+    const errorText = await res.text();
+    errorMessage = errorText || `HTTP ${res.status}`;
+    logger.error("API 요청 실패 - 응답 파싱 불가", {
+      url,
+      status: res.status,
+      duration: `${duration}ms`,
+      errorText,
+      context,
+    });
+  }
 
   throw new Error(errorMessage);
 }
@@ -106,13 +118,6 @@ function getAccessToken(): string | null {
 }
 
 async function tryRefreshToken(): Promise<boolean> {
-  const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-
-  if (!refreshToken) {
-    logger.warn("리프레시 토큰이 없어 갱신 불가");
-    return false;
-  }
-
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
@@ -120,9 +125,8 @@ async function tryRefreshToken(): Promise<boolean> {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
         },
-        body: JSON.stringify({ refreshToken }),
+        credentials: "include",
       },
     );
 
@@ -148,7 +152,6 @@ async function tryRefreshToken(): Promise<boolean> {
 function isUserLoggedIn(): boolean {
   return (
     typeof window !== "undefined" &&
-    !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN) &&
-    !!localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
+    !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
   );
 }

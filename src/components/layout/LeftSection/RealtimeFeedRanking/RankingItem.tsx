@@ -1,6 +1,5 @@
 import ArrowDownIcon from "@/components/svg/ArrowDownIcon";
 import ArrowUpIcon from "@/components/svg/ArrowUpIcon";
-import React from "react";
 import styled, { css } from "styled-components";
 
 interface RankingItemProps {

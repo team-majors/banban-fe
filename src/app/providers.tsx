@@ -7,12 +7,14 @@ interface Props {
 import { ToastProvider } from "@/components/common/Toast/ToastContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
-
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+  
 export const NextProvider = ({ children }: Props) => {
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
       <ToastProvider>{children}</ToastProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };

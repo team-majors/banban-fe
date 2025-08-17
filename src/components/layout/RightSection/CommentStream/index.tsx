@@ -9,7 +9,7 @@ import { SectionContext } from "../SectionContext";
 const CommentStream = () => {
   const { targetFeed } = useContext(SectionContext);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useCommentsQuery({
-    feedId: targetFeed?.feedId || 0,
+    feedId: targetFeed?.id || 0,
     size: 8,
   });
 

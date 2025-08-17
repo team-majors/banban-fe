@@ -8,7 +8,7 @@ const CommentHeadBlock = ({ props }: { props: Feed }) => {
   return (
     <StyledContainer>
       <Avatar
-        src={props.author.profileImage || ""}
+        src={props.user.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={
@@ -22,7 +22,7 @@ const CommentHeadBlock = ({ props }: { props: Feed }) => {
       <StyledContentContainer>
         <StyledTitleContainer>
           <StyledTitleWrapper>
-            <StyledTitle>{props.author.username}</StyledTitle>
+            <StyledTitle>{props.user.username}</StyledTitle>
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
         </StyledTitleContainer>

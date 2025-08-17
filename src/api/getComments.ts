@@ -1,13 +1,19 @@
 import type { CommentRequest, CommentResponse } from "@/types/comments";
-import { getMockReplies } from "@/mock/actions/reply";
 import camelcaseKeys from "camelcase-keys";
+import { apiFetch } from "@/lib/apiFetch";
 
 const getComments = async ({
   feedId,
   lastId,
   size,
 }: CommentRequest): Promise<CommentResponse> => {
-  const res = await getMockReplies({ feed_id: feedId, last_id: lastId, size });
+  const feedIdParam = `feed_id=${feedId}&`;
+  const lastIdParam = lastId ? `last_id=${lastId}&` : "";
+  const sizeParam = `size=${size}`;
+
+  const res = await apiFetch(`/comments?${feedIdParam}${lastIdParam}${sizeParam}`);
+
+  console.log(res);
 
   const convertedRes = camelcaseKeys(
     res as unknown as Record<string, unknown>,

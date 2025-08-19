@@ -6,6 +6,7 @@ import { BanBanLogo } from "@/components/svg";
 import { Title } from "@/components/svg/Title";
 import { LoginButtons } from "@/constants/loginButtons";
 
+
 export default function LoginPage() {
   const handleLogin = async (id: string) => {
     try {

@@ -6,14 +6,14 @@ const AdBlock = ({ props }: { props: Feed }) => {
   return (
     <StyledContainer>
       <Avatar
-        src={props.author.profileImage || ""}
+        src={props.user.profileImage || "love.jpg"}
         alt="광고 프로필 이미지"
         size={40}
         background="rgba(0, 0, 0, 0.00)"
       />
       <StyledContentContainer>
         <StyledTitleContainer>
-          <StyledTitle>{props.author.username}</StyledTitle>
+          <StyledTitle>{props.user.username}</StyledTitle>
           <StyledCreatedAt>광고</StyledCreatedAt>
         </StyledTitleContainer>
         <StyledImageContainer src="/Ad.png" alt="광고 이미지" />

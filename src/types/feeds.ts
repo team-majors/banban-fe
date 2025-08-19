@@ -1,5 +1,5 @@
 interface User {
-  userId: number;
+  id: number;
   username: string;
   profileImage: string | null;
 }
@@ -10,9 +10,9 @@ interface AdMeta {
 }
 
 interface Feed {
-  feedId: number;
-  type: "NORMAL" | "AD" | "POLL";
-  author: User;
+  id: number;
+  type: "USER" | "AD" | "POLL";
+  user: User;
   content: string;
   adUrl: string | null;
   adMeta: AdMeta | null;

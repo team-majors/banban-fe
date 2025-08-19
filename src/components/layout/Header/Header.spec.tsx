@@ -14,7 +14,6 @@ describe("Header 컴포넌트", () => {
       checkAuth: vi.fn(),
     });
     render(<Header isNew={false} />);
-
     expect(await screen.findByTestId("header-skeleton")).toBeInTheDocument();
   });
 

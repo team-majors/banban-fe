@@ -34,14 +34,13 @@ const FeedBlock = ({ props }: { props: Feed }) => {
   return (
     <StyledContainer>
       <Avatar
-
         src={author.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={
-          userVoteOptionId === 1
+          props.userVoteOptionId === 15
             ? "linear-gradient(to right, #FF05CE, #FF474F)"
-            : userVoteOptionId === 2
+            : props.userVoteOptionId === 16
             ? "linear-gradient(to right, #6142FF, #1478FF)"
             : undefined
         }
@@ -49,7 +48,7 @@ const FeedBlock = ({ props }: { props: Feed }) => {
       <StyledContentContainer>
         <StyledTitleContainer>
           <StyledTitleWrapper>
-            <StyledTitle>{author.username}</StyledTitle>
+            <StyledTitle>{props.user.username}</StyledTitle>
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
           <StyledMoreButtonWrapper ref={dropdownRef}>

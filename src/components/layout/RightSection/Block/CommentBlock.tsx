@@ -18,9 +18,9 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
         alt="사용자 프로필 이미지"
         size={40}
         background={
-          props.userVoteOptionId === 1
+          props.userVoteOptionId === 31
             ? "linear-gradient(to right, #FF05CE, #FF474F)"
-            : props.userVoteOptionId === 2
+            : props.userVoteOptionId === 32
             ? "linear-gradient(to right, #6142FF, #1478FF)"
             : undefined
         }

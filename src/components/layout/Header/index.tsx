@@ -94,7 +94,7 @@ function LoggedInIcons({
     <>
       <IconButton aria-label="알림" onClick={handleNotification}>
         <BellIcon />
-        {isNew && <NotificationDot />}
+        {isNew && <NotificationDot data-testid="notification-dot" />}
       </IconButton>
       <IconButton aria-label="프로필" onClick={handleProfile}>
         {profileImageUrl ? (

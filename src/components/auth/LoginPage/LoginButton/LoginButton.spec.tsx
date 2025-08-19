@@ -1,4 +1,3 @@
-import React from "react";
 import { screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import render from "@/utils/test/render";
@@ -7,6 +6,7 @@ import { vi } from "vitest";
 
 describe("LoginButton", () => {
   const defaultProps = {
+    onClick: () => {},
     color: "#007bff",
     fontcolor: "#ffffff",
     children: "Login",
@@ -23,7 +23,7 @@ describe("LoginButton", () => {
       render(
         <LoginButton {...defaultProps} icon={<TestIcon />}>
           Login with Icon
-        </LoginButton>
+        </LoginButton>,
       );
 
       expect(screen.getByTestId("test-icon")).toBeInTheDocument();
@@ -118,14 +118,14 @@ describe("LoginButton", () => {
           data-testid="custom-button"
           type="submit"
           form="test-form"
-        />
+        />,
       );
 
       const button = screen.getByRole("button");
       expect(button).toHaveAttribute("id", "test-button");
       expect(button).toHaveAttribute(
         "class",
-        expect.stringContaining("custom-class")
+        expect.stringContaining("custom-class"),
       );
       expect(button).toHaveAttribute("data-testid", "custom-button");
       expect(button).toHaveAttribute("type", "submit");
@@ -135,22 +135,24 @@ describe("LoginButton", () => {
 
   describe("사용자 실수 또는 예외 입력", () => {
     it("children이 없어도 정상적으로 렌더링 된다.", () => {
-      render(<LoginButton color="#007bff" fontcolor="#ffffff" />);
+      render(
+        <LoginButton color="#007bff" fontcolor="#ffffff" onClick={() => {}} />,
+      );
 
       const button = screen.getByRole("button");
       expect(button).toBeInTheDocument();
     });
     it("prop을 다른 형식으로 줘도 에러가 나지 않는다", async () => {
       const { rerender } = await render(
-        <LoginButton {...defaultProps} color="#007bff" />
+        <LoginButton {...defaultProps} color="#007bff" />,
       );
       expect(screen.getByRole("button")).toHaveStyle(
-        "background-color: #007bff"
+        "background-color: #007bff",
       );
 
       rerender(<LoginButton {...defaultProps} color="rgb(255, 0, 0)" />);
       expect(screen.getByRole("button")).toHaveStyle(
-        "background-color: rgb(255, 0, 0)"
+        "background-color: rgb(255, 0, 0)",
       );
     });
   });

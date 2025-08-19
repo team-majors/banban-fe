@@ -4,11 +4,11 @@ import styled from "styled-components";
 
 export interface LoginButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  onClick: () => void;
   color: string;
   fontcolor: string;
   icon?: React.ReactNode;
   children?: React.ReactNode;
-  onClick: () => void;
 }
 
 export const LoginButton = ({
@@ -31,7 +31,7 @@ export const LoginButton = ({
       onClick={onClick}
     >
       {icon && <IconWrapper>{icon}</IconWrapper>}
-      {children}
+      <LabelWrapper> {children}</LabelWrapper>
     </StyledButton>
   );
 };
@@ -46,9 +46,9 @@ interface StyledButtonProps {
 const StyledButton = styled.button<StyledButtonProps>`
   height: 44px;
   display: flex;
-  align-self: stretch;
   padding: 10px;
-  padding-right: 88px;
+  width: 100%;
+  min-width: 240px;
   color: ${(props) => props.$fontcolor};
   background-color: ${({ color }) => color};
   font-size: 15px;
@@ -70,8 +70,14 @@ const StyledButton = styled.button<StyledButtonProps>`
   }
 `;
 
-const IconWrapper = styled.span`
+const IconWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-right: 80px;
+`;
+
+const LabelWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
 `;

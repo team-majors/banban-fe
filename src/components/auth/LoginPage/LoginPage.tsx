@@ -1,103 +1,100 @@
+"use client";
 import styled from "styled-components";
 import Image from "next/image";
 import { LoginButton } from "./LoginButton";
 import { BanBanLogo } from "@/components/svg";
-import { socialLoginButtons } from "@/constants/socialLoginButtons";
 import { Title } from "@/components/svg/Title";
+import { LoginButtons } from "@/constants/loginButtons";
+
 
 export default function LoginPage() {
   const handleLogin = async (id: string) => {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/${id}`,
-    );
-    const { data: url } = await res.json();
-    console.log("Login url:", url);
-    window.location.href = url;
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/${id}`,
+      );
+      if (!res.ok) throw new Error("Login API Error");
+
+      const { data: url } = await res.json();
+      window.location.href = url;
+    } catch (err) {
+      console.error(err);
+      alert("로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    }
   };
 
   return (
-    <LoginContainer>
-      <LogoContainer>
+    <Container>
+      <LogoBox>
         <BanBanLogo />
-      </LogoContainer>
+      </LogoBox>
+
       <Divider />
-      <MainContentsContainer>
-        <MessageContainer>
+
+      <MainBox>
+        <MessageBox>
           <TitleWrapper>
             <Title />
           </TitleWrapper>
           <SubTitle>둘 중에 하나만 골라!</SubTitle>
-        </MessageContainer>
-        <Image
-          src={"/main_image.png"}
-          alt="main_img"
-          width={200}
-          height={200}
-        />
-      </MainContentsContainer>
-      <LoginButtonContainer>
+        </MessageBox>
+
+        <Image src="/main_image.png" alt="main_img" width={200} height={200} />
+      </MainBox>
+
+      <LoginSection>
         <QuickStartText>회원가입 없이 바로 3초만에 시작하기 🚀</QuickStartText>
-        <LoginButtonWrapper>
-          <KakaoButtonWrapper
-            role="button"
-            onClick={() => handleLogin("kakao")}
-          >
-            <Image
-              src={"/kakao_login_large_wide.png"}
-              width={300}
-              height={44}
-              alt="kakao_login_btn"
-            />
-          </KakaoButtonWrapper>
-          {socialLoginButtons.map((button) => (
-            <LoginButton
-              key={button.id}
-              onClick={() => handleLogin(button.id)}
-              fontcolor={button.fontColor}
-              color={button.backgroundColor}
-              icon={
-                <Image
-                  src={button.iconSrc}
-                  width={24}
-                  height={24}
-                  alt={`login_btn_img ${button.text}`}
-                  style={{
-                    height: "24px",
-                    objectFit: "cover",
-                    objectPosition: "center",
-                  }}
-                />
-              }
-            >
-              <span>{button.text}</span>
-            </LoginButton>
-          ))}
-        </LoginButtonWrapper>
-      </LoginButtonContainer>
-      <Ask as="a" href="/contact">
-        문의하기
-      </Ask>
-    </LoginContainer>
+        <ButtonGroup>
+          {LoginButtons.map(
+            ({ id, fontColor, backgroundColor, iconSrc, text }) => (
+              <LoginButton
+                key={id}
+                onClick={() => handleLogin(id)}
+                fontcolor={fontColor}
+                color={backgroundColor}
+                icon={
+                  <Image
+                    src={iconSrc}
+                    width={36}
+                    height={36}
+                    alt={`login_btn_img ${id}`}
+                    style={{
+                      height: "24px",
+                      objectFit: "cover",
+                      objectPosition: "center",
+                    }}
+                  />
+                }
+              >
+                {text}
+              </LoginButton>
+            ),
+          )}
+        </ButtonGroup>
+      </LoginSection>
+
+      <ContactLink href="/contact">문의하기</ContactLink>
+    </Container>
   );
 }
 
-const LoginContainer = styled.div`
+const Container = styled.div`
   height: 100%;
   width: 542px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 40px;
-  padding: 32px 0px;
+  padding: 32px 0;
   background-color: white;
   border-radius: 24px;
   border: 1px solid #e9eaeb;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
 `;
 
-const LogoContainer = styled.div`
+const LogoBox = styled.div`
   height: 62px;
-  padding: 10px 0px;
+  padding: 10px 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -109,21 +106,21 @@ const Divider = styled.div`
   background-color: #e9eaeb;
 `;
 
-const MainContentsContainer = styled.div`
+const MainBox = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   gap: 32px;
   width: 100%;
 `;
 
-const MessageContainer = styled.div`
+const MessageBox = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 15px;
+  text-align: center;
 `;
+
 const TitleWrapper = styled.div`
   height: 52px;
   display: flex;
@@ -133,35 +130,29 @@ const TitleWrapper = styled.div`
 
 const SubTitle = styled.span`
   font-size: 20px;
-  text-align: center;
   font-weight: 500;
 `;
 
-const LoginButtonContainer = styled.div`
+const LoginSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
   align-items: center;
-  justify-content: center;
   width: 100%;
 `;
 
-const LoginButtonWrapper = styled.div`
-  width: fit-content;
+const ButtonGroup = styled.div`
+  width: 60%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 10px;
 `;
 
-const Ask = styled.span`
+const ContactLink = styled.a`
   color: #535862;
   font-size: 14px;
   font-weight: 500;
-`;
-
-const KakaoButtonWrapper = styled.div`
-  cursor: pointer;
+  text-decoration: none;
 `;
 
 const QuickStartText = styled.span`

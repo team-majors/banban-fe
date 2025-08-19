@@ -1,7 +1,6 @@
 import { describe } from "vitest";
 import render from "@/utils/test/render";
 import ToastItem from "./index";
-import React from "react";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { Toast } from "../types";
 
@@ -17,7 +16,7 @@ describe("ToastItem", () => {
     render(<ToastItem toast={testToast} />);
     expect(screen.getByText("테스트 메시지")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /close toast/i })
+      screen.getByRole("button", { name: /close toast/i }),
     ).toBeInTheDocument();
   });
 
@@ -29,7 +28,7 @@ describe("ToastItem", () => {
       () => {
         expect(screen.queryByText("테스트 메시지")).not.toBeInTheDocument();
       },
-      { timeout: 1500 }
+      { timeout: 1500 },
     );
   });
 

@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, vi } from "vitest";
 import render from "@/utils/test/render";
 import { Modal } from "./Modal";
-import React from "react";
 import { fireEvent, screen } from "@testing-library/react";
 
 describe("Modal", () => {
@@ -23,7 +22,7 @@ describe("Modal", () => {
     await render(
       <Modal isOpen={true} onClose={onCloseMock}>
         <div data-testid="modal-content">오하요</div>
-      </Modal>
+      </Modal>,
     );
 
     expect(screen.getByTestId("modal-content")).toBeInTheDocument();
@@ -33,7 +32,7 @@ describe("Modal", () => {
     const { container } = await render(
       <Modal isOpen={false} onClose={onCloseMock}>
         <div>children</div>
-      </Modal>
+      </Modal>,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -43,7 +42,7 @@ describe("Modal", () => {
     render(
       <Modal isOpen={true} onClose={onCloseMock}>
         <div>contents</div>
-      </Modal>
+      </Modal>,
     );
 
     fireEvent.click(screen.getByRole("dialog").parentElement!);
@@ -54,7 +53,7 @@ describe("Modal", () => {
     render(
       <Modal isOpen={true} onClose={onCloseMock}>
         <div>contents</div>
-      </Modal>
+      </Modal>,
     );
 
     fireEvent.keyDown(document, { key: "Escape" });

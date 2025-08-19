@@ -4,7 +4,8 @@ import styled, { keyframes } from "styled-components";
 
 export default function HeaderSkeleton() {
   return (
-    <Container>
+
+    <Container data-testid="header-skeleton">
       <LogoArea>
         <SkeletonRect width={100} height={32} />
       </LogoArea>

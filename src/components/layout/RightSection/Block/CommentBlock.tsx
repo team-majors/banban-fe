@@ -8,19 +8,26 @@ import { CommentContent } from "@/types/comments";
 
 const CommentBlock = ({ props }: { props: CommentContent }) => {
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
-
+  const {
+    user,
+    content,
+    likeCount,
+    id,
+    isLiked,
+    userVoteOptionId
+  } = props;
   return (
     <StyledContainer>
       <StyledLeftPadding />
       <CornerDownRightIcon size={30} color="#DADADA" />
       <Avatar
-        src={props.author.profileImage || ""}
+        src={user.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={
-          props.userVoteOptionId === 31
+          userVoteOptionId === 31
             ? "linear-gradient(to right, #FF05CE, #FF474F)"
-            : props.userVoteOptionId === 32
+            : userVoteOptionId === 32
             ? "linear-gradient(to right, #6142FF, #1478FF)"
             : undefined
         }
@@ -28,7 +35,7 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
       <StyledContentContainer>
         <StyledTitleContainer>
           <StyledTitleWrapper>
-            <StyledTitle>{props.author.username}</StyledTitle>
+            <StyledTitle>{user.username}</StyledTitle>
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
           <StyledMoreButton>
@@ -36,10 +43,10 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
           </StyledMoreButton>
         </StyledTitleContainer>
 
-        <StyledBodyContainer>{props.content}</StyledBodyContainer>
+        <StyledBodyContainer>{content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
-          <FeedHeartButton likeCount={props.likeCount} targetId={props.id} targetType="COMMENT" />
+          <FeedHeartButton likeCount={likeCount} targetId={id} targetType="COMMENT" isLiked={isLiked} />
         </StyledIconButtonContainer>
       </StyledContentContainer>
     </StyledContainer>

@@ -7,12 +7,13 @@ import { apiFetch } from "@/lib/apiFetch";
 
 interface Props {
   likeCount: number;
+  isLiked: boolean;
   targetId: number;
   targetType: "FEED" | "COMMENT";
 }
 
-export function FeedHeartButton({ likeCount, targetId, targetType }: Props) {
-  const [liked, setLiked] = useState<boolean>(false);
+export function FeedHeartButton({ likeCount, isLiked, targetId, targetType }: Props) {
+  const [liked, setLiked] = useState<boolean>(isLiked);
   const [count, setCount] = useState<number>(likeCount);
 
   return (

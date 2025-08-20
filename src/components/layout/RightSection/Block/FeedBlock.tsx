@@ -15,7 +15,8 @@ const FeedBlock = ({ props }: { props: Feed }) => {
     commentCount,
     content,
     likeCount,
-    id
+    id,
+    isLiked
   } = props;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
@@ -76,7 +77,7 @@ const FeedBlock = ({ props }: { props: Feed }) => {
         <StyledBodyContainer>{content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
-          <FeedHeartButton likeCount={likeCount} targetId={id} targetType="FEED" />
+          <FeedHeartButton likeCount={likeCount} targetId={id} targetType="FEED" isLiked={isLiked} />
           <FeedCommentButton
             commentCount={commentCount}
             onClick={() => {

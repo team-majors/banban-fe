@@ -3,8 +3,15 @@
 import { useState } from "react";
 import HeartIcon from "@/components/svg/HeartIcon";
 import styled from "styled-components";
+import { apiFetch } from "@/lib/apiFetch";
 
-export function FeedHeartButton({ likeCount }: { likeCount: number }) {
+interface Props {
+  likeCount: number;
+  targetId: number;
+  targetType: "FEED" | "COMMENT";
+}
+
+export function FeedHeartButton({ likeCount, targetId, targetType }: Props) {
   const [liked, setLiked] = useState<boolean>(false);
   const [count, setCount] = useState<number>(likeCount);
 
@@ -13,6 +20,13 @@ export function FeedHeartButton({ likeCount }: { likeCount: number }) {
       onClick={() => {
         setLiked(!liked);
         setCount(liked ? count - 1 : count + 1);
+        apiFetch("/likes", {
+          method: "POST",
+          body: JSON.stringify({
+            target_id: targetId,
+            target_type: targetType,
+          }),
+        });
       }}
     >
       <HeartIcon $isActive={liked} />

@@ -39,7 +39,7 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
         <StyledBodyContainer>{props.content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
-          <FeedHeartButton likeCount={props.likeCount} />
+          <FeedHeartButton likeCount={props.likeCount} targetId={props.id} targetType="COMMENT" />
         </StyledIconButtonContainer>
       </StyledContentContainer>
     </StyledContainer>

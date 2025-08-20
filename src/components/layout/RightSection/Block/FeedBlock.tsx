@@ -10,12 +10,12 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 
 const FeedBlock = ({ props }: { props: Feed }) => {
   const {
-    author,
+    user,
     createdAt,
-    userVoteOptionId,
     commentCount,
     content,
     likeCount,
+    id
   } = props;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
@@ -34,7 +34,7 @@ const FeedBlock = ({ props }: { props: Feed }) => {
   return (
     <StyledContainer>
       <Avatar
-        src={author.profileImage || ""}
+        src={user.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={
@@ -76,7 +76,7 @@ const FeedBlock = ({ props }: { props: Feed }) => {
         <StyledBodyContainer>{content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
-          <FeedHeartButton likeCount={likeCount} />
+          <FeedHeartButton likeCount={likeCount} targetId={id} targetType="FEED" />
           <FeedCommentButton
             commentCount={commentCount}
             onClick={() => {

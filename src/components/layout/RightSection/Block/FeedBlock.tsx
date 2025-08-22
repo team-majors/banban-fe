@@ -7,21 +7,28 @@ import { useContext, useRef, useState } from "react";
 import { SectionContext } from "../SectionContext";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { useClickOutside } from "@/hooks/useClickOutside";
+import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 
 const FeedBlock = ({ props }: { props: Feed }) => {
   const {
-    author,
+    user,
     createdAt,
-    userVoteOptionId,
     commentCount,
     content,
     likeCount,
+    id,
+    isLiked
   } = props;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
   const { setSectionStatus, setTargetFeed } = useContext(SectionContext);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   useClickOutside(dropdownRef, () => setDropdownOpen(false));
+
+  const [liked, setLiked] = useState<boolean>(isLiked);
+  const [count, setCount] = useState<number>(likeCount);
+
+  const likeMutation = useFeedLikeOptimisticUpdate({ id });
 
   const handleToggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
@@ -34,7 +41,7 @@ const FeedBlock = ({ props }: { props: Feed }) => {
   return (
     <StyledContainer>
       <Avatar
-        src={author.profileImage || ""}
+        src={user.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={
@@ -76,7 +83,15 @@ const FeedBlock = ({ props }: { props: Feed }) => {
         <StyledBodyContainer>{content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
-          <FeedHeartButton likeCount={likeCount} />
+          <FeedHeartButton
+            likeCount={count}
+            isLiked={liked}
+            onClick={() => {
+              setCount(liked ? count - 1 : count + 1);
+              setLiked(!liked);
+              likeMutation.mutate();
+            }}
+          />
           <FeedCommentButton
             commentCount={commentCount}
             onClick={() => {

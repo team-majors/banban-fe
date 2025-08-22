@@ -10,12 +10,11 @@ import { useState, type ReactNode } from 'react';
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
   
 export const NextProvider = ({ children }: Props) => {
-  const queryClient = new QueryClient();
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryProviders>
       <ToastProvider>{children}</ToastProvider>
       <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    </QueryProviders>
   );
 };
 
@@ -31,11 +30,11 @@ export function QueryProviders({ children }: ProvidersProps) {
           queries: {
             staleTime: 60 * 1000,
             gcTime: 10 * 60 * 1000,
-            retry: 1,
+            retry: false,
             refetchOnWindowFocus: false,
           },
           mutations: {
-            retry: 1,
+            retry: false,
           },
         },
       })

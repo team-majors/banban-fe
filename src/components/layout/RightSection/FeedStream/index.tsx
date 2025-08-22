@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import { useFeedsQuery } from "@/hooks/useFeedsQuery";
 import { useInView } from "react-intersection-observer";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { Block } from "../Block";
+import useScrollPositionStore from "@/store/useScrollPositionStore";
 
 export default function FeedStream() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeedsQuery();
@@ -11,14 +12,42 @@ export default function FeedStream() {
     threshold: 0,
   });
 
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const { scrollPosition, setScrollPosition } = useScrollPositionStore();
+
   useEffect(() => {
     if (hasNextPage && isInView) {
       fetchNextPage();
     }
   }, [isInView, hasNextPage]);
 
+  useEffect(() => {
+    if (scrollPosition > 0) {
+      scrollRef.current?.scrollTo(0, scrollPosition);
+    }
+
+    const handleScrollEnd = () => {
+      setScrollPosition(scrollRef.current?.scrollTop || 0);
+    };
+
+    const debounce = (callback: () => void, wait: number) => {
+      let timeout: number;
+
+      return () => {
+        clearTimeout(timeout);
+        timeout = window.setTimeout(callback, wait);
+      };
+    };
+
+    scrollRef.current?.addEventListener("scroll", debounce(handleScrollEnd, 200));
+
+    return () => {
+      scrollRef.current?.removeEventListener("scroll", debounce(handleScrollEnd, 200));
+    };
+  }, []);
+
   return (
-    <StyledFeedStreamContainer>
+    <StyledFeedStreamContainer ref={scrollRef}>
       {data?.pages?.map((page, index) => (
         <Fragment key={`page-${index}`}>
           {page?.data?.content?.map((item, idx, array) => {

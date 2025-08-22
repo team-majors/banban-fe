@@ -4,23 +4,41 @@ import { Avatar } from "@/components/common/Avatar";
 import { FeedHeartButton } from "@/components/common/Button";
 import { MoreIcon } from "@/components/svg/MoreIcon";
 import { CornerDownRightIcon } from "@/components/svg/CornerDownRightIcon";
-import { CommentContent } from "@/types/comments";
+import { CommentContent,  } from "@/types/comments";
+import { useState } from "react";
+
+import { useCommentLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 
 const CommentBlock = ({ props }: { props: CommentContent }) => {
+  const {
+    id,
+    feedId,
+    content,
+    author,
+    likeCount,
+    isLiked,
+    userVoteOptionId
+  } = props;
+  
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
+
+  const [liked, setLiked] = useState<boolean>(isLiked);
+  const [count, setCount] = useState<number>(likeCount);
+
+  const likeMutation = useCommentLikeOptimisticUpdate({ feedId, id });
 
   return (
     <StyledContainer>
       <StyledLeftPadding />
       <CornerDownRightIcon size={30} color="#DADADA" />
       <Avatar
-        src={props.author.profileImage || ""}
+        src={author.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={
-          props.userVoteOptionId === 31
+          userVoteOptionId === 31
             ? "linear-gradient(to right, #FF05CE, #FF474F)"
-            : props.userVoteOptionId === 32
+            : userVoteOptionId === 32
             ? "linear-gradient(to right, #6142FF, #1478FF)"
             : undefined
         }
@@ -28,7 +46,7 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
       <StyledContentContainer>
         <StyledTitleContainer>
           <StyledTitleWrapper>
-            <StyledTitle>{props.author.username}</StyledTitle>
+            <StyledTitle>{author.username}</StyledTitle>
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
           <StyledMoreButton>
@@ -36,10 +54,18 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
           </StyledMoreButton>
         </StyledTitleContainer>
 
-        <StyledBodyContainer>{props.content}</StyledBodyContainer>
+        <StyledBodyContainer>{content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
-          <FeedHeartButton likeCount={props.likeCount} />
+          <FeedHeartButton
+            likeCount={count}
+            isLiked={liked}
+            onClick={() => {
+              setCount(liked ? count - 1 : count + 1);
+              setLiked(!liked);
+              likeMutation.mutate();
+            }}
+          />
         </StyledIconButtonContainer>
       </StyledContentContainer>
     </StyledContainer>

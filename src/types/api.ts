@@ -1,4 +1,5 @@
 import { User } from "./auth";
+import { Poll } from "./poll";
 
 export type ApiContext = "login" | "profile" | "vote" | "comment" | string;
 
@@ -17,4 +18,16 @@ export interface UserInfoResponse {
   code: number;
   status: "SUCCESS" | "FAILURE";
   data: User;
+}
+
+export interface PollResponse {
+  code: number;
+  status: "SUCCESS" | "FAILURE";
+  data: Poll;
+}
+
+export interface BanbanResponse {
+  code: number;
+  status: "SUCCESS" | "FAILURE";
+  data: object;
 }

@@ -1,6 +1,4 @@
 "use client";
-
-import { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { CSSProperties } from "styled-components";
 import { DefaultButton } from "@/components/common/Button";
@@ -13,40 +11,46 @@ type StyledSelectOptionGroupProps = Pick<
 export type selectOption = "firstOption" | "secondOption" | "none";
 
 interface SelectOptionGroupProps extends StyledSelectOptionGroupProps {
+  selected: "firstOption" | "secondOption" | "none";
   firstOptionString: string;
   secondOptionString: string;
-  onChange: (internalState: selectOption) => selectOption;
+  onClick: (internalState: selectOption) => void;
 }
 
 export const SelectOptionGroup = ({
+  selected,
   firstOptionString,
   secondOptionString,
-  onChange,
+  onClick,
   ...styleProps
 }: SelectOptionGroupProps) => {
-  const [selectState, setSelectState] = useState<selectOption>("none");
-
-  useEffect(() => {
-    onChange(selectState);
-  }, [selectState, onChange]);
-
   return (
     <StyledSelectOptionGroup {...styleProps}>
       <StyledButton
+        disabled={selected !== "none"}
+        isIdle={selected === "none"}
+        isSelected={selected === "firstOption"}
+        onClick={() => {
+          if (selected === "none") {
+            onClick("firstOption");
+          }
+        }}
         fromColor="#FF05CE"
         toColor="#FF474F"
-        isIdle={selectState === "none"}
-        isSelected={selectState === "firstOption"}
-        onClick={() => setSelectState("firstOption")}
       >
         {firstOptionString}
       </StyledButton>
       <StyledButton
+        disabled={selected !== "none"}
+        isIdle={selected === "none"}
+        isSelected={selected === "secondOption"}
+        onClick={() => {
+          if (selected === "none") {
+            onClick("secondOption");
+          }
+        }}
         fromColor="#6142FF"
         toColor="#1478FF"
-        isIdle={selectState === "none"}
-        isSelected={selectState === "secondOption"}
-        onClick={() => setSelectState("secondOption")}
       >
         {secondOptionString}
       </StyledButton>
@@ -59,6 +63,7 @@ interface StyledGradientProps {
   toColor: string;
   isIdle: boolean;
   isSelected: boolean;
+  disabled: boolean;
 }
 
 const StyledButton = styled(DefaultButton).withConfig({
@@ -67,6 +72,7 @@ const StyledButton = styled(DefaultButton).withConfig({
 })<StyledGradientProps>`
   display: flex;
   justify-content: center;
+  cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
 
   position: relative;
   overflow: hidden;

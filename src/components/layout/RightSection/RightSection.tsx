@@ -1,34 +1,20 @@
 import styled from "styled-components";
 import FeedsPanel from "./FeedsPanel";
-import { useState, useRef } from "react";
+import { useRef, useContext } from "react";
 import { useCalculatedHeight } from "./hooks/useCalculateHeight";
 import { CommentsPanel } from "./CommentsPanel";
 import { SectionContext } from "./SectionContext";
-import type { Feed } from "@/types/feeds";
 
 export default function RightSection() {
-  const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">(
-    "feeds",
-  );
-
-  const [targetFeed, setTargetFeed] = useState<Feed | null>(null);
+  const { sectionStatus } = useContext(SectionContext);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const calculatedHeight = useCalculatedHeight(containerRef);
 
-  const value = {
-    sectionStatus,
-    setSectionStatus,
-    targetFeed,
-    setTargetFeed,
-  };
-
   return (
-    <SectionContext.Provider value={value}>
-      <StyledContainer $calculatedHeight={calculatedHeight} ref={containerRef}>
-        {sectionStatus === "feeds" ? <FeedsPanel /> : <CommentsPanel />}
-      </StyledContainer>
-    </SectionContext.Provider>
+    <StyledContainer $calculatedHeight={calculatedHeight} ref={containerRef}>
+      {sectionStatus === "feeds" ? <FeedsPanel /> : <CommentsPanel />}
+    </StyledContainer>
   );
 }
 

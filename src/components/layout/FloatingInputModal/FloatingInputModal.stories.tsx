@@ -20,10 +20,6 @@ const meta = {
       options: ['댓글', '피드'],
       description: '등록할 콘텐츠 타입',
     },
-    userId: {
-      control: 'text',
-      description: '대상 사용자 ID',
-    },
   },
   args: {
     onClose: fn(),
@@ -36,21 +32,18 @@ type Story = StoryObj<typeof meta>;
 
 export const CommentModal: Story = {
   args: {
-    userId: 'user123',
     actionType: '댓글',
   },
 };
 
 export const FeedModal: Story = {
   args: {
-    userId: 'user456',
     actionType: '피드',
   },
 };
 
 export const DefaultModal: Story = {
   args: {
-    userId: 'user789',
     // actionType 기본값은 '댓글'
   },
 };

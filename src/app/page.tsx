@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import styled from "styled-components";
-import { FloatingInputModal } from "@/components/common/FloatingInputModal";
+import { FloatingInputModal } from "@/components/layout/FloatingInputModal";
 import { FloatingButton } from "@/components/common/Button/Floating/FloatingButton";
 import LeftSection from "@/components/layout/LeftSection/LeftSection";
 import RightSection from "@/components/layout/RightSection/RightSection";

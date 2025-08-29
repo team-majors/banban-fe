@@ -2,9 +2,9 @@
 
 import { useState, useCallback } from "react";
 import styled from "styled-components";
-import { Avatar } from "../Avatar/Avatar";
+import { Avatar } from "../../common/Avatar/Avatar";
 import { CloseIcon } from "@/components/svg";
-import { DefaultButton } from "../Button/Default/DefaultButton";
+import { DefaultButton } from "../../common/Button/Default/DefaultButton";
 import { UserInfoLoader } from "./UserInfoLoader";
 
 interface TargetUser {
@@ -12,19 +12,18 @@ interface TargetUser {
   description: string;
   avatarUrl: string;
   highlightText?: string; // 강조할 텍스트
+  voteTextColor?: string; // 투표 텍스트 색상
 }
 
 interface FloatingInputModalProps {
   onClose: () => void;
   onSubmit: (content: string) => void;
-  userId: string | number; // 유저 ID로 변경
   actionType?: "댓글" | "피드"; // 등록할 콘텐츠 타입
 }
 
 export const FloatingInputModal = ({
   onClose,
   onSubmit,
-  userId,
   actionType = "댓글",
 }: FloatingInputModalProps) => {
   const [content, setContent] = useState("");
@@ -75,28 +74,45 @@ export const FloatingInputModal = ({
           <HeaderSpacer />
         </Header>
 
-        {/* 대상 정보 영역 - UserInfoLoader로 분리 */}
+        {/* 대상 정보 영역 - UserInfoLoader로 데이터 로딩 */}
         <UserInfoLoader
-          userId={userId}
           onUserLoaded={handleUserLoaded}
           onError={handleUserError}
-        >
-          {targetUser && (
-            <TargetInfo>
-              <Avatar
-                src={targetUser.avatarUrl}
-                alt={`${targetUser.nickname}의 프로필 이미지`}
-                size={48}
-              />
-              <UserInfo>
-                <Nickname>@{targetUser.nickname}</Nickname>
-                <Description>
-                  {targetUser.description}
-                </Description>
-              </UserInfo>
-            </TargetInfo>
-          )}
-        </UserInfoLoader>
+        />
+
+        {/* 유저 정보 표시 - 데이터 로딩 완료 후에만 표시 */}
+        {targetUser && (
+          <TargetInfo>
+            <Avatar
+              src={targetUser.avatarUrl}
+              alt={`${targetUser.nickname}의 프로필 이미지`}
+              size={48}
+            />
+            <UserInfo>
+              <Nickname>@{targetUser.nickname}</Nickname>
+              <Description>
+                {targetUser.description.startsWith('> ') ? (
+                  <>
+                    <span style={{ color: '#6b7280' }}>{'>'} </span>
+                    <span
+                      style={{
+                        background: targetUser.voteTextColor || '#ec4899',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {targetUser.description.substring(2)}
+                    </span>
+                  </>
+                ) : (
+                  targetUser.description
+                )}
+              </Description>
+            </UserInfo>
+          </TargetInfo>
+        )}
 
         {/* 입력 영역 */}
         <InputSection>
@@ -254,6 +270,7 @@ const TextInput = styled.textarea`
 
   &::placeholder {
     color: #9ca3af;
+    font-weight: bold;
   }
 `;
 

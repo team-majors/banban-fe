@@ -52,7 +52,7 @@ export const useContentSubmission = () => {
 
       showToast({
         type: 'success',
-        message: `${actionType}이 성공적으로 등록되었습니다!`,
+        message: `${actionType}이/가 성공적으로 등록되었습니다!`,
         duration: 3000
       });
 

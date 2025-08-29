@@ -137,7 +137,7 @@ const COLOR = {
 };
 
 const Z_INDEX = {
-  header: 999,
+  header: 900,
 };
 
 const Container = styled.header`
@@ -145,7 +145,7 @@ const Container = styled.header`
   left: 0;
   right: 0;
   margin: 0 auto;
-  z-index: 999;
+  z-index: 900;
   height: 64px;
   display: flex;
   justify-content: center;

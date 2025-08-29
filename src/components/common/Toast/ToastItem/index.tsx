@@ -50,17 +50,18 @@ const shrink = keyframes`
 `;
 
 const iconStyle = {
-  right: 8,
-  top: 8,
+  right: 12,
+  top: 12,
   position: "absolute",
-  color: "#B6B6B6",
   width: "12px",
   height: "12px",
 } as const;
 
 const ToastWrapper = styled.div`
   width: 320px;
-  height: 62px;
+  max-height: 100px;
+  padding-right: 12px;
+  padding-bottom: 6px;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -77,6 +78,7 @@ const IconWrapper = styled.div<{ bgcolor: string }>`
   border-radius: 9999px;
   background-color: ${(props) => props.bgcolor};
 `;
+
 const ProgressBar = styled.div<{ duration: number }>`
   position: absolute;
   bottom: 0;
@@ -86,10 +88,10 @@ const ProgressBar = styled.div<{ duration: number }>`
 
 const FlexContainer = styled.div`
   display: flex;
-  height: 62px;
+  max-height: 100px;
   align-items: center;
-  padding: 20px;
-  gap: 15px;
+  padding: 18px 16px;
+  gap: 12px;
 `;
 
 const Message = styled.p`

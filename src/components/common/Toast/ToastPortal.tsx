@@ -19,12 +19,12 @@ const ToastPortal: React.FC<Props> = ({ toasts }) => {
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed top-6 right-6 z-50 flex flex-col gap-4">
+    <div className="fixed top-6 right-6 z-900 flex flex-col gap-4">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} />
       ))}
     </div>,
-    document.body
+    document.body,
   );
 };
 

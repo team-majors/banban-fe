@@ -1,9 +1,7 @@
 import { useAuthStore } from "@/store/useAuthStore";
 import STORAGE_KEYS from "@/constants/storageKeys";
-import { TokenRequestResponse } from "@/types/auth";
 import { extractErrorMessage } from "@/utils/errorMessages";
 import { logger } from "@/utils/logger";
-import { saveAccessToken } from "@/utils/storage";
 import { ApiContext } from "@/types/api";
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -66,9 +64,13 @@ export async function apiFetch<T>(
 
     if (!refreshPromise) {
       logger.info("토큰 갱신 시작");
-      refreshPromise = tryRefreshToken().finally(() => {
-        refreshPromise = null;
-      });
+
+      refreshPromise = useAuthStore
+        .getState()
+        .refreshToken()
+        .finally(() => {
+          refreshPromise = null;
+        });
     }
 
     const success = await refreshPromise;
@@ -78,7 +80,6 @@ export async function apiFetch<T>(
       return apiFetch<T>(url, options, false, context);
     } else {
       logger.error("토큰 갱신 실패, 로그아웃 처리", { url });
-      useAuthStore.getState().logout();
       throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
     }
   }
@@ -115,38 +116,6 @@ function getAccessToken(): string | null {
   const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   logger.debug("액세스 토큰 조회", { hasToken: !!token });
   return token;
-}
-
-async function tryRefreshToken(): Promise<boolean> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      },
-    );
-
-    if (!res.ok) {
-      logger.error("토큰 갱신 요청 실패", {
-        status: res.status,
-        statusText: res.statusText,
-      });
-      return false;
-    }
-
-    const data: TokenRequestResponse = await res.json();
-    saveAccessToken(data.data.access_token);
-
-    logger.info("토큰 갱신 성공");
-    return true;
-  } catch (error) {
-    logger.error("토큰 갱신 중 예외 발생", error);
-    return false;
-  }
 }
 
 function isUserLoggedIn(): boolean {

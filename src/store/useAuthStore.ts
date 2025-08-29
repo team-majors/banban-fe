@@ -2,10 +2,11 @@ import { create } from "zustand";
 import { apiFetch } from "@/lib/apiFetch";
 import { getToken } from "@/remote/auth";
 import { UserInfoResponse } from "@/types/api";
-import { User } from "@/types/auth";
+import { TokenRequestResponse, User } from "@/types/auth";
 import { clearTokens, saveAccessToken } from "@/utils/storage";
 import { v4 as uuidv4 } from "uuid";
 import STORAGE_KEYS from "@/constants/storageKeys";
+import { logger } from "@/utils/logger";
 
 interface AuthState {
   user: User | null;
@@ -19,6 +20,7 @@ interface AuthState {
   }) => Promise<boolean>;
   logout: () => void;
   checkAuth: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -35,6 +37,43 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       set({ user: null, isLoggedIn: false, loading: false });
+    }
+  },
+
+  refreshToken: async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        },
+      );
+
+      if (!res.ok) {
+        logger.error("토큰 갱신 요청 실패", {
+          status: res.status,
+          statusText: res.statusText,
+        });
+        return false;
+      }
+
+      const data: TokenRequestResponse = await res.json();
+      saveAccessToken(data.data.access_token);
+
+      // 토큰 갱신 후 사용자 정보 다시 가져오기
+      await get().checkAuth();
+
+      logger.info("토큰 갱신 및 사용자 상태 업데이트 성공");
+      return true;
+    } catch (error) {
+      logger.error("토큰 갱신 중 예외 발생", error);
+      // 토큰 갱신 실패시 로그아웃 처리
+      get().logout();
+      return false;
     }
   },
 

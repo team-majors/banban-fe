@@ -102,5 +102,6 @@ export const useUserVoteInfo = (date?: string) => {
     votedOptionContent: votedOption?.content || null,
     userAvatar: userProfile?.profile_image_url || null,
     username: userProfile?.username || null,
+    userVoteOptionId: votedOption?.id || null,
   };
 };

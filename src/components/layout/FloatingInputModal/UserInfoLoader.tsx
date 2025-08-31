@@ -2,13 +2,15 @@ import { memo, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { Avatar } from "../../common/Avatar/Avatar";
 import { useUserVoteInfo } from "@/hooks/useUserVoteInfo";
-
+import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
+import { usePoll } from "@/hooks/usePoll";
 interface TargetUser {
   nickname: string;
   description: string;
   avatarUrl: string;
   highlightText?: string;
   voteTextColor?: string;
+  avatarBackground?: string;
 }
 
 interface UserInfoLoaderProps {
@@ -28,23 +30,13 @@ export const UserInfoLoader = memo(({
     hasVoted,
     votedOptionContent,
     userAvatar,
-    username
+    username,
+    userVoteOptionId
   } = useUserVoteInfo();
 
-  // 투표 옵션에 따른 색상 결정 함수
-  const getVoteTextColor = (optionContent: string | null) => {
-    if (!optionContent) return '#6b7280'; // 기본 회색
+  const { data: pollData } = usePoll();
 
-    // 투표 옵션 내용에 따라 색상 결정
-    // 예시: 옵션 내용에 따라 다른 그라데이션 적용
-    if (optionContent.includes('A') || optionContent.includes('1')) {
-      return 'linear-gradient(90deg, #ff05ce 0%, #ff002f 100%)';
-    } else if (optionContent.includes('B') || optionContent.includes('2')) {
-      return 'linear-gradient(90deg, #6142ff 0%, #1478ff 100%)';
-    } else {
-      return 'linear-gradient(90deg, #ff05ce 0%, #ff002f 100%)'; // 기본 그라데이션
-    }
-  };
+  const textColor = useVoteOptionColor(userVoteOptionId, pollData);
 
   // 데이터가 로드되면 부모 컴포넌트에 전달 (렌더링 후에 실행)
   useEffect(() => {
@@ -57,7 +49,8 @@ export const UserInfoLoader = memo(({
           : "아직 투표하지 않음",
         avatarUrl: userAvatar,
         highlightText: hasVoted ? votedOptionContent || undefined : undefined,
-        voteTextColor: hasVoted ? getVoteTextColor(votedOptionContent) : undefined,
+        voteTextColor: hasVoted ? textColor : undefined,
+        avatarBackground: hasVoted ? textColor : undefined,
       };
 
       // 부모 컴포넌트에 유저 정보 전달

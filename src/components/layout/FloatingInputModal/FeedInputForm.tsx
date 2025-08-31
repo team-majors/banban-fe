@@ -10,6 +10,7 @@ interface TargetUser {
   avatarUrl: string;
   highlightText?: string;
   voteTextColor?: string;
+  avatarBackground?: string;
 }
 
 interface FeedInputFormProps {
@@ -69,6 +70,7 @@ export const FeedInputForm = ({
               src={targetUser.avatarUrl}
               alt={`${targetUser.nickname}의 프로필 이미지`}
               size={48}
+              background={targetUser.avatarBackground || '#f0f0f0'}
             />
             <UserInfo>
               <Nickname>@{targetUser.nickname}</Nickname>

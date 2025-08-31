@@ -8,8 +8,10 @@ import { CommentContent,  } from "@/types/comments";
 import { useState } from "react";
 
 import { useCommentLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
+import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
+import { Poll } from "@/types/poll";
 
-const CommentBlock = ({ props }: { props: CommentContent }) => {
+const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Poll }) => {
   const {
     id,
     feedId,
@@ -19,13 +21,14 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
     isLiked,
     userVoteOptionId
   } = props;
-  
+
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
 
   const [liked, setLiked] = useState<boolean>(isLiked);
   const [count, setCount] = useState<number>(likeCount);
 
   const likeMutation = useCommentLikeOptimisticUpdate({ feedId, id });
+  const avatarBackground = useVoteOptionColor(userVoteOptionId, pollData);
 
   return (
     <StyledContainer>
@@ -35,13 +38,7 @@ const CommentBlock = ({ props }: { props: CommentContent }) => {
         src={author.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
-        background={
-          userVoteOptionId === 31
-            ? "linear-gradient(to right, #FF05CE, #FF474F)"
-            : userVoteOptionId === 32
-            ? "linear-gradient(to right, #6142FF, #1478FF)"
-            : undefined
-        }
+        background={avatarBackground}
       />
       <StyledContentContainer>
         <StyledTitleContainer>

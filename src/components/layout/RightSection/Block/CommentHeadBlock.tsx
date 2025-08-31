@@ -1,9 +1,12 @@
 import styled from "styled-components";
 import { Avatar } from "@/components/common/Avatar";
 import { Feed } from "@/types/feeds";
+import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
+import { Poll } from "@/types/poll";
 
-const CommentHeadBlock = ({ props }: { props: Feed }) => {
+const CommentHeadBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
+  const avatarBackground = useVoteOptionColor(props.userVoteOptionId, pollData);
 
   return (
     <StyledContainer>
@@ -11,13 +14,7 @@ const CommentHeadBlock = ({ props }: { props: Feed }) => {
         src={props.user.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
-        background={
-          props.userVoteOptionId === 1
-            ? "linear-gradient(to right, #FF05CE, #FF474F)"
-            : props.userVoteOptionId === 2
-            ? "linear-gradient(to right, #6142FF, #1478FF)"
-            : undefined
-        }
+        background={avatarBackground}
       />
       <StyledContentContainer>
         <StyledTitleContainer>

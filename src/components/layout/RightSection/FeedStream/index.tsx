@@ -4,9 +4,11 @@ import { useInView } from "react-intersection-observer";
 import { Fragment, useEffect, useRef } from "react";
 import { Block } from "../Block";
 import useScrollPositionStore from "@/store/useScrollPositionStore";
+import { usePoll } from "@/hooks/usePoll";
 
 export default function FeedStream() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeedsQuery();
+  const { data: pollData } = usePoll();
 
   const [scrollTrigger, isInView] = useInView({
     threshold: 0,
@@ -56,10 +58,14 @@ export default function FeedStream() {
             return (
               <Fragment key={`page-${index}-item-${idx}`}>
                 {isSecondFromLast && hasNextPage && <div ref={scrollTrigger} />}
-                {item.type === "USER" || item.type === "POLL" ? (
-                  <Block type="feed" feedProps={item} />
-                ) : (
-                  <Block type="ad" feedProps={item} />
+                {pollData && (
+                  <>
+                    {item.type === "USER" || item.type === "POLL" ? (
+                      <Block type="feed" feedProps={item} pollData={pollData} />
+                    ) : (
+                      <Block type="ad" feedProps={item} pollData={pollData} />
+                    )}
+                  </>
                 )}
               </Fragment>
             );

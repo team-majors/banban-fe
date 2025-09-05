@@ -10,14 +10,19 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
+import { ReportModal } from "@/components/common/Report";
+import useReport from "@/hooks/useReport";
 
 const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
+
   const { user, createdAt, commentCount, content, likeCount, id, isLiked } =
     props;
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
   const { setSectionStatus, setTargetFeed } = useContext(SectionContext);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isReportModalOpen, setReportModalOpen] = useState(false);
   useClickOutside(dropdownRef, () => setDropdownOpen(false));
 
   const [liked, setLiked] = useState<boolean>(isLiked);
@@ -25,6 +30,15 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
 
   const likeMutation = useFeedLikeOptimisticUpdate({ id });
   const avatarBackground = useVoteOptionColor(props.userVoteOptionId, pollData);
+  const [reportReason, setReportReason] = useState<string>('');
+  const [reportDetail, setReportDetail] = useState<string>('');
+
+  const reportMutation = useReport({
+    targetType: 'FEED',
+    targetId: id,
+    reasonCode: reportReason,
+    reasonDetail: reportDetail
+  });
 
   const handleToggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
@@ -32,6 +46,14 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
 
   const handleCloseDropdown = () => {
     setDropdownOpen(false);
+  };
+
+  const handleReport = (reason: string, detail?: string) => {
+    setReportReason(reason);
+    setReportDetail(detail || '');
+    setTimeout(() => {
+      reportMutation.mutate();
+    }, 0);
   };
 
   return (
@@ -63,8 +85,17 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
                 }}
                 onReport={() => {
                   handleCloseDropdown();
-                  // 신고 처리 로직
+                  setReportModalOpen(true);
                 }}
+              />
+            )}
+            {isReportModalOpen && (
+              <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                onReport={handleReport}
+                targetType="FEED"
+                targetId={id}
               />
             )}
           </StyledMoreButtonWrapper>

@@ -5,11 +5,15 @@ import { FeedHeartButton } from "@/components/common/Button";
 import { MoreIcon } from "@/components/svg/MoreIcon";
 import { CornerDownRightIcon } from "@/components/svg/CornerDownRightIcon";
 import { CommentContent,  } from "@/types/comments";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
+import { useClickOutside } from "@/hooks/useClickOutside";
+import { ReportModal } from "@/components/common/Report";
 
 import { useCommentLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
+import useReport from "@/hooks/useReport";
 
 const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Poll }) => {
   const {
@@ -26,9 +30,39 @@ const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Po
 
   const [liked, setLiked] = useState<boolean>(isLiked);
   const [count, setCount] = useState<number>(likeCount);
-
+  const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [isReportModalOpen, setReportModalOpen] = useState<boolean>(false);
+  const [reportReason, setReportReason] = useState<string>('');
+  const [reportDetail, setReportDetail] = useState<string>('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
   const likeMutation = useCommentLikeOptimisticUpdate({ feedId, id });
   const avatarBackground = useVoteOptionColor(userVoteOptionId, pollData);
+  
+  const reportMutation = useReport({
+    targetType: 'COMMENT',
+    targetId: id,
+    reasonCode: reportReason,
+    reasonDetail: reportDetail
+  });
+  
+  useClickOutside(dropdownRef, () => setDropdownOpen(false));
+
+  const handleToggleDropdown = () => {
+    setDropdownOpen((prev) => !prev);
+  };
+
+  const handleCloseDropdown = () => {
+    setDropdownOpen(false);
+  };
+
+  const handleReport = (reason: string, detail?: string) => {
+    setReportReason(reason);
+    setReportDetail(detail || '');
+    setTimeout(() => {
+      reportMutation.mutate();
+    }, 0);
+  };
 
   return (
     <StyledContainer>
@@ -46,9 +80,35 @@ const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Po
             <StyledTitle>{author.username}</StyledTitle>
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
-          <StyledMoreButton>
+          <StyledMoreButtonWrapper ref={dropdownRef}>
+          <StyledMoreButton
+            onClick={handleToggleDropdown}
+            aria-label="더보기 옵션 열기"
+          >
             <MoreIcon />
           </StyledMoreButton>
+          {isDropdownOpen && (
+            <OptionsDropdown
+              onHide={() => {
+                handleCloseDropdown();
+                // 관심 없음 처리 로직
+              }}
+              onReport={() => {
+                handleCloseDropdown();
+                setReportModalOpen(true);
+              }}
+            />
+          )}
+          {isReportModalOpen && (
+            <ReportModal
+              isOpen={isReportModalOpen}
+              onClose={() => setReportModalOpen(false)}
+              onReport={handleReport}
+              targetType="COMMENT"
+              targetId={id}
+            />
+          )}
+        </StyledMoreButtonWrapper>
         </StyledTitleContainer>
 
         <StyledBodyContainer>{content}</StyledBodyContainer>
@@ -134,6 +194,12 @@ const StyledMoreButton = styled.button`
   justify-content: center;
   align-items: center;
   cursor: pointer;
+`;
+
+const StyledMoreButtonWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
 `;
 
 export { CommentBlock };

@@ -1,6 +1,6 @@
 const arr = [
-  { option: "A", count: 24, userSelected: true },
-  { option: "B", count: 34, userSelected: false },
+  { option: "A", count: 34, userSelected: true },
+  { option: "B", count: 0, userSelected: false },
 ];
 
 const total = arr.reduce((sum, item) => sum + item.count, 0);

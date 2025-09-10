@@ -7,8 +7,10 @@ export default function AuthManager() {
   const { checkAuth } = useAuthStore();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    if (typeof window !== "undefined") {
+      checkAuth();
+    }
+  }, []);
 
   return null;
 }

@@ -70,7 +70,7 @@ const StyledItemWrapper = styled.div`
 const StyledItem = styled.button<{ $isSelected: boolean }>`
   padding: 4px 16px;
   color: ${({ $isSelected }) => ($isSelected ? "#1F2024" : "#71727a")};
-  font-weight: ${({ $isSelected }) => ($isSelected ? "bold" : "lighter")};
+  font-weight: ${({ $isSelected }) => ($isSelected ? "bold" : "light")};
   font-size: 14px;
 
   cursor: pointer;

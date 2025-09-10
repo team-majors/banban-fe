@@ -1,8 +1,18 @@
 import ZapIcon from "@/components/svg/ZapIcon";
 import styled from "styled-components";
 import RankingItem from "./RankingItem";
+import useHotFeed from "@/hooks/useHotFeed";
+import { HotFeed } from "@/remote/feed";
+import { useMemo } from "react";
 
 export default function RealtimeFeedRanking() {
+  const { data } = useHotFeed();
+
+  const sortedFeeds = useMemo(
+    () => (data ? [...data].sort((a, b) => a.rank - b.rank) : []),
+    [data],
+  );
+
   return (
     <Container>
       <Title>
@@ -12,16 +22,15 @@ export default function RealtimeFeedRanking() {
         실시간 피드 순위
       </Title>
       <RankingList>
-        <FeedRankingItem
-          rank={4}
-          title="평생 출근 생각만 해도....."
-          figure={-2}
-        />
-        <FeedRankingItem
-          rank={5}
-          title="600 받으면서 일하면 부모님한테도 효도할 수 있고, 현실적으로 이게 더 끌린다"
-          figure={10}
-        />
+        {sortedFeeds.map((item: HotFeed) => (
+          <li key={item.feed_id}>
+            <RankingItem
+              rank={item.rank}
+              title={item.content}
+              figure={item.rank_change}
+            />
+          </li>
+        ))}
       </RankingList>
     </Container>
   );
@@ -60,9 +69,3 @@ const RankingList = styled.ul`
   padding: 0;
   margin: 0;
 `;
-
-const FeedRankingItem = (props: React.ComponentProps<typeof RankingItem>) => (
-  <li>
-    <RankingItem {...props} />
-  </li>
-);

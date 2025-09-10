@@ -1,0 +1,80 @@
+import { Spinner } from "@/components/svg/Spinner";
+import React from "react";
+import styled from "styled-components";
+import VoteResultCircle, { PieData } from "./chart/VoteResultCircle";
+import { Option } from "./TodayTopicCard";
+import {
+  selectOption,
+  SelectOptionGroup,
+} from "@/components/common/SelectOptionGroup/SelectOptionGroup";
+import CountdownDisplay from "./CountdownDisplay";
+import VoteResultPlaceHolder from "./VoteResultPlaceHolder/VoteResultPlaceHolder";
+
+function VoteResultDisplay({
+  pieData,
+  votedOptionId,
+}: {
+  pieData: PieData[];
+  votedOptionId: number | null | undefined;
+}) {
+  if (votedOptionId == null) {
+    return <VoteResultPlaceHolder />;
+  }
+  return pieData.length > 0 ? <VoteResultCircle pieData={pieData} /> : null;
+}
+
+export default function MainContent({
+  isLoading,
+  pieData,
+  votedOptionId,
+  options,
+  displayedSelection,
+  handleVote,
+}: {
+  isLoading: boolean;
+  pieData: PieData[];
+  votedOptionId: number | null | undefined;
+  options?: Option[];
+  displayedSelection: selectOption;
+  handleVote: (selection: selectOption) => void;
+}) {
+  if (isLoading) {
+    return (
+      <SpinnerContainer>
+        <Spinner />
+      </SpinnerContainer>
+    );
+  }
+
+  return (
+    <>
+      <VoteResultCircleContainer>
+        <VoteResultDisplay pieData={pieData} votedOptionId={votedOptionId} />
+      </VoteResultCircleContainer>
+      <CountdownDisplay />
+      <SelectOptionGroup
+        selected={displayedSelection}
+        rowGap="10px"
+        firstOptionString={options?.[0]?.content || ""}
+        secondOptionString={options?.[1]?.content || ""}
+        onClick={handleVote}
+      />
+    </>
+  );
+}
+
+const VoteResultCircleContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin: 8px;
+  padding: 0px 10px;
+  max-height: 280px;
+`;
+
+const SpinnerContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 300px;
+`;

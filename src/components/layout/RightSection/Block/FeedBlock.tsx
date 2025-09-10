@@ -14,15 +14,10 @@ import { ReportModal } from "@/components/common/Report";
 import useReport from "@/hooks/useReport";
 
 const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
-  const {
-    user,
-    createdAt,
-    commentCount,
-    content,
-    likeCount,
-    id,
-    isLiked,
-  } = props;
+
+  const { user, createdAt, commentCount, content, likeCount, id, isLiked } =
+    props;
+
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
   const { setSectionStatus, setTargetFeed } = useContext(SectionContext);

@@ -23,7 +23,7 @@ export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
       <StyledImageWrapper size={size}>
         <Image
           role="img"
-          src={src || imgSrc}
+          src={imgSrc ? imgSrc : src}
           alt={alt}
           width={size}
           height={size}

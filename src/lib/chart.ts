@@ -17,7 +17,7 @@ export type TextPosition = {
 
 export function makePieData(
   options: { id: number; content: string; vote_count: number | null }[],
-  votedOptionId: number | null,
+  votedOptionId: number | null | undefined,
 ): PieData[] {
   const total = options.reduce(
     (sum, opt) => sum + (opt.vote_count === null ? 0 : opt.vote_count),
@@ -38,11 +38,12 @@ export function makePieData(
       percent,
     };
   });
+  return data;
 
-  return [
-    ...data.filter((d) => !d.userSelected),
-    ...data.filter((d) => d.userSelected),
-  ];
+  // return [
+  //   ...data.filter((d) => !d.userSelected),
+  //   ...data.filter((d) => d.userSelected),
+  // ];
 }
 
 export const calculateTextPosition = (

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const CommunityInfoCard = () => {
+export const CommunityInfoCard = ({ onClose }: { onClose: () => void }) => {
   return (
     <Container>
       <TitleContainer>
@@ -57,11 +57,28 @@ export const CommunityInfoCard = () => {
           </AlphabetList>
         </Content>
       </ContentContainer>
+
       <Divider />
       <VersionContainer>version 25.2.1</VersionContainer>
     </Container>
   );
 };
+
+const Container = styled.div`
+  position: absolute;
+  top: 56px;
+  right: 0;
+  width: 350px;
+  /* height: 400px; */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08),
+    0px 4px 6px -2px rgba(10, 13, 18, 0.03), 0px 0px 0px 1.5px #e9eaeb inset;
+
+  display: flex;
+  flex-direction: column;
+  font-family: "Pretendard", sans-serif;
+`;
 
 const Divider = styled.div`
   width: 100%;
@@ -69,47 +86,27 @@ const Divider = styled.div`
   background-color: #e9eaeb;
 `;
 
-const Container = styled.div`
-  background-color: white;
-  width: 350px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  border-radius: 8px;
-
-  box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08),
-    0px 4px 6px -2px rgba(10, 13, 18, 0.03), 0px 0px 0px 1.5px #e9eaeb inset;
-`;
-
 const TitleContainer = styled.div`
   width: 100%;
-
-  padding: 10px 16px;
+  padding: 8px 16px;
   margin: 10px 0;
 `;
 
 const Title = styled.div`
   font-size: 20px;
   font-weight: 800;
-  color: #000;
-
-  font-family: "Pretendard";
 `;
 
 const ContentContainer = styled.div`
   width: 100%;
-  margin: 10px 0;
   padding: 0 16px;
+  margin: 10px 0;
 `;
 
-const Content = styled.p`
+const Content = styled.div`
   font-size: 12px;
-  font-weight: lighter;
+  font-weight: 300;
   color: #000;
-
-  font-family: "Pretendard";
   line-height: 20px;
 `;
 
@@ -124,25 +121,26 @@ const AlphabetItem = styled.li`
 `;
 
 const DashList = styled.ul`
-  list-style-type: "• ";
-  padding-left: 20px;
+  padding-left: 8px;
+  margin: 2px 0 0 0;
+  list-style: none;
+
+  & > li::before {
+    content: "• ";
+    margin-right: 6px;
+    color: #000;
+  }
 `;
 
-const DashItem = styled.li`
-  margin: 0;
-`;
+const DashItem = styled.li``;
 
 const VersionContainer = styled.div`
   width: 100%;
   padding: 10px 16px;
-
   display: flex;
-  align-items: center;
   justify-content: center;
-
+  align-items: center;
   font-size: 12px;
-
   color: #535862;
-
   line-height: 20px;
 `;

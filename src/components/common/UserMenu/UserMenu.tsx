@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 import styled from "styled-components";
 import {
   HelpCircleIcon,
@@ -6,6 +6,8 @@ import {
   UserProfileIcon,
   UsersIcon,
 } from "@/components/svg";
+import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
+import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
 
 interface MenuProps {
   onClose: () => void;
@@ -19,13 +21,25 @@ interface MenuItem {
 
 export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
   ({ onClose, onLogout }, ref) => {
+    const [isProfileCardOpen, setProfileCardOpen] = useState(false);
+    const [isCommunityInfoCardOpen, setCommunityInfoCardOpen] = useState(false);
+
+    const handleProfileClick = () => {
+      setProfileCardOpen((prev) => !prev);
+    };
+
+    const handleComunityInfoCardClick = () => {
+      setCommunityInfoCardOpen((prev) => !prev);
+    };
+
     const menuItems: MenuItem[] = [
       {
         label: "프로필",
         icon: <UserProfileIcon />,
         onClick: () => {
           console.log("프로필 이동");
-          onClose();
+          handleProfileClick();
+          // onClose();
         },
       },
       {
@@ -33,7 +47,8 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
         icon: <HelpCircleIcon />,
         onClick: () => {
           console.log("커뮤니티 정보");
-          onClose();
+          handleComunityInfoCardClick();
+          // onClose();
         },
       },
       {
@@ -41,7 +56,6 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
         icon: <UsersIcon />,
         onClick: () => {
           console.log("팀 정보");
-
           onClose();
         },
       },
@@ -56,15 +70,24 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
       },
     ];
 
+    if (isProfileCardOpen) {
+      return <ProfileEditCard onClose={handleProfileClick} />;
+    }
+    if (isCommunityInfoCardOpen) {
+      return <CommunityInfoCard onClose={handleComunityInfoCardClick} />;
+    }
+
     return (
-      <DropdownMenu ref={ref}>
-        {menuItems.map((item) => (
-          <MenuItemBox key={item.label} onClick={item.onClick}>
-            <span>{item.icon}</span>
-            <span>{item.label}</span>
-          </MenuItemBox>
-        ))}
-      </DropdownMenu>
+      <>
+        <DropdownMenu ref={ref}>
+          {menuItems.map((item) => (
+            <MenuItemBox key={item.label} onClick={item.onClick}>
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </MenuItemBox>
+          ))}
+        </DropdownMenu>
+      </>
     );
   },
 );

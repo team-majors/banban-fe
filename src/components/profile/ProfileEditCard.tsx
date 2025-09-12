@@ -1,11 +1,38 @@
 "use client";
-
-import Image from "next/image";
 import styled from "styled-components";
 import { Input } from "../common/Input";
+import { useState } from "react";
+import ProfileImageContainer from "./ProfileImageContainer";
+import useAuth from "@/hooks/useAuth";
+import { useUpdateUsername } from "@/hooks/useUpdateUsername";
+import { useToast } from "../common/Toast/useToast";
 
-export const ProfileEditCard = () => {
-  const username = "tonton";
+export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
+  const { user } = useAuth();
+  const { showToast } = useToast();
+  const { mutate, isPending } = useUpdateUsername();
+  const [newUsername, setNewUsername] = useState(user?.username);
+
+  const handleSaveUsername = () => {
+    if (newUsername && newUsername !== user?.username) {
+      mutate(
+        { username: newUsername },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+          onError: (err) => {
+            console.error(err);
+            showToast({
+              type: "error",
+              message: "프로필 수정 실패: " + (err as Error).message,
+              duration: 3000,
+            });
+          },
+        },
+      );
+    }
+  };
 
   return (
     <Container>
@@ -14,21 +41,17 @@ export const ProfileEditCard = () => {
       </ProfileHeader>
 
       <ProfileContent>
-        <ProfileImageWrapper>
-          <StyledProfileImage
-            src="/love.jpg"
-            width={92}
-            height={92}
-            alt="user_profile_img"
-          />
-        </ProfileImageWrapper>
-
-        <ProfileUserName>@{username}</ProfileUserName>
+        <ProfileImageContainer imageUrl={user?.profileImageUrl} />
+        <ProfileUserName>@{user?.username}</ProfileUserName>
 
         <NicknameSection>
           <Input>
             <StyledLabel>닉네임</StyledLabel>
-            <Input.Field $isValidate={true} />
+            <Input.Field
+              $isValidate={true}
+              value={newUsername}
+              onChange={(e) => setNewUsername(e.target.value)}
+            />
           </Input>
           <NicknameNotice>
             <SmallText>
@@ -37,17 +60,29 @@ export const ProfileEditCard = () => {
             <MediumText>다음 변경 가능: 2025-06-22 11:22 KST</MediumText>
           </NicknameNotice>
         </NicknameSection>
-
-        <SaveButton onClick={() => {}}>저장</SaveButton>
+        <ButtonWrapper>
+          <StyledButton onClick={onClose}>취소</StyledButton>
+          <StyledButton
+            disabled={
+              isPending || newUsername == user?.username || !newUsername
+            }
+            onClick={handleSaveUsername}
+          >
+            {isPending ? "저장 중" : "저장"}
+          </StyledButton>
+        </ButtonWrapper>
       </ProfileContent>
     </Container>
   );
 };
 
 const Container = styled.div`
+  position: absolute;
+  top: 56px;
+  right: 0;
   background-color: white;
   width: 350px;
-  height: 462px;
+  height: 448px;
   border-radius: 8px;
   flex-direction: column;
   border: solid 1px #e9eaeb;
@@ -55,7 +90,7 @@ const Container = styled.div`
 `;
 
 const ProfileHeader = styled.div`
-  padding: 20px 16px;
+  padding: 16px;
   border-bottom: solid 1px #e9eaeb;
 `;
 
@@ -68,35 +103,16 @@ const ProfileContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
   padding: 16px;
-`;
-
-const ProfileImageWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 4px;
-  margin-bottom: 10px;
-  width: 100px;
-  height: 100px;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08);
-  overflow: hidden;
-`;
-
-const StyledProfileImage = styled(Image)`
-  width: 92px;
-  height: 92px;
-  border-radius: 50%;
-  object-fit: cover;
+  padding-bottom: 0;
 `;
 
 const ProfileUserName = styled.h2`
   color: #181d27;
   font-size: 24px;
-  font-weight: 900;
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-top: 8px;
 `;
 
 const NicknameSection = styled.section`
@@ -104,13 +120,15 @@ const NicknameSection = styled.section`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-bottom: 8px;
 `;
 
 const StyledLabel = styled(Input.Label)`
   color: #414651;
   font-size: 14px;
   line-height: 20px;
-  font-weight: 900;
+  font-weight: 600;
+  margin-bottom: 8px;
 `;
 
 const NicknameNotice = styled.div`
@@ -119,7 +137,7 @@ const NicknameNotice = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 10px;
+  padding: 8px 0px;
 `;
 
 const SmallText = styled.h6`
@@ -134,13 +152,21 @@ const MediumText = styled.h4`
   color: #8f9098;
 `;
 
-const SaveButton = styled.button`
+const StyledButton = styled.button<{ disabled?: boolean | undefined }>`
   align-self: flex-end;
   padding: 8px 14px;
-  color: #414651;
+  color: ${({ disabled }) => (disabled ? "#bec0c3" : "#414651")};
   font-size: 14px;
   font-weight: 600;
   border: 1px solid #d5d7da;
   border-radius: 8px;
   box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
+  cursor: ${({ disabled }) => (disabled ? "" : "pointer")};
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: end;
 `;

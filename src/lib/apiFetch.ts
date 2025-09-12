@@ -14,6 +14,7 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const startTime = Date.now();
 
+  // 진행 중인 리프레시가 있으면 기다림
   if (refreshPromise) {
     logger.info("Waiting for ongoing token refresh...", { url });
     const success = await refreshPromise;
@@ -54,6 +55,7 @@ export async function apiFetch<T>(
     return res.json();
   }
 
+  // 401 처리
   if (res.status === 401 && retry) {
     logger.warn("액세스 토큰 만료 감지", { url, duration: `${duration}ms` });
 
@@ -62,9 +64,9 @@ export async function apiFetch<T>(
       throw new Error("로그인이 필요합니다.");
     }
 
+    // refreshPromise가 없으면 새로 생성
     if (!refreshPromise) {
       logger.info("토큰 갱신 시작");
-
       refreshPromise = useAuthStore
         .getState()
         .refreshToken()
@@ -75,15 +77,17 @@ export async function apiFetch<T>(
 
     const success = await refreshPromise;
 
-    if (success) {
-      logger.info("토큰 갱신 성공, 요청 재시도", { url });
-      return apiFetch<T>(url, options, false, context);
-    } else {
+    if (!success) {
       logger.error("토큰 갱신 실패, 로그아웃 처리", { url });
       throw new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
     }
+
+    logger.info("토큰 갱신 성공, 원래 요청 재시도", { url });
+    // retry true로 유지하여 원래 요청이 반드시 재시도되도록 함
+    return apiFetch<T>(url, options, false, context);
   }
 
+  // 에러 처리
   let errorMessage = "";
   try {
     const errorBody = await res.json();

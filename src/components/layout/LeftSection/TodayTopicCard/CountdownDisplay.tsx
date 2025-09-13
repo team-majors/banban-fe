@@ -15,7 +15,7 @@ export default function CountdownDisplay() {
 const CountdownSection = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 8px;
+  padding: 4px;
   gap: 4px;
   text-align: center;
 `;

@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <SectionContext.Provider value={sectionContextValue}>
       <div className="relative mx-auto w-fit">
-        <div className="flex gap-6 pt-[64px] h-[100dvh]">
+        <div className="flex gap-6 pt-[60px] h-[100dvh]">
           <LeftSection />
           <RightSection />
 

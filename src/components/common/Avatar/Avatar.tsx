@@ -28,9 +28,10 @@ export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
           width={size}
           height={size}
           style={{
-            objectFit: "cover",
-            width: "100%",
+            objectFit: imgSrc ? "contain" : "cover",
+            width: "80%",
             height: "100%",
+            objectPosition: "center",
           }}
           onError={() => setImgSrc("/no_img.png")}
         />
@@ -50,6 +51,9 @@ const GradientBorder = styled.div<GradientBorderProps>`
 `;
 
 const StyledImageWrapper = styled.div<StyledImageWrapperProps>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: ${({ size }) => size || 40}px;
   height: ${({ size }) => size || 40}px;
   border-radius: 14px;

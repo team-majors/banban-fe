@@ -5,7 +5,7 @@ export const BanBanLogo = (props: IconProps) => {
     <svg
       data-testid="banban-logo"
       xmlns="http://www.w3.org/2000/svg"
-      width="162"
+      width="132"
       height="37"
       viewBox="0 0 162 37"
       fill="none"

@@ -6,6 +6,7 @@ import ProfileImageContainer from "./ProfileImageContainer";
 import useAuth from "@/hooks/useAuth";
 import { useUpdateUsername } from "@/hooks/useUpdateUsername";
 import { useToast } from "../common/Toast/useToast";
+import { DefaultButton } from "../common/Button";
 
 export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
@@ -61,15 +62,15 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
           </NicknameNotice>
         </NicknameSection>
         <ButtonWrapper>
-          <StyledButton onClick={onClose}>취소</StyledButton>
-          <StyledButton
+          <DefaultButton onClick={onClose}>취소</DefaultButton>
+          <DefaultButton
             disabled={
               isPending || newUsername == user?.username || !newUsername
             }
             onClick={handleSaveUsername}
           >
             {isPending ? "저장 중" : "저장"}
-          </StyledButton>
+          </DefaultButton>
         </ButtonWrapper>
       </ProfileContent>
     </Container>
@@ -150,18 +151,6 @@ const MediumText = styled.h4`
   font-size: 14px;
   line-height: 20px;
   color: #8f9098;
-`;
-
-const StyledButton = styled.button<{ disabled?: boolean | undefined }>`
-  align-self: flex-end;
-  padding: 8px 14px;
-  color: ${({ disabled }) => (disabled ? "#bec0c3" : "#414651")};
-  font-size: 14px;
-  font-weight: 600;
-  border: 1px solid #d5d7da;
-  border-radius: 8px;
-  box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
-  cursor: ${({ disabled }) => (disabled ? "" : "pointer")};
 `;
 
 const ButtonWrapper = styled.div`

@@ -52,7 +52,7 @@ export default function TodayTopicCard() {
     useState<selectOption>("none");
 
   const pieData = useMemo(
-    () => makePieData(data?.options ?? [], data?.voted_option_id),
+    () => makePieData(data?.options ?? [], data?.voted_option_id ?? null),
     [data],
   );
 
@@ -130,7 +130,7 @@ const Container = styled.section`
   max-width: 430px;
   background-color: white;
   border-radius: 8px;
-  padding: 20px 16px;
+  padding: 18px 16px;
 `;
 
 const TitleSection = styled.div`
@@ -140,7 +140,6 @@ const TitleSection = styled.div`
 
 const TitleLabel = styled.div`
   font-weight: 600;
-  padding: 10px;
   margin-bottom: 10px;
 `;
 
@@ -149,5 +148,4 @@ const TopicTitle = styled.div`
   font-weight: 900;
   font-size: 1.5rem;
   text-align: center;
-  margin-bottom: 6px;
 `;

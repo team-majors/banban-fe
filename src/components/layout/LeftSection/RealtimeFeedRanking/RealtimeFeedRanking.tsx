@@ -13,6 +13,8 @@ export default function RealtimeFeedRanking() {
     [data],
   );
 
+  const restNum = 5 - sortedFeeds.length;
+
   return (
     <Container>
       <Title>
@@ -29,6 +31,11 @@ export default function RealtimeFeedRanking() {
               title={item.content}
               figure={item.rank_change}
             />
+          </li>
+        ))}
+        {Array.from({ length: restNum }, (_, index) => (
+          <li key={index}>
+            <RankingItem rank={sortedFeeds.length + index + 1} title={"-"} />
           </li>
         ))}
       </RankingList>

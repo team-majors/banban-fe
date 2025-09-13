@@ -4,7 +4,6 @@ import styled, { keyframes } from "styled-components";
 
 export default function HeaderSkeleton() {
   return (
-
     <Container data-testid="header-skeleton">
       <LogoArea>
         <SkeletonRect width={100} height={32} />
@@ -47,7 +46,7 @@ const Container = styled.header`
   left: 0;
   right: 0;
   z-index: 999;
-  height: 64px;
+  height: 60px;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -5,7 +5,7 @@ import styled, { css } from "styled-components";
 interface RankingItemProps {
   rank: number;
   title: string;
-  figure: number;
+  figure?: number;
 }
 
 export default function RankingItem({ rank, title, figure }: RankingItemProps) {
@@ -15,12 +15,14 @@ export default function RankingItem({ rank, title, figure }: RankingItemProps) {
         <Rank $highlight={rank <= 3}>{rank}</Rank>
         <div>{title}</div>
       </Left>
-      <Figure $increase={figure > 0}>
-        <div>{figure}</div>
-        <ArrowWrapper>
-          {figure > 0 ? <ArrowUpIcon /> : <ArrowDownIcon />}
-        </ArrowWrapper>
-      </Figure>
+      {figure && (
+        <Figure $increase={figure > 0}>
+          <div>{figure}</div>
+          <ArrowWrapper>
+            {figure > 0 ? <ArrowUpIcon /> : <ArrowDownIcon />}
+          </ArrowWrapper>
+        </Figure>
+      )}
     </Container>
   );
 }

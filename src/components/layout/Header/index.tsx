@@ -146,7 +146,7 @@ const Container = styled.header`
   right: 0;
   margin: 0 auto;
   z-index: 900;
-  height: 64px;
+  height: 60px;
   display: flex;
   justify-content: center;
   align-items: center;

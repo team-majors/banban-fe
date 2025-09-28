@@ -22,7 +22,7 @@ export const FloatingInputModal = ({
     content,
     targetUser,
     showCancelConfirm,
-    isSubmitting,
+    isPending,
     handleSubmit,
     handleCancel,
     handleKeyDown,
@@ -51,7 +51,7 @@ export const FloatingInputModal = ({
         onUserLoaded={handleUserLoaded}
         onUserError={handleUserError}
         actionType={actionType}
-        isSubmitting={isSubmitting}
+        isPosting={isPending}
       />
 
       {showCancelConfirm && (

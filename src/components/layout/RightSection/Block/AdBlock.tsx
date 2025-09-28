@@ -6,22 +6,17 @@ import { useRef, useState } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { ReportModal } from "@/components/common/Report";
-import useReport from "@/hooks/useReport";
+import useReportMutation from "@/hooks/useReportMutation";
 
 const AdBlock = ({ props }: { props: Feed }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isReportModalOpen, setReportModalOpen] = useState(false);
-  const [reportReason, setReportReason] = useState<string>('');
-  const [reportDetail, setReportDetail] = useState<string>('');
-  
-  const reportMutation = useReport({
-    targetType: 'FEED',
-    targetId: props.id,
-    reasonCode: reportReason,
-    reasonDetail: reportDetail
-  });
-  
+  const [reportReason, setReportReason] = useState<string>("");
+  const [reportDetail, setReportDetail] = useState<string>("");
+
+  const reportMutation = useReportMutation();
+
   useClickOutside(dropdownRef, () => setDropdownOpen(false));
 
   const handleToggleDropdown = () => {
@@ -34,9 +29,14 @@ const AdBlock = ({ props }: { props: Feed }) => {
 
   const handleReport = (reason: string, detail?: string) => {
     setReportReason(reason);
-    setReportDetail(detail || '');
+    setReportDetail(detail || "");
     setTimeout(() => {
-      reportMutation.mutate();
+      reportMutation.mutate({
+        targetType: "FEED",
+        targetId: props.id,
+        reasonCode: reportReason,
+        reasonDetail: reportDetail,
+      });
     }, 0);
   };
 

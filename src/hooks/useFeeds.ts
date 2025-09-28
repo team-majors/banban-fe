@@ -1,8 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getFeeds } from "@/api/getFeeds";
 import type { FeedsResponse } from "@/types/feeds";
+import { getFeeds } from "@/remote/feed";
 
-const useFeedsQuery = () => {
+export const useFeeds = () => {
   return useInfiniteQuery<FeedsResponse>({
     queryKey: ["feeds"],
     queryFn: ({ pageParam }) =>
@@ -18,5 +18,3 @@ const useFeedsQuery = () => {
     },
   });
 };
-
-export { useFeedsQuery };

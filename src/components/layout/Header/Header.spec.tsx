@@ -25,7 +25,7 @@ describe("Header 컴포넌트", () => {
         username: "user",
         email: "user@naver.com",
         profileImageUrl: undefined,
-        username_updated_at: "202508140000",
+        usernameUpdatedAt: "202508140000",
       },
       logout: vi.fn(),
       login: vi.fn(),

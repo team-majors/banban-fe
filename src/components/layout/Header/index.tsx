@@ -90,6 +90,7 @@ function LoggedInIcons({
   handleNotification: () => void;
   handleProfile: () => void;
 }) {
+  const [src, setSrc] = useState(profileImageUrl || "/user.png");
   return (
     <>
       <IconButton aria-label="알림" onClick={handleNotification}>
@@ -99,14 +100,12 @@ function LoggedInIcons({
       <IconButton aria-label="프로필" onClick={handleProfile}>
         {profileImageUrl ? (
           <Image
-            src={profileImageUrl}
-            width={48}
-            height={48}
+            src={src}
+            width={28}
+            height={28}
             alt="userProfileImage"
             objectFit="cover"
-            style={{
-              borderRadius: "50%",
-            }}
+            onError={() => setSrc("/menu_user.png")}
           />
         ) : (
           <UserIcon />
@@ -169,8 +168,9 @@ const IconButton = styled.button`
   width: 48px;
   height: 48px;
   border: none;
-  border-radius: 8px;
-  background-color: transparent;
+  border-radius: 100%;
+  background-color: #f9f8ff;
+  margin-right: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 

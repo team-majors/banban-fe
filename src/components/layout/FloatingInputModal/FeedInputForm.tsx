@@ -23,7 +23,7 @@ interface FeedInputFormProps {
   onUserLoaded: (user: TargetUser) => void;
   onUserError: (error: Error) => void;
   actionType: "댓글" | "피드";
-  isSubmitting: boolean;
+  isPosting: boolean;
 }
 
 export const FeedInputForm = ({
@@ -36,7 +36,7 @@ export const FeedInputForm = ({
   onUserLoaded,
   onUserError,
   actionType,
-  isSubmitting
+  isPosting,
 }: FeedInputFormProps) => {
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onContentChange(e.target.value);
@@ -58,10 +58,7 @@ export const FeedInputForm = ({
         </Header>
 
         {/* 대상 정보 영역 - UserInfoLoader로 데이터 로딩 */}
-        <UserInfoLoader
-          onUserLoaded={onUserLoaded}
-          onError={onUserError}
-        />
+        <UserInfoLoader onUserLoaded={onUserLoaded} onError={onUserError} />
 
         {/* 유저 정보 표시 - 데이터 로딩 완료 후에만 표시 */}
         {targetUser && (
@@ -70,21 +67,21 @@ export const FeedInputForm = ({
               src={targetUser.avatarUrl}
               alt={`${targetUser.nickname}의 프로필 이미지`}
               size={48}
-              background={targetUser.avatarBackground || '#f0f0f0'}
+              background={targetUser.avatarBackground || "#f0f0f0"}
             />
             <UserInfo>
               <Nickname>@{targetUser.nickname}</Nickname>
               <Description>
-                {targetUser.description.startsWith('> ') ? (
+                {targetUser.description.startsWith("> ") ? (
                   <>
-                    <span style={{ color: '#6b7280' }}>{'>'} </span>
+                    <span style={{ color: "#6b7280" }}>{">"} </span>
                     <span
                       style={{
-                        background: targetUser.voteTextColor || '#ec4899',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                        fontWeight: 'bold'
+                        background: targetUser.voteTextColor || "#ec4899",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                        fontWeight: "bold",
                       }}
                     >
                       {targetUser.description.substring(2)}
@@ -112,10 +109,10 @@ export const FeedInputForm = ({
         {/* 하단 버튼 */}
         <Footer>
           <DefaultButton
-            isActive={!!content.trim() && !isSubmitting}
+            isActive={!!content.trim() && !isPosting}
             onClick={onSubmit}
           >
-            {isSubmitting ? '보내는 중...' : '보내기'}
+            {isPosting ? "보내는 중..." : "보내기"}
           </DefaultButton>
         </Footer>
       </ModalContainer>
@@ -145,12 +142,13 @@ const ModalOverlay = styled.div`
 const ModalContainer = styled.div`
   background: white;
   border-radius: 8px;
-  border: 1px solid #E9EAEB;
+  border: 1px solid #e9eaeb;
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
   overflow: hidden;
-  box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08), 0px 4px 6px -2px rgba(10, 13, 18, 0.03);
+  box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08),
+    0px 4px 6px -2px rgba(10, 13, 18, 0.03);
   display: flex;
   flex-direction: column;
 `;

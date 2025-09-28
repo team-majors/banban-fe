@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { apiFetch } from "@/lib/apiFetch";
+import { makeVote } from "@/remote/poll";
 import { BanbanResponse } from "@/types/api";
 import {
   useMutation,
@@ -9,14 +9,6 @@ import {
 
 type VoteContext<T = any> = {
   previousSelectOption: T | undefined;
-};
-
-const fetchVote = async ({ id }: { id: number }): Promise<BanbanResponse> => {
-  const res: BanbanResponse = await apiFetch("/polls/votes", {
-    method: "POST",
-    body: JSON.stringify({ poll_option_id: id }),
-  });
-  return res;
 };
 
 export const useVote = <TData = any>(
@@ -30,7 +22,7 @@ export const useVote = <TData = any>(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: fetchVote,
+    mutationFn: makeVote,
     onMutate: async (): Promise<VoteContext<TData>> => {
       await queryClient.cancelQueries({ queryKey: ["polls"] });
 

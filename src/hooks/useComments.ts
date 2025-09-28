@@ -1,14 +1,13 @@
-
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { getComments } from "@/api/getComments";
+import { getComments } from "@/remote/comment";
 import type { CommentResponse } from "@/types/comments";
 
-interface UseCommentsQueryParams {
+interface UseCommentsParams {
   feedId: number;
   size?: number;
 }
 
-export const useCommentsQuery = ({ feedId, size = 20 }: UseCommentsQueryParams) => {
+export const useComments = ({ feedId, size = 20 }: UseCommentsParams) => {
   return useInfiniteQuery<CommentResponse>({
     queryKey: ["comments", feedId],
     queryFn: ({ pageParam }) =>
@@ -18,7 +17,8 @@ export const useCommentsQuery = ({ feedId, size = 20 }: UseCommentsQueryParams) 
       if (!lastPage.data.hasNext) {
         return undefined;
       }
-      const lastComment = lastPage.data.content[lastPage.data.content.length - 1];
+      const lastComment =
+        lastPage.data.content[lastPage.data.content.length - 1];
       return lastComment?.id ?? undefined;
     },
     enabled: !!feedId,

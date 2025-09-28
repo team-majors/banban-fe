@@ -1,19 +1,21 @@
 import styled from "styled-components";
-import { useCommentsQuery } from "@/hooks/useCommentsQuery";
+import { useComments } from "@/hooks/useComments";
 import { useInView } from "react-intersection-observer";
 import { Fragment, useEffect } from "react";
 import { Block } from "../Block";
 import { useContext } from "react";
 import { SectionContext } from "../SectionContext";
 import { usePoll } from "@/hooks/usePoll";
+import { useTodayISO } from "@/hooks/useTodayIso";
 
 const CommentStream = () => {
   const { targetFeed } = useContext(SectionContext);
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useCommentsQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useComments({
     feedId: targetFeed?.id || 0,
     size: 8,
   });
-  const { data: pollData } = usePoll();
+  const today = useTodayISO();
+  const { data: pollData } = usePoll(today);
 
   const [scrollTrigger, isInView] = useInView({
     threshold: 0,
@@ -35,7 +37,13 @@ const CommentStream = () => {
             return (
               <Fragment key={`comment-page-${index}-item-${idx}`}>
                 {isSecondFromLast && hasNextPage && <div ref={scrollTrigger} />}
-                {pollData && <Block type="comment" commentProps={item} pollData={pollData} />}
+                {pollData && (
+                  <Block
+                    type="comment"
+                    commentProps={item}
+                    pollData={pollData}
+                  />
+                )}
               </Fragment>
             );
           })}

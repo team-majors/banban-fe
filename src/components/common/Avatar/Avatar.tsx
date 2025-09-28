@@ -1,5 +1,6 @@
+import { getUserProfileImage } from "@/remote/user";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 interface AvatarProps {
@@ -17,23 +18,32 @@ interface GradientBorderProps {
 }
 
 export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
-  const [imgSrc, setImgSrc] = useState(src || "/no_img.png");
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchAvatar() {
+      const res = await getUserProfileImage({ url: src });
+      setUrl(res.data);
+    }
+    fetchAvatar();
+  }, [src]);
+
   return (
     <GradientBorder background={background}>
       <StyledImageWrapper size={size}>
         <Image
           role="img"
-          src={imgSrc ? imgSrc : src}
+          src={url ? url : src}
           alt={alt}
           width={size}
           height={size}
           style={{
-            objectFit: imgSrc ? "contain" : "cover",
-            width: "80%",
+            objectFit: url ? "contain" : "cover",
+            width: "60%",
             height: "100%",
             objectPosition: "center",
           }}
-          onError={() => setImgSrc("/no_img.png")}
+          onError={() => setUrl("/no_img.png")}
         />
       </StyledImageWrapper>
     </GradientBorder>

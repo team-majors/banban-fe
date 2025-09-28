@@ -1,14 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/apiFetch";
 import { PollOption, Poll } from "@/types/poll";
-import { User } from "@/types/auth";
+import { UserProfile } from "@/types/auth";
 import { ApiResponse } from "@/types/api";
-
-// User 타입을 확장하여 profile_image_url과 role 필드 추가
-interface UserProfile extends User {
-  profile_image_url: string;
-  role: string;
-}
+import { getUserProfile } from "@/remote/user";
 
 interface UserVoteInfo {
   userProfile: UserProfile;
@@ -16,11 +11,6 @@ interface UserVoteInfo {
   votedOption: PollOption | null;
   voteStatus: "not_voted" | "voted" | "loading" | "error";
 }
-
-export const fetchUserProfile = async (): Promise<UserProfile> => {
-  const response: ApiResponse<UserProfile> = await apiFetch("/users/profile");
-  return response.data;
-};
 
 const fetchPollData = async (date: string): Promise<Poll> => {
   const response: ApiResponse<Poll> = await apiFetch(
@@ -39,7 +29,7 @@ export const useUserVoteInfo = (date?: string) => {
     error: profileError,
   } = useQuery<UserProfile, Error>({
     queryKey: ["userProfile"],
-    queryFn: () => fetchUserProfile(),
+    queryFn: () => getUserProfile(),
     staleTime: 1000 * 60 * 5, // 5분 캐시
     refetchOnWindowFocus: false,
   });
@@ -58,8 +48,8 @@ export const useUserVoteInfo = (date?: string) => {
   });
 
   // 투표한 옵션 찾기
-  const votedOption = pollData?.voted_option_id
-    ? pollData.options.find((option) => option.id === pollData.voted_option_id)
+  const votedOption = pollData?.votedOptionId
+    ? pollData.options.find((option) => option.id === pollData.votedOptionId)
     : null;
 
   // 로딩 상태 결정
@@ -73,7 +63,7 @@ export const useUserVoteInfo = (date?: string) => {
   if (error) {
     voteStatus = "error";
   } else if (!isLoading && pollData) {
-    voteStatus = pollData.has_voted ? "voted" : "not_voted";
+    voteStatus = pollData.hasVoted ? "voted" : "not_voted";
   }
 
   const userVoteInfo: UserVoteInfo = {
@@ -81,8 +71,7 @@ export const useUserVoteInfo = (date?: string) => {
       username: "",
       email: "",
       profileImageUrl: "",
-      username_updated_at: null,
-      profile_image_url: "",
+      usernameUpdatedAt: null,
       role: "",
     },
     pollData: pollData || null,
@@ -97,7 +86,7 @@ export const useUserVoteInfo = (date?: string) => {
     // 편의 메서드들
     hasVoted: voteStatus === "voted",
     votedOptionContent: votedOption?.content || null,
-    userAvatar: userProfile?.profile_image_url || null,
+    userAvatar: userProfile?.profileImageUrl || null,
     username: userProfile?.username || null,
     userVoteOptionId: votedOption?.id || null,
   };

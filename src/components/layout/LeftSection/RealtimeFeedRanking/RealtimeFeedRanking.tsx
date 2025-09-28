@@ -2,8 +2,8 @@ import ZapIcon from "@/components/svg/ZapIcon";
 import styled from "styled-components";
 import RankingItem from "./RankingItem";
 import useHotFeed from "@/hooks/useHotFeed";
-import { HotFeed } from "@/remote/feed";
 import { useMemo } from "react";
+import { HotFeed } from "@/types/feeds";
 
 export default function RealtimeFeedRanking() {
   const { data } = useHotFeed();
@@ -25,11 +25,11 @@ export default function RealtimeFeedRanking() {
       </Title>
       <RankingList>
         {sortedFeeds.map((item: HotFeed) => (
-          <li key={item.feed_id}>
+          <li key={item.feedId}>
             <RankingItem
               rank={item.rank}
               title={item.content}
-              figure={item.rank_change}
+              figure={item.rankChange}
             />
           </li>
         ))}

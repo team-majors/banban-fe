@@ -11,10 +11,9 @@ import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 import { ReportModal } from "@/components/common/Report";
-import useReport from "@/hooks/useReport";
+import useReportMutation from "@/hooks/useReportMutation";
 
 const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
-
   const { user, createdAt, commentCount, content, likeCount, id, isLiked } =
     props;
 
@@ -30,15 +29,10 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
 
   const likeMutation = useFeedLikeOptimisticUpdate({ id });
   const avatarBackground = useVoteOptionColor(props.userVoteOptionId, pollData);
-  const [reportReason, setReportReason] = useState<string>('');
-  const [reportDetail, setReportDetail] = useState<string>('');
+  const [reportReason, setReportReason] = useState<string>("");
+  const [reportDetail, setReportDetail] = useState<string>("");
 
-  const reportMutation = useReport({
-    targetType: 'FEED',
-    targetId: id,
-    reasonCode: reportReason,
-    reasonDetail: reportDetail
-  });
+  const reportMutation = useReportMutation();
 
   const handleToggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
@@ -50,9 +44,14 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
 
   const handleReport = (reason: string, detail?: string) => {
     setReportReason(reason);
-    setReportDetail(detail || '');
+    setReportDetail(detail || "");
     setTimeout(() => {
-      reportMutation.mutate();
+      reportMutation.mutate({
+        targetType: "FEED",
+        targetId: id,
+        reasonCode: reportReason,
+        reasonDetail: reportDetail,
+      });
     }, 0);
   };
 

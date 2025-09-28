@@ -3,6 +3,7 @@ import STORAGE_KEYS from "@/constants/storageKeys";
 import { extractErrorMessage } from "@/utils/errorMessages";
 import { logger } from "@/utils/logger";
 import { ApiContext } from "@/types/api";
+import camelcaseKeys from "camelcase-keys";
 
 let refreshPromise: Promise<boolean> | null = null;
 
@@ -52,7 +53,9 @@ export async function apiFetch<T>(
       duration: `${duration}ms`,
       context,
     });
-    return res.json();
+
+    const data = await res.json();
+    return camelcaseKeys(data, { deep: true }) as T;
   }
 
   // 401 처리

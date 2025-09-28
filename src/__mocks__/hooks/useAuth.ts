@@ -7,7 +7,7 @@ const useAuthMock = vi.fn(() => ({
     username: "user",
     email: "user@naver.com",
     profileImageUrl: undefined,
-    username_updated_at: "202508140000",
+    usernameUpdatedAt: "202508140000",
   },
   login: vi.fn(),
   logout: vi.fn(),

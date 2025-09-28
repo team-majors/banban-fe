@@ -1,10 +1,9 @@
-
 import styled from "styled-components";
 import { Avatar } from "@/components/common/Avatar";
 import { FeedHeartButton } from "@/components/common/Button";
 import { MoreIcon } from "@/components/svg/MoreIcon";
 import { CornerDownRightIcon } from "@/components/svg/CornerDownRightIcon";
-import { CommentContent,  } from "@/types/comments";
+import { CommentContent } from "@/types/comments";
 import { useState, useRef } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { useClickOutside } from "@/hooks/useClickOutside";
@@ -13,18 +12,17 @@ import { ReportModal } from "@/components/common/Report";
 import { useCommentLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
-import useReport from "@/hooks/useReport";
+import useReportMutation from "@/hooks/useReportMutation";
 
-const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Poll }) => {
-  const {
-    id,
-    feedId,
-    content,
-    author,
-    likeCount,
-    isLiked,
-    userVoteOptionId
-  } = props;
+const CommentBlock = ({
+  props,
+  pollData,
+}: {
+  props: CommentContent;
+  pollData: Poll;
+}) => {
+  const { id, feedId, content, author, likeCount, isLiked, userVoteOptionId } =
+    props;
 
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
 
@@ -32,20 +30,15 @@ const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Po
   const [count, setCount] = useState<number>(likeCount);
   const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [isReportModalOpen, setReportModalOpen] = useState<boolean>(false);
-  const [reportReason, setReportReason] = useState<string>('');
-  const [reportDetail, setReportDetail] = useState<string>('');
+  const [reportReason, setReportReason] = useState<string>("");
+  const [reportDetail, setReportDetail] = useState<string>("");
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   const likeMutation = useCommentLikeOptimisticUpdate({ feedId, id });
   const avatarBackground = useVoteOptionColor(userVoteOptionId, pollData);
-  
-  const reportMutation = useReport({
-    targetType: 'COMMENT',
-    targetId: id,
-    reasonCode: reportReason,
-    reasonDetail: reportDetail
-  });
-  
+
+  const reportMutation = useReportMutation();
+
   useClickOutside(dropdownRef, () => setDropdownOpen(false));
 
   const handleToggleDropdown = () => {
@@ -58,9 +51,14 @@ const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Po
 
   const handleReport = (reason: string, detail?: string) => {
     setReportReason(reason);
-    setReportDetail(detail || '');
+    setReportDetail(detail || "");
     setTimeout(() => {
-      reportMutation.mutate();
+      reportMutation.mutate({
+        targetType: "COMMENT",
+        targetId: id,
+        reasonCode: reportReason,
+        reasonDetail: reportDetail,
+      });
     }, 0);
   };
 
@@ -81,34 +79,34 @@ const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Po
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
           <StyledMoreButtonWrapper ref={dropdownRef}>
-          <StyledMoreButton
-            onClick={handleToggleDropdown}
-            aria-label="더보기 옵션 열기"
-          >
-            <MoreIcon />
-          </StyledMoreButton>
-          {isDropdownOpen && (
-            <OptionsDropdown
-              onHide={() => {
-                handleCloseDropdown();
-                // 관심 없음 처리 로직
-              }}
-              onReport={() => {
-                handleCloseDropdown();
-                setReportModalOpen(true);
-              }}
-            />
-          )}
-          {isReportModalOpen && (
-            <ReportModal
-              isOpen={isReportModalOpen}
-              onClose={() => setReportModalOpen(false)}
-              onReport={handleReport}
-              targetType="COMMENT"
-              targetId={id}
-            />
-          )}
-        </StyledMoreButtonWrapper>
+            <StyledMoreButton
+              onClick={handleToggleDropdown}
+              aria-label="더보기 옵션 열기"
+            >
+              <MoreIcon />
+            </StyledMoreButton>
+            {isDropdownOpen && (
+              <OptionsDropdown
+                onHide={() => {
+                  handleCloseDropdown();
+                  // 관심 없음 처리 로직
+                }}
+                onReport={() => {
+                  handleCloseDropdown();
+                  setReportModalOpen(true);
+                }}
+              />
+            )}
+            {isReportModalOpen && (
+              <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+                onReport={handleReport}
+                targetType="COMMENT"
+                targetId={id}
+              />
+            )}
+          </StyledMoreButtonWrapper>
         </StyledTitleContainer>
 
         <StyledBodyContainer>{content}</StyledBodyContainer>
@@ -127,7 +125,7 @@ const CommentBlock = ({ props, pollData }: { props: CommentContent; pollData: Po
       </StyledContentContainer>
     </StyledContainer>
   );
-}
+};
 
 const StyledLeftPadding = styled.div`
   padding: 0 5px;

@@ -24,7 +24,15 @@ interface Feed {
   userVoteOptionId: number | null;
 }
 
-interface FeedsData {
+export interface HotFeed {
+  content: string;
+  direction: "UP" | "DOWN";
+  feedId: number;
+  rank: number;
+  rankChange: number;
+}
+
+export interface FeedsData {
   content: Feed[];
   hasNext: boolean;
   size: number;
@@ -40,6 +48,10 @@ interface FeedsResponse {
   code: number;
   status: "SUCCESS" | "FAIL";
   data: FeedsData;
+}
+
+export interface HotFeedResponse {
+  feeds: HotFeed[];
 }
 
 export type { AdMeta, Feed, FeedsRequest, FeedsResponse, User };

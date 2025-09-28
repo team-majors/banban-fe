@@ -1,14 +1,16 @@
 import styled from "styled-components";
-import { useFeedsQuery } from "@/hooks/useFeedsQuery";
+import { useFeeds } from "@/hooks/useFeeds";
 import { useInView } from "react-intersection-observer";
 import { Fragment, useEffect, useRef } from "react";
 import { Block } from "../Block";
 import useScrollPositionStore from "@/store/useScrollPositionStore";
 import { usePoll } from "@/hooks/usePoll";
+import { useTodayISO } from "@/hooks/useTodayIso";
 
 export default function FeedStream() {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeedsQuery();
-  const { data: pollData } = usePoll();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeeds();
+  const today = useTodayISO();
+  const { data: pollData } = usePoll(today);
 
   const [scrollTrigger, isInView] = useInView({
     threshold: 0,
@@ -41,10 +43,16 @@ export default function FeedStream() {
       };
     };
 
-    scrollRef.current?.addEventListener("scroll", debounce(handleScrollEnd, 200));
+    scrollRef.current?.addEventListener(
+      "scroll",
+      debounce(handleScrollEnd, 200),
+    );
 
     return () => {
-      scrollRef.current?.removeEventListener("scroll", debounce(handleScrollEnd, 200));
+      scrollRef.current?.removeEventListener(
+        "scroll",
+        debounce(handleScrollEnd, 200),
+      );
     };
   }, []);
 

@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const CommunityInfoCard = ({ onClose }: { onClose: () => void }) => {
   return (
-    <Container>
+    <Container onClick={onClose}>
       <TitleContainer>
         <Title>커뮤니티 정보</Title>
       </TitleContainer>

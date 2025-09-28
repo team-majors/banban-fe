@@ -5,10 +5,12 @@ import { useContext } from "react";
 import { SectionContext } from "../SectionContext";
 import { CommentStream } from "../CommentStream";
 import { usePoll } from "@/hooks/usePoll";
+import { useTodayISO } from "@/hooks/useTodayIso";
 
 const CommentsPanel = () => {
   const { targetFeed } = useContext(SectionContext);
-  const { data: pollData } = usePoll();
+  const today = useTodayISO();
+  const { data: pollData } = usePoll(today);
   return (
     <>
       <CommentTab />
@@ -16,7 +18,13 @@ const CommentsPanel = () => {
         <div>오류! 댓글이 없습니다!</div>
       ) : (
         <>
-          {pollData && <Block type="commentHead" feedProps={targetFeed} pollData={pollData} />}
+          {pollData && (
+            <Block
+              type="commentHead"
+              feedProps={targetFeed}
+              pollData={pollData}
+            />
+          )}
           <StyledDivider />
           <CommentStream />
         </>

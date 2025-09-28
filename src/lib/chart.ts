@@ -16,15 +16,15 @@ export type TextPosition = {
 };
 
 export function makePieData(
-  options: { id: number; content: string; vote_count: number | null }[],
+  options: { id: number; content: string; voteCount: number | null }[],
   votedOptionId: number | null | undefined,
 ): PieData[] {
   const total = options.reduce(
-    (sum, opt) => sum + (opt.vote_count === null ? 0 : opt.vote_count),
+    (sum, opt) => sum + (opt.voteCount === null ? 0 : opt.voteCount),
     0,
   );
   const data = options.map((option) => {
-    const count = option.vote_count === null ? 0 : option.vote_count;
+    const count = option.voteCount === null ? 0 : option.voteCount;
     const rawPercent = total > 0 ? (count / total) * 100 : 0;
 
     const percent = Number.isInteger(rawPercent)

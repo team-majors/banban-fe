@@ -2,8 +2,14 @@ export interface User {
   username: string;
   email: string;
   profileImageUrl: string;
-  username_updated_at: string | null;
+  usernameUpdatedAt: string | null;
 }
+
+export interface UserProfile extends User {
+  profileImageUrl: string;
+  role: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;

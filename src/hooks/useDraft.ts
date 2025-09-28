@@ -1,40 +1,69 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 
-export const useDraft = (actionType: string) => {
+// 안전한 localStorage 접근 유틸
+const safeLocalStorage = {
+  get: (key: string) =>
+    typeof window !== "undefined" ? localStorage.getItem(key) : null,
+  set: (key: string, value: string) => {
+    if (typeof window !== "undefined") localStorage.setItem(key, value);
+  },
+  remove: (key: string) => {
+    if (typeof window !== "undefined") localStorage.removeItem(key);
+  },
+};
+
+type ActionType = "댓글" | "피드";
+
+export const useDraft = (actionType: ActionType, autoRestore = false) => {
+  const [draftContent, setDraftContent] = useState("");
   const hasRestoredDraft = useRef(false);
 
-  // actionType에 따라 다른 localStorage 키 사용
-  const getStorageKey = (type: string) => type === '댓글' ? 'comment-draft' : 'feed-draft';
-  const getDiscardedKey = (type: string) => type === '댓글' ? 'comment-draft-discarded' : 'feed-draft-discarded';
+  const getStorageKey = (type: ActionType) =>
+    type === "댓글" ? "comment-draft" : "feed-draft";
 
-  const saveDraft = useCallback((content: string) => {
-    if (actionType === '댓글' || actionType === '피드') {
-      localStorage.setItem(getStorageKey(actionType), content);
-      // 저장하면 폐기 플래그는 제거
-      localStorage.removeItem(getDiscardedKey(actionType));
-    }
-  }, [actionType]);
+  // draft 저장
+  const saveDraft = useCallback(
+    (content: string) => {
+      safeLocalStorage.set(getStorageKey(actionType), content);
+      setDraftContent(content);
+    },
+    [actionType],
+  );
 
+  // draft 삭제
   const clearDraft = useCallback(() => {
-    localStorage.removeItem(getStorageKey(actionType));
+    safeLocalStorage.remove(getStorageKey(actionType));
+    setDraftContent("");
   }, [actionType]);
 
-  const discardDraft = useCallback(() => {
-    localStorage.removeItem(getStorageKey(actionType));
-    localStorage.setItem(getDiscardedKey(actionType), 'true');
-  }, [actionType]);
+  // draft 복원
+  const restoreDraft = useCallback(
+    (setContent: (content: string) => void) => {
+      const currentDraftContent =
+        safeLocalStorage.get(getStorageKey(actionType)) || "";
 
-  const restoreDraft = useCallback((setContent: (content: string) => void) => {
-    const currentDraftContent = typeof window !== 'undefined' ? localStorage.getItem(getStorageKey(actionType)) || '' : '';
-    const currentHasDiscarded = typeof window !== 'undefined' ? localStorage.getItem(getDiscardedKey(actionType)) === 'true' : false;
+      if (currentDraftContent && !hasRestoredDraft.current) {
+        setContent(currentDraftContent);
+        setDraftContent(currentDraftContent);
+        hasRestoredDraft.current = true;
+        return true; // 복원 성공
+      }
+      return false; // 복원 실패
+    },
+    [actionType],
+  );
 
-    if ((actionType === '댓글' || actionType === '피드') && currentDraftContent && !hasRestoredDraft.current && !currentHasDiscarded) {
-      setContent(currentDraftContent);
-      hasRestoredDraft.current = true;
-      return true; // 토스트 표시 가능
+  // 옵션: 자동 복원
+  useEffect(() => {
+    if (autoRestore) {
+      restoreDraft(setDraftContent);
     }
-    return false; // 토스트 표시 불가
-  }, [actionType]);
+  }, [autoRestore, restoreDraft]);
 
-  return { draftContent: '', saveDraft, clearDraft, discardDraft, restoreDraft };
+  return {
+    draftContent,
+    saveDraft,
+    clearDraft,
+    restoreDraft,
+  };
 };

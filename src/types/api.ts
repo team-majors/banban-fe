@@ -3,10 +3,6 @@ import { Poll } from "./poll";
 
 export type ApiContext = "login" | "profile" | "vote" | "comment" | string;
 
-export interface FeedResponse<T> {
-  feeds: T[];
-}
-
 export interface ApiResponse<T> {
   code: number;
   status: "SUCCESS" | "FAIL";

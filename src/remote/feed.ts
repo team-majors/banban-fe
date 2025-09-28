@@ -1,15 +1,24 @@
 import { apiFetch } from "@/lib/apiFetch";
-import { FeedResponse } from "@/types/api";
+import {
+  FeedsRequest,
+  FeedsResponse,
+  HotFeed,
+  HotFeedResponse,
+} from "@/types/feeds";
 
-export interface HotFeed {
-  content: string;
-  direction: "UP" | "DOWN";
-  feed_id: number;
-  rank: number;
-  rank_change: number;
-}
+export const getFeeds = async ({
+  lastId,
+  size,
+}: FeedsRequest): Promise<FeedsResponse> => {
+  const lastIdParam = lastId === 0 ? "" : `last_id=${lastId}&`;
+  const res: FeedsResponse = await apiFetch(
+    `/feeds?${lastIdParam}size=${size}`,
+  );
 
-export const fetchHotFeed = async (): Promise<HotFeed[]> => {
-  const response: FeedResponse<HotFeed> = await apiFetch("/feeds/hot");
+  return res;
+};
+
+export const getHotFeed = async (): Promise<HotFeed[]> => {
+  const response: HotFeedResponse = await apiFetch("/feeds/hot");
   return response.feeds;
 };

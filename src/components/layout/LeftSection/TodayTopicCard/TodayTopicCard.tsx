@@ -7,6 +7,7 @@ import { useMemo, useState, useCallback } from "react";
 import { makePieData } from "@/lib/chart";
 import { useQueryClient } from "@tanstack/react-query";
 import MainContent from "./MainContent";
+import { useTodayISO } from "@/hooks/useTodayIso";
 
 export interface Option {
   id: number;
@@ -46,18 +47,19 @@ function selectionToOptionId(
 
 export default function TodayTopicCard() {
   const { showToast } = useToast();
-  const { data, isLoading } = usePoll();
+  const today = useTodayISO();
+  const { data, isLoading } = usePoll(today);
   const queryClient = useQueryClient();
   const [optimisticSelection, setOptimisticSelection] =
     useState<selectOption>("none");
 
   const pieData = useMemo(
-    () => makePieData(data?.options ?? [], data?.voted_option_id ?? null),
+    () => makePieData(data?.options ?? [], data?.votedOptionId ?? null),
     [data],
   );
 
   const currentSelection = optionIdToSelection(
-    data?.voted_option_id,
+    data?.votedOptionId,
     data?.options,
   );
 
@@ -76,7 +78,7 @@ export default function TodayTopicCard() {
       const newSelection = optionIdToSelection(variables.id, data?.options);
       setOptimisticSelection(newSelection);
 
-      return { previousSelectOption: data?.voted_option_id };
+      return { previousSelectOption: data?.votedOptionId };
     },
     onSuccess: () => {
       showToastWithType("success", VOTE_TOAST.success.message);
@@ -113,7 +115,7 @@ export default function TodayTopicCard() {
       <MainContent
         isLoading={isLoading}
         pieData={pieData}
-        votedOptionId={data?.voted_option_id}
+        votedOptionId={data?.votedOptionId}
         options={data?.options}
         displayedSelection={displayedSelection}
         handleVote={handleVote}

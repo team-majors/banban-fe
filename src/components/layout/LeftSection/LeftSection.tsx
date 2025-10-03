@@ -1,14 +1,12 @@
 import RealtimeFeedRanking from "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking";
 import TodayTopicCard from "@/components/layout/LeftSection/TodayTopicCard/TodayTopicCard";
 import styled from "styled-components";
-import ConfirmModal from "./TodayTopicCard/ConfirmModal";
 
 export default function LeftSection() {
   return (
     <StyledContainer>
       <TodayTopicCard />
       <RealtimeFeedRanking />
-      <ConfirmModal onClose={() => {}} onVote={() => {}} />
     </StyledContainer>
   );
 }

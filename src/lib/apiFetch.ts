@@ -62,8 +62,9 @@ export async function apiFetch<T>(
   if (res.status === 401 && retry) {
     logger.warn("액세스 토큰 만료 감지", { url, duration: `${duration}ms` });
 
-    if (!isUserLoggedIn()) {
-      logger.warn("Access Token 없음 - 갱신 불가", { url });
+    // 토큰이 없거나, /users/profile 요청인 경우 리프레시 시도하지 않음
+    if (!token || url === "/users/profile") {
+      logger.warn("비로그인 상태 또는 프로필 조회 실패 - 리프레시 불필요", { url, hasToken: !!token });
       throw new Error("로그인이 필요합니다.");
     }
 

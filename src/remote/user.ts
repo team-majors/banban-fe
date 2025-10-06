@@ -16,7 +16,7 @@ export const getUserProfileImage = async ({ url }: { url: string }) => {
 };
 
 export const updateUsername = async ({ username }: { username: string }) => {
-  const response = await apiFetch("/users/profile/username", {
+  const response = await apiFetch("/users/profile/username/", {
     method: "PUT",
     body: JSON.stringify({
       username,
@@ -27,7 +27,7 @@ export const updateUsername = async ({ username }: { username: string }) => {
 };
 
 export const updateProfileImage = async ({ file }: { file: string }) => {
-  const response = await apiFetch("/users/profile/image", {
+  const response = await apiFetch("/users/profile/image/", {
     method: "PUT",
     body: JSON.stringify({
       file,

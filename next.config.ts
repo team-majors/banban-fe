@@ -9,7 +9,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'picsum.photos/**',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'axjvrbminfbt.compat.objectstorage.ap-chuncheon-1.oraclecloud.com',
       },
     ],
   },

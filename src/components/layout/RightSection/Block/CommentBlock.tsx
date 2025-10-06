@@ -13,6 +13,7 @@ import { useCommentLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate"
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 import useReportMutation from "@/hooks/useReportMutation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const CommentBlock = ({
   props,
@@ -38,11 +39,17 @@ const CommentBlock = ({
   const avatarBackground = useVoteOptionColor(userVoteOptionId, pollData);
 
   const reportMutation = useReportMutation();
+  const { isLoggedIn } = useAuthStore();
 
   useClickOutside(dropdownRef, () => setDropdownOpen(false));
 
   const handleToggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
+  };
+
+  const handleLoginRequired = () => {
+    // TODO: 로그인 유도 로직 구현 (모달 또는 페이지 이동)
+    alert("로그인이 필요합니다.");
   };
 
   const handleCloseDropdown = () => {
@@ -115,11 +122,13 @@ const CommentBlock = ({
           <FeedHeartButton
             likeCount={count}
             isLiked={liked}
+            isLoggedIn={isLoggedIn}
             onClick={() => {
               setCount(liked ? count - 1 : count + 1);
               setLiked(!liked);
               likeMutation.mutate();
             }}
+            onLoginRequired={handleLoginRequired}
           />
         </StyledIconButtonContainer>
       </StyledContentContainer>

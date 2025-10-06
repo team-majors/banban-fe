@@ -13,7 +13,7 @@ export const postReport = async ({
   reasonCode,
   reasonDetail,
 }: ReportRequest) => {
-  return apiFetch("/reports", {
+  return apiFetch("/reports/", {
     method: "POST",
     body: JSON.stringify({
       target_type: targetType,

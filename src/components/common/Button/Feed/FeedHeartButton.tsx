@@ -6,28 +6,48 @@ import styled from "styled-components";
 interface Props {
   likeCount: number;
   isLiked: boolean;
+  isLoggedIn?: boolean;
   onClick?: () => void;
+  onLoginRequired?: () => void;
 }
 
-export function FeedHeartButton({ likeCount, isLiked, onClick }: Props) {
+export function FeedHeartButton({
+  likeCount,
+  isLiked,
+  isLoggedIn = true,
+  onClick,
+  onLoginRequired
+}: Props) {
+  const handleClick = () => {
+    if (!isLoggedIn) {
+      onLoginRequired?.();
+      return;
+    }
+    onClick?.();
+  };
+
   return (
     <StyledButton
-      onClick={() => {
-        onClick?.();
-      }}
+      onClick={handleClick}
+      disabled={!isLoggedIn}
+      $isLoggedIn={isLoggedIn}
     >
-      <HeartIcon $isActive={isLiked} />
+      <HeartIcon $isActive={isLiked && isLoggedIn} />
       <StyledSpan>{likeCount}</StyledSpan>
     </StyledButton>
   );
 }
 
-const StyledButton = styled.button`
+const StyledButton = styled.button<{ $isLoggedIn?: boolean }>`
   display: flex;
   gap: 4px;
-
   align-items: center;
-  cursor: pointer;
+  cursor: ${({ $isLoggedIn }) => ($isLoggedIn ? "pointer" : "not-allowed")};
+  opacity: ${({ $isLoggedIn }) => ($isLoggedIn ? 1 : 0.5)};
+
+  &:hover {
+    opacity: ${({ $isLoggedIn }) => ($isLoggedIn ? 0.8 : 0.5)};
+  }
 `;
 
 const StyledSpan = styled.span`

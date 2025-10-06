@@ -12,7 +12,7 @@ export const getFeeds = async ({
 }: FeedsRequest): Promise<FeedsResponse> => {
   const lastIdParam = lastId === 0 ? "" : `last_id=${lastId}&`;
   const res: FeedsResponse = await apiFetch(
-    `/feeds?${lastIdParam}size=${size}`,
+    `/feeds/?${lastIdParam}size=${size}`,
   );
 
   return res;

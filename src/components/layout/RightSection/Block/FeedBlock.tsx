@@ -12,6 +12,7 @@ import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 import { ReportModal } from "@/components/common/Report";
 import useReportMutation from "@/hooks/useReportMutation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
   const { user, createdAt, commentCount, content, likeCount, id, isLiked } =
@@ -33,9 +34,15 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
   const [reportDetail, setReportDetail] = useState<string>("");
 
   const reportMutation = useReportMutation();
+  const { isLoggedIn } = useAuthStore();
 
   const handleToggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
+  };
+
+  const handleLoginRequired = () => {
+    // TODO: 로그인 유도 로직 구현 (모달 또는 페이지 이동)
+    alert("로그인이 필요합니다.");
   };
 
   const handleCloseDropdown = () => {
@@ -106,11 +113,13 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
           <FeedHeartButton
             likeCount={count}
             isLiked={liked}
+            isLoggedIn={isLoggedIn}
             onClick={() => {
               setCount(liked ? count - 1 : count + 1);
               setLiked(!liked);
               likeMutation.mutate();
             }}
+            onLoginRequired={handleLoginRequired}
           />
           <FeedCommentButton
             commentCount={commentCount}

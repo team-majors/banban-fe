@@ -6,12 +6,14 @@ import RightSection from "@/components/layout/RightSection/RightSection";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 import type { Feed } from "@/types/feeds";
 import FloatingButtonWithModal from "@/components/common/FloatingButtonWithModal";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Home() {
   const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">(
     "feeds",
   );
   const [targetFeed, setTargetFeed] = useState<Feed | null>(null);
+  const { isLoggedIn } = useAuthStore();
 
   const sectionContextValue = useMemo(
     () => ({
@@ -30,10 +32,12 @@ export default function Home() {
           <LeftSection />
           <RightSection />
 
-          <FloatingButtonWithModal
-            sectionStatus={sectionStatus}
-            targetFeed={targetFeed}
-          />
+          {isLoggedIn && (
+            <FloatingButtonWithModal
+              sectionStatus={sectionStatus}
+              targetFeed={targetFeed}
+            />
+          )}
         </div>
       </div>
     </SectionContext.Provider>

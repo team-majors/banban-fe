@@ -16,7 +16,7 @@ interface UseCommentLikeOptimisticUpdateProps {
 export const useFeedLikeOptimisticUpdate = ({ id }: UseFeedLikeOptimisticUpdateProps) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => apiFetch("/likes", {
+    mutationFn: () => apiFetch("/likes/", {
       method: "POST",
       body: JSON.stringify({
         target_id: id,
@@ -55,7 +55,7 @@ export const useFeedLikeOptimisticUpdate = ({ id }: UseFeedLikeOptimisticUpdateP
 export const useCommentLikeOptimisticUpdate = ({ feedId, id }: UseCommentLikeOptimisticUpdateProps) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => apiFetch("/likes", {
+    mutationFn: () => apiFetch("/likes/", {
       method: "POST",
       body: JSON.stringify({
         target_id: id,

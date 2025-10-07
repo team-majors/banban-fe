@@ -25,7 +25,7 @@ export const useFloatingInputModal = ({
   onSubmit,
 }: UseFloatingInputModalProps) => {
   const { saveDraft, clearDraft, restoreDraft } = useDraft(actionType);
-  const { mutate, isPending, isSuccess } = usePostContent();
+  const { mutate, isPending } = usePostContent();
 
   const [content, setContent] = useState("");
   const [targetUser, setTargetUser] = useState<TargetUser | null>(null);
@@ -41,15 +41,19 @@ export const useFloatingInputModal = ({
 
   // 제출 핸들러
   const handleSubmit = useCallback(() => {
-    mutate({ content, actionType, feedId });
-    if (isSuccess) {
-      if (actionType === "피드") {
-        clearDraft();
+    mutate(
+      { content, actionType, feedId },
+      {
+        onSuccess: () => {
+          if (actionType === "피드") {
+            clearDraft();
+          }
+          onSubmit(content.trim());
+          setContent("");
+          onClose();
+        }
       }
-      onSubmit(content.trim());
-      setContent("");
-      onClose();
-    }
+    );
   }, [content, actionType, feedId, clearDraft, onSubmit, onClose]);
 
   // 취소 핸들러

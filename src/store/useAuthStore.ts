@@ -139,5 +139,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: () => {
     clearTokens();
     set({ user: null, isLoggedIn: false, error: null });
+
+    // 로그아웃 후 화면 새로고침으로 모든 상태 초기화
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
   },
 }));

@@ -4,7 +4,7 @@ import { FeedHeartButton } from "@/components/common/Button";
 import { MoreIcon } from "@/components/svg/MoreIcon";
 import { CornerDownRightIcon } from "@/components/svg/CornerDownRightIcon";
 import { CommentContent } from "@/types/comments";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { ReportModal } from "@/components/common/Report";
@@ -27,8 +27,6 @@ const CommentBlock = ({
 
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
 
-  const [liked, setLiked] = useState<boolean>(isLiked);
-  const [count, setCount] = useState<number>(likeCount);
   const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [isReportModalOpen, setReportModalOpen] = useState<boolean>(false);
   const [reportReason, setReportReason] = useState<string>("");
@@ -120,12 +118,10 @@ const CommentBlock = ({
 
         <StyledIconButtonContainer>
           <FeedHeartButton
-            likeCount={count}
-            isLiked={liked}
+            likeCount={likeCount}
+            isLiked={isLiked}
             isLoggedIn={isLoggedIn}
             onClick={() => {
-              setCount(liked ? count - 1 : count + 1);
-              setLiked(!liked);
               likeMutation.mutate();
             }}
             onLoginRequired={handleLoginRequired}

@@ -35,7 +35,7 @@ export default function RealtimeFeedRanking() {
         ))}
         {Array.from({ length: restNum }, (_, index) => (
           <li key={index}>
-            <RankingItem rank={sortedFeeds.length + index + 1} title={"-"} />
+            <RankingItem rank={sortedFeeds.length + index + 1} title={"-"} figure={0} />
           </li>
         ))}
       </RankingList>

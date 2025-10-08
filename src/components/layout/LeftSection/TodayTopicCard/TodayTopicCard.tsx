@@ -9,6 +9,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import MainContent from "./MainContent";
 import { useTodayISO } from "@/hooks/useTodayIso";
 import NoTopicState from "./NoTopicState";
+import useAuth from "@/hooks/useAuth";
+import LoginReqruiedModal from "./LoginRequiredModal";
 
 export interface Option {
   id: number;
@@ -48,6 +50,8 @@ function selectionToOptionId(
 
 export default function TodayTopicCard() {
   const { showToast } = useToast();
+  const { isLoggedIn } = useAuth();
+  const [open, setOpen] = useState(false);
   const today = useTodayISO();
   const { data, isLoading, isError } = usePoll(today);
   const queryClient = useQueryClient();
@@ -100,11 +104,17 @@ export default function TodayTopicCard() {
 
   const handleVote = useCallback(
     (selection: selectOption) => {
+      // 로그인 하지 않았을 경우
+      if (!isLoggedIn) {
+        setOpen(true);
+      }
+
       if (displayedSelection === selection) return;
+
       const optionId = selectionToOptionId(selection, data?.options);
       if (optionId) mutate({ id: optionId });
     },
-    [displayedSelection, data?.options, mutate],
+    [isLoggedIn, displayedSelection, data?.options, mutate],
   );
 
   return (
@@ -128,6 +138,9 @@ export default function TodayTopicCard() {
             displayedSelection={displayedSelection}
             handleVote={handleVote}
           />
+          {open && (
+            <LoginReqruiedModal isOpen={open} onClose={() => setOpen(false)} />
+          )}
         </>
       )}
     </Container>

@@ -4,7 +4,7 @@ import "../styles/globals.css";
 import { pretendardSans } from "../../public/fonts/variables";
 import { NextProvider } from "./providers";
 import GlobalModalRenderer from "@/components/common/GlobalModalRenderer";
-import HeaderContainer from "@/components/layout/HeaderContainer";
+import Header from "@/components/layout/Header";
 import StyledComponentsRegistry from "@/lib/registry";
 import NotificationListener from "@/components/notification/NotificationListener";
 
@@ -27,7 +27,7 @@ export default function RootLayout({
           <NextProvider>
             <AuthManager />
             <NotificationListener />
-            <HeaderContainer />
+            <Header />
             {children}
           </NextProvider>
           <div id="modal-root"></div>

@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef } from "react";
 import styled from "styled-components";
 import {
   HelpCircleIcon,
@@ -6,12 +6,12 @@ import {
   UserProfileIcon,
   UsersIcon,
 } from "@/components/svg";
-import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
-import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
 
 interface MenuProps {
   onClose: () => void;
   onLogout: () => void;
+  onOpenProfile?: () => void;
+  onOpenCommunityInfo?: () => void;
 }
 interface MenuItem {
   label: string;
@@ -20,35 +20,22 @@ interface MenuItem {
 }
 
 export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
-  ({ onClose, onLogout }, ref) => {
-    const [isProfileCardOpen, setProfileCardOpen] = useState(false);
-    const [isCommunityInfoCardOpen, setCommunityInfoCardOpen] = useState(false);
-
-    const handleProfileClick = () => {
-      setProfileCardOpen((prev) => !prev);
-    };
-
-    const handleComunityInfoCardClick = () => {
-      setCommunityInfoCardOpen((prev) => !prev);
-    };
-
+  ({ onClose, onLogout, onOpenProfile, onOpenCommunityInfo }, ref) => {
     const menuItems: MenuItem[] = [
       {
         label: "프로필",
         icon: <UserProfileIcon />,
         onClick: () => {
-          console.log("프로필 이동");
-          handleProfileClick();
-          // onClose();
+          onClose();
+          onOpenProfile?.();
         },
       },
       {
         label: "커뮤니티 정보",
         icon: <HelpCircleIcon />,
         onClick: () => {
-          console.log("커뮤니티 정보");
-          handleComunityInfoCardClick();
-          // onClose();
+          onClose();
+          onOpenCommunityInfo?.();
         },
       },
       {
@@ -69,13 +56,6 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
         },
       },
     ];
-
-    if (isProfileCardOpen) {
-      return <ProfileEditCard onClose={handleProfileClick} />;
-    }
-    if (isCommunityInfoCardOpen) {
-      return <CommunityInfoCard onClose={handleComunityInfoCardClick} />;
-    }
 
     return (
       <>

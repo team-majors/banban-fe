@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DefaultButton } from "@/components/common/Button";
 import { BellIcon, UserIcon, DotIcon, BanBanLogo } from "@/components/svg";
 import styled from "styled-components";
@@ -10,37 +10,112 @@ import { UserMenu } from "@/components/common/UserMenu/UserMenu";
 import Image from "next/image";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import HeaderSkeleton from "@/components/common/Skeleton/HeaderSkeleton";
+import NotificationMenu from "./NotificationMenu";
+import { useNotificationStore } from "@/store/useNotificationStore";
+import type { Notification } from "@/types/notification";
+import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
+import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
 
 interface HeaderProps {
-  isNew: boolean;
+  isNew?: boolean;
   onRegister?: () => void;
-  onNotificationClick?: () => void;
 }
 
-export default function Header({
-  isNew = false,
-  onRegister,
-  onNotificationClick,
-}: HeaderProps) {
+export default function Header({ isNew, onRegister }: HeaderProps) {
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
+  const [isNotificationOpen, setNotificationOpen] = useState(false);
+  const [isProfileCardOpen, setProfileCardOpen] = useState(false);
+  const [isCommunityCardOpen, setCommunityCardOpen] = useState(false);
   const { isLoggedIn, user, logout, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
-  useClickOutside(menuRef, () => setUserMenuOpen(false), "click");
+  const notificationRef = useRef<HTMLDivElement>(null);
+  useClickOutside(
+    menuRef,
+    () => {
+      setUserMenuOpen(false);
+      setProfileCardOpen(false);
+      setCommunityCardOpen(false);
+    },
+    "click",
+  );
+  useClickOutside(notificationRef, () => setNotificationOpen(false), "click");
+
+  const notifications = useNotificationStore((state) => state.notifications);
+  const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const connectionStatus = useNotificationStore(
+    (state) => state.connectionStatus,
+  );
+  const isTimeout = useNotificationStore((state) => state.isTimeout);
+  const markAsRead = useNotificationStore((state) => state.markAsRead);
+  const markAllRead = useNotificationStore((state) => state.markAllRead);
+
+  const profileImageSrcState = user?.profileImageUrl || "/user.png";
+  const [profileImageSrc, setProfileImageSrc] = useState(profileImageSrcState);
+
+  useEffect(() => {
+    setProfileImageSrc(profileImageSrcState);
+  }, [profileImageSrcState]);
 
   const handleToggleMenu = () => {
+    setNotificationOpen(false);
+    setProfileCardOpen(false);
+    setCommunityCardOpen(false);
     setUserMenuOpen((prev) => !prev);
   };
 
   const handleCloseMenu = () => {
     setUserMenuOpen(false);
+    setProfileCardOpen(false);
+    setCommunityCardOpen(false);
   };
 
   const handleLogin = () => router.push("/login");
   const handleRegister = () => onRegister?.();
-  const handleNotification = () => onNotificationClick?.();
+  const handleNotificationToggle = () => {
+    setUserMenuOpen(false);
+    setProfileCardOpen(false);
+    setCommunityCardOpen(false);
+    setNotificationOpen((prev) => !prev);
+  };
   const handleProfile = () => handleToggleMenu();
+
+  useEffect(() => {
+    if (!isNotificationOpen) return;
+    const unreadIds = notifications
+      .filter((notification) => !notification.is_read)
+      .map((notification) => notification.id);
+    if (unreadIds.length > 0) {
+      markAsRead(unreadIds);
+    }
+  }, [isNotificationOpen, notifications, markAsRead]);
+
+  const handleNotificationItemClick = (notification: Notification) => {
+    if (!notification.is_read) {
+      markAsRead([notification.id]);
+    }
+    setNotificationOpen(false);
+  };
+
+  const hasUnreadIndicator = useMemo(() => {
+    if (typeof isNew === "boolean") return isNew;
+    return unreadCount > 0;
+  }, [isNew, unreadCount]);
+
+  const handleOpenProfileCard = () => {
+    setUserMenuOpen(false);
+    setNotificationOpen(false);
+    setCommunityCardOpen(false);
+    setProfileCardOpen(true);
+  };
+
+  const handleOpenCommunityCard = () => {
+    setUserMenuOpen(false);
+    setNotificationOpen(false);
+    setProfileCardOpen(false);
+    setCommunityCardOpen(true);
+  };
 
   if (pathname === "/login") return null;
 
@@ -54,19 +129,64 @@ export default function Header({
         <Actions>
           {isLoggedIn ? (
             <ButtonsWrapper>
-              <LoggedInIcons
-                isNew={isNew}
-                profileImageUrl={user?.profileImageUrl}
-                handleNotification={handleNotification}
-                handleProfile={handleProfile}
-              />
-              {isUserMenuOpen && (
-                <UserMenu
-                  onClose={() => handleCloseMenu()}
-                  onLogout={logout}
-                  ref={menuRef}
-                />
-              )}
+              <NotificationWrapper ref={notificationRef}>
+                <IconButton
+                  aria-label="알림"
+                  onClick={handleNotificationToggle}
+                  $active={isNotificationOpen}
+                >
+                  <BellIcon />
+                  {hasUnreadIndicator && (
+                    <NotificationDot data-testid="notification-dot" />
+                  )}
+                </IconButton>
+                {isNotificationOpen && (
+                  <NotificationMenu
+                    notifications={notifications}
+                    connectionStatus={connectionStatus}
+                    isTimeout={isTimeout}
+                    onMarkAllRead={markAllRead}
+                    onItemClick={handleNotificationItemClick}
+                  />
+                )}
+              </NotificationWrapper>
+
+              <ProfileWrapper ref={menuRef}>
+                <IconButton
+                  aria-label="프로필"
+                  onClick={handleProfile}
+                  $active={isUserMenuOpen}
+                >
+                  {user?.profileImageUrl ? (
+                    <Image
+                      src={profileImageSrc}
+                      width={28}
+                      height={28}
+                      alt="userProfileImage"
+                      style={{ objectFit: "cover", borderRadius: "50%" }}
+                      onError={() => setProfileImageSrc("/menu_user.png")}
+                    />
+                  ) : (
+                    <UserIcon />
+                  )}
+                </IconButton>
+                {isUserMenuOpen && (
+                  <UserMenu
+                    onClose={() => handleCloseMenu()}
+                    onLogout={logout}
+                    onOpenProfile={handleOpenProfileCard}
+                    onOpenCommunityInfo={handleOpenCommunityCard}
+                  />
+                )}
+                {isProfileCardOpen && (
+                  <ProfileEditCard onClose={() => setProfileCardOpen(false)} />
+                )}
+                {isCommunityCardOpen && (
+                  <CommunityInfoCard
+                    onClose={() => setCommunityCardOpen(false)}
+                  />
+                )}
+              </ProfileWrapper>
             </ButtonsWrapper>
           ) : (
             <AuthButtons
@@ -77,42 +197,6 @@ export default function Header({
         </Actions>
       </Container>
     );
-}
-
-function LoggedInIcons({
-  isNew,
-  profileImageUrl,
-  handleNotification,
-  handleProfile,
-}: {
-  isNew: boolean;
-  profileImageUrl?: string;
-  handleNotification: () => void;
-  handleProfile: () => void;
-}) {
-  const [src, setSrc] = useState(profileImageUrl || "/user.png");
-  return (
-    <>
-      <IconButton aria-label="알림" onClick={handleNotification}>
-        <BellIcon />
-        {isNew && <NotificationDot data-testid="notification-dot" />}
-      </IconButton>
-      <IconButton aria-label="프로필" onClick={handleProfile}>
-        {profileImageUrl ? (
-          <Image
-            src={src}
-            width={28}
-            height={28}
-            alt="userProfileImage"
-            objectFit="cover"
-            onError={() => setSrc("/menu_user.png")}
-          />
-        ) : (
-          <UserIcon />
-        )}
-      </IconButton>
-    </>
-  );
 }
 
 interface AuthButtonsInterface {
@@ -160,7 +244,7 @@ const LogoArea = styled.div`
   transform: translateX(-50%);
 `;
 
-const IconButton = styled.button`
+const IconButton = styled.button<{ $active?: boolean }>`
   position: relative;
   display: flex;
   justify-content: center;
@@ -169,13 +253,15 @@ const IconButton = styled.button`
   height: 48px;
   border: none;
   border-radius: 100%;
-  background-color: #f9f8ff;
+  background-color: ${({ $active }) =>
+    $active ? "rgba(63, 19, 255, 0.12)" : "#f9f8ff"};
   margin-right: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: rgba(63, 19, 255, 0.1);
+    background-color: ${({ $active }) =>
+      $active ? "rgba(63, 19, 255, 0.18)" : "rgba(63, 19, 255, 0.1)"};
   }
 
   &:focus {
@@ -218,6 +304,19 @@ const NotificationDot = styled(DotIcon)`
 `;
 
 const ButtonsWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const NotificationWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const ProfileWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;

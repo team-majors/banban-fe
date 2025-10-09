@@ -4,7 +4,7 @@ import { FeedHeartButton } from "@/components/common/Button";
 import { MoreIcon } from "@/components/svg/MoreIcon";
 import { CornerDownRightIcon } from "@/components/svg/CornerDownRightIcon";
 import { CommentContent } from "@/types/comments";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { ReportModal } from "@/components/common/Report";

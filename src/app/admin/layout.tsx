@@ -2,8 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import styled, { css } from "styled-components";
 import AdminGuard from "@/components/admin/AdminGuard";
+
+const NAV_ITEMS = [
+  { href: "/admin", label: "대시보드" },
+  { href: "/admin/reports", label: "신고 관리" },
+  { href: "/admin/polls", label: "투표 관리" },
+  { href: "/admin/notifications", label: "알림 관리" },
+  { href: "/admin/activity-logs", label: "활동 로그" },
+  { href: "/admin/system", label: "시스템" },
+];
+
+const linkBase =
+  "whitespace-nowrap rounded-lg border border-transparent px-3 py-2 text-sm font-medium transition hover:bg-slate-100";
+const linkActive =
+  "bg-slate-100 border-slate-200 text-slate-900 shadow-sm";
+const linkInactive = "text-slate-600";
 
 export default function AdminLayout({
   children,
@@ -12,93 +26,59 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
-  const items = [
-    { href: "/admin", label: "대시보드" },
-    { href: "/admin/reports", label: "신고 관리" },
-    { href: "/admin/polls", label: "투표 관리" },
-    { href: "/admin/notifications", label: "알림 관리" },
-    { href: "/admin/activity-logs", label: "활동 로그" },
-    { href: "/admin/system", label: "시스템" },
-  ];
+  const isActive = (href: string) => {
+    if (href === "/admin") return pathname === href;
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <AdminGuard>
-      <Shell>
-        <Sidebar>
-          <NavTitle>관리자 메뉴</NavTitle>
-          <NavList>
-            {items.map((item) => {
-              const active = pathname === item.href;
-              return (
-                <li key={item.href}>
-                  <NavLink href={item.href} $active={active}>
+      <div className="min-h-screen bg-slate-50">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 pb-16 pt-20 lg:flex-row lg:px-8 lg:pt-24">
+          <aside className="hidden w-full max-w-[240px] flex-shrink-0 rounded-2xl border border-slate-200 bg-white/95 p-5 shadow-sm lg:block">
+            <div className="mb-4 text-sm font-semibold text-slate-500">
+              관리자 메뉴
+            </div>
+            <nav className="flex flex-col gap-1">
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${linkBase} ${
+                      active ? linkActive : linkInactive
+                    }`}
+                  >
                     {item.label}
-                  </NavLink>
-                </li>
-              );
-            })}
-          </NavList>
-        </Sidebar>
-        <Content>{children}</Content>
-      </Shell>
+                  </Link>
+                );
+              })}
+            </nav>
+          </aside>
+
+          <div className="lg:hidden">
+            <nav className="sticky top-16 z-20 -mx-4 flex gap-2 overflow-x-auto border-b border-slate-200 bg-slate-50 px-4 pb-3 pt-2 shadow-sm">
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${linkBase} ${
+                      active ? linkActive : linkInactive
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <section className="flex-1">{children}</section>
+        </div>
+      </div>
     </AdminGuard>
   );
 }
-
-const Shell = styled.div`
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 16px;
-  max-width: 1200px;
-  padding: 16px;
-  margin: 0 auto;
-  padding-top: 76px; /* offset for fixed header (60px) + breathing space */
-`;
-
-const Sidebar = styled.aside`
-  background: #ffffff;
-  border: 1px solid #e9eaeb;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(10, 13, 18, 0.05);
-  padding: 12px;
-  height: fit-content;
-`;
-
-const NavTitle = styled.div`
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 8px;
-`;
-
-const NavList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const Content = styled.section`
-  min-width: 0;
-`;
-
-const NavLink = styled(Link)<{ $active?: boolean }>`
-  display: block;
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #111827;
-  text-decoration: none;
-  border: 1px solid transparent;
-
-  ${({ $active }) =>
-    $active
-      ? css`
-          background: #f9fafb;
-          border-color: #e5e7eb;
-          font-weight: 700;
-        `
-      : css`
-          &:hover {
-            background: #f3f4f6;
-          }
-        `}
-`;

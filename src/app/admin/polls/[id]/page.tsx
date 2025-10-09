@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { updateAdminPoll, updateAdminPollOption } from "@/remote/admin";
 import type { Poll, PollOption } from "@/types/poll";
@@ -12,7 +12,6 @@ import {
   AdminCardTitle,
   Actions,
   SmallButton,
-  SectionLabel,
   OptionIndex,
 } from "@/components/admin/AdminUI";
 import { Input } from "@/components/common/Input";
@@ -28,7 +27,12 @@ export default function AdminPollEditPage() {
   const pollId = Number(params.id);
   const pollDate = search.get("poll_date") || undefined;
 
-  const { data: poll, isLoading, error, refetch } = useQuery<Poll>({
+  const {
+    data: poll,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<Poll>({
     queryKey: ["admin", "poll", pollId, pollDate],
     queryFn: () => fetchPoll(pollDate!),
     enabled: !!pollDate && Number.isFinite(pollId),
@@ -57,7 +61,8 @@ export default function AdminPollEditPage() {
   });
 
   const saveOption = useMutation({
-    mutationFn: (opt: PollOption) => updateAdminPollOption(pollId, opt.id, { content: opt.content }),
+    mutationFn: (opt: PollOption) =>
+      updateAdminPollOption(pollId, opt.id, { content: opt.content }),
     onSuccess: () => {
       showToast({ type: "success", message: "옵션 저장" });
       refetch();
@@ -68,12 +73,21 @@ export default function AdminPollEditPage() {
     },
   });
 
-  // 미구현 API(삭제/추가/삭제/순서)는 UI에서 숨김 처리
+  if (isLoading) {
+    return (
+      <AdminContainer>
+        <p className="text-sm text-slate-500">로딩 중...</p>
+      </AdminContainer>
+    );
+  }
 
-  // 테스트 투표는 요구사항상 제거
-
-  if (isLoading) return <AdminContainer>로딩 중...</AdminContainer>;
-  if (error || !localPoll) return <AdminContainer>에러 또는 데이터 없음</AdminContainer>;
+  if (error || !localPoll) {
+    return (
+      <AdminContainer>
+        <p className="text-sm text-red-600">에러 또는 데이터 없음</p>
+      </AdminContainer>
+    );
+  }
 
   const options = localPoll?.options ?? [];
 
@@ -83,13 +97,15 @@ export default function AdminPollEditPage() {
 
       <AdminCard>
         <AdminCardTitle>메타데이터</AdminCardTitle>
-        <div style={{ display: "flex", gap: 12, alignItems: "end", flexWrap: "wrap" }}>
+        <div className="flex flex-wrap items-end gap-3">
           <Input $width="420px">
             <Input.Label>제목</Input.Label>
             <Input.Field
               $isValidate={true}
               defaultValue={localPoll.title}
-              onChange={(e) => setLocalPoll({ ...localPoll, title: e.target.value })}
+              onChange={(e) =>
+                setLocalPoll({ ...localPoll, title: e.target.value })
+              }
             />
           </Input>
           <Input $width="200px">
@@ -98,10 +114,15 @@ export default function AdminPollEditPage() {
               $isValidate={true}
               type="date"
               defaultValue={localPoll.pollDate}
-              onChange={(e) => setLocalPoll({ ...localPoll, pollDate: e.target.value })}
+              onChange={(e) =>
+                setLocalPoll({ ...localPoll, pollDate: e.target.value })
+              }
             />
           </Input>
-          <SmallButton onClick={() => saveMeta.mutate()} disabled={saveMeta.isPending}>
+          <SmallButton
+            onClick={() => saveMeta.mutate()}
+            disabled={saveMeta.isPending}
+          >
             {saveMeta.isPending ? "저장 중..." : "저장"}
           </SmallButton>
         </div>
@@ -109,35 +130,49 @@ export default function AdminPollEditPage() {
 
       <AdminCard>
         <AdminCardTitle>옵션</AdminCardTitle>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="space-y-4">
           {options.map((opt, idx) => (
-            <div key={opt.id} style={{ display: "grid", gridTemplateColumns: "28px 1fr auto auto", gap: 8, alignItems: "center" }}>
-              <OptionIndex>#{opt.optionOrder}</OptionIndex>
-              <Input $width="100%">
-                <Input.Field
-                  $isValidate={true}
-                  defaultValue={opt.content}
-                  onChange={(e) => {
-                    const copy = [...options];
-                    copy[idx] = { ...opt, content: e.target.value };
-                    setLocalPoll({ ...localPoll, options: copy });
-                  }}
-                />
-              </Input>
-              <SmallButton onClick={() => saveOption.mutate(options[idx])}>저장</SmallButton>
-              <div style={{ gridColumn: "2 / -1", color: "#6b7280", fontSize: 12 }}>
+            <div
+              key={opt.id}
+              className="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
+            >
+              <div className="grid gap-3 md:grid-cols-[40px_minmax(0,1fr)_auto] md:items-center">
+                <OptionIndex className="justify-self-start">
+                  #{opt.optionOrder}
+                </OptionIndex>
+                <Input $width="100%">
+                  <Input.Field
+                    $isValidate={true}
+                    defaultValue={opt.content}
+                    onChange={(e) => {
+                      const copy = [...options];
+                      copy[idx] = { ...opt, content: e.target.value };
+                      setLocalPoll({ ...localPoll, options: copy });
+                    }}
+                  />
+                </Input>
+                <SmallButton
+                  className="mt-2 md:mt-0"
+                  onClick={() => saveOption.mutate(options[idx])}
+                  disabled={saveOption.isPending}
+                >
+                  저장
+                </SmallButton>
+              </div>
+              <div className="mt-3 text-xs text-slate-500">
                 투표 수: {opt.voteCount ?? 0}
               </div>
             </div>
           ))}
         </div>
-        {/* 옵션 추가/삭제/순서 변경은 백엔드 미구현으로 숨김 */}
       </AdminCard>
 
       <AdminCard>
         <AdminCardTitle>기타</AdminCardTitle>
         <Actions>
-          <SmallButton onClick={() => router.push("/admin/polls")}>목록으로</SmallButton>
+          <SmallButton onClick={() => router.push("/admin/polls")}>
+            목록으로
+          </SmallButton>
         </Actions>
       </AdminCard>
     </AdminContainer>

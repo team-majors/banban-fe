@@ -13,10 +13,13 @@ import {
 import { Input } from "@/components/common/Input";
 import { useToast } from "@/components/common/Toast/useToast";
 import { useForm } from "react-hook-form";
-import styled from "styled-components";
 import { useMutation } from "@tanstack/react-query";
 import { postAdminNotification } from "@/remote/admin";
-import type { AdminNotification, NotificationTargetType, NotificationType } from "@/types/admin";
+import type {
+  AdminNotification,
+  NotificationTargetType,
+  NotificationType,
+} from "@/types/admin";
 import { useState } from "react";
 
 interface NotificationForm {
@@ -27,6 +30,12 @@ interface NotificationForm {
   targetId: number;
   message?: string;
 }
+
+const selectClass =
+  "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200";
+const tableHeaderClass =
+  "px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
+const tableCellClass = "px-4 py-2 text-sm text-slate-700";
 
 export default function AdminNotificationsPage() {
   const { showToast } = useToast();
@@ -75,8 +84,11 @@ export default function AdminNotificationsPage() {
 
         <AdminCard>
           <AdminCardTitle>알림 발송</AdminCardTitle>
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            <Row>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <div className="flex flex-wrap items-end gap-3">
               <Input $width="200px">
                 <Input.Label>User ID</Input.Label>
                 <Input.Field
@@ -85,7 +97,9 @@ export default function AdminNotificationsPage() {
                   placeholder="123"
                   {...register("userId", { required: true, min: 1 })}
                 />
-                {errors.userId && <Input.ErrorMessage>필수 입력</Input.ErrorMessage>}
+                {errors.userId && (
+                  <Input.ErrorMessage>필수 입력</Input.ErrorMessage>
+                )}
               </Input>
               <Input $width="200px">
                 <Input.Label>From User ID</Input.Label>
@@ -96,23 +110,33 @@ export default function AdminNotificationsPage() {
                   {...register("fromUserId")}
                 />
               </Input>
-            </Row>
+            </div>
 
-            <Row>
-              <div>
-                <SectionLabel>Type</SectionLabel>
-                <Select {...register("type", { required: true })}>
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="flex flex-col text-sm text-slate-600">
+                <SectionLabel className="text-xs text-slate-500">
+                  Type
+                </SectionLabel>
+                <select
+                  className={selectClass}
+                  {...register("type", { required: true })}
+                >
                   <option value="SYSTEM">SYSTEM</option>
-                </Select>
+                </select>
               </div>
-              <div>
-                <SectionLabel>Target Type</SectionLabel>
-                <Select {...register("targetType", { required: true })}>
+              <div className="flex flex-col text-sm text-slate-600">
+                <SectionLabel className="text-xs text-slate-500">
+                  Target Type
+                </SectionLabel>
+                <select
+                  className={selectClass}
+                  {...register("targetType", { required: true })}
+                >
                   <option value="FEED">FEED</option>
                   <option value="COMMENT">COMMENT</option>
                   <option value="POLL">POLL</option>
                   <option value="USER">USER</option>
-                </Select>
+                </select>
               </div>
               <Input $width="200px">
                 <Input.Label>Target ID</Input.Label>
@@ -122,11 +146,13 @@ export default function AdminNotificationsPage() {
                   placeholder="456"
                   {...register("targetId", { required: true, min: 1 })}
                 />
-                {errors.targetId && <Input.ErrorMessage>필수 입력</Input.ErrorMessage>}
+                {errors.targetId && (
+                  <Input.ErrorMessage>필수 입력</Input.ErrorMessage>
+                )}
               </Input>
-            </Row>
+            </div>
 
-            <Row>
+            <div className="flex flex-col">
               <Input $width="100%">
                 <Input.Label>Message</Input.Label>
                 <Input.Field
@@ -136,70 +162,58 @@ export default function AdminNotificationsPage() {
                   {...register("message")}
                 />
               </Input>
-            </Row>
+            </div>
 
-            <Actions>
-              <SmallButton as="button" type="submit" disabled={mutation.isPending}>
+            <Actions className="justify-end">
+              <SmallButton type="submit" disabled={mutation.isPending}>
                 {mutation.isPending ? "발송 중..." : "발송"}
               </SmallButton>
             </Actions>
-          </Form>
+          </form>
         </AdminCard>
 
         <AdminCard>
           <AdminCardTitle>최근 발송 (로컬)</AdminCardTitle>
           {sent.length === 0 ? (
-            <p>발송 내역이 없습니다.</p>
+            <p className="text-sm text-slate-500">발송 내역이 없습니다.</p>
           ) : (
-            <table style={{ width: "100%", fontSize: 14 }}>
-              <thead>
-                <tr style={{ textAlign: "left", color: "#6b7280" }}>
-                  <th style={{ padding: 8 }}>ID</th>
-                  <th style={{ padding: 8 }}>User</th>
-                  <th style={{ padding: 8 }}>Type</th>
-                  <th style={{ padding: 8 }}>Target</th>
-                  <th style={{ padding: 8 }}>Message</th>
-                  <th style={{ padding: 8 }}>Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sent.map((n) => (
-                  <tr key={n.id} style={{ borderTop: "1px solid #e5e7eb" }}>
-                    <td style={{ padding: 8 }}>{n.id}</td>
-                    <td style={{ padding: 8 }}>{n.userId}</td>
-                    <td style={{ padding: 8 }}>{n.type}</td>
-                    <td style={{ padding: 8 }}>
-                      {n.targetType} #{n.targetId}
-                    </td>
-                    <td style={{ padding: 8 }}>{n.message ?? ""}</td>
-                    <td style={{ padding: 8 }}>{n.createdAt ? new Date(n.createdAt).toLocaleString() : "-"}</td>
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className={tableHeaderClass}>ID</th>
+                    <th className={tableHeaderClass}>User</th>
+                    <th className={tableHeaderClass}>Type</th>
+                    <th className={tableHeaderClass}>Target</th>
+                    <th className={tableHeaderClass}>Message</th>
+                    <th className={tableHeaderClass}>Time</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white/95">
+                  {sent.map((n) => (
+                    <tr key={n.id} className="hover:bg-slate-50/70">
+                      <td className={tableCellClass}>{n.id}</td>
+                      <td className={tableCellClass}>{n.userId}</td>
+                      <td className={tableCellClass}>{n.type}</td>
+                      <td className={tableCellClass}>
+                        {n.targetType} #{n.targetId}
+                      </td>
+                      <td className={tableCellClass}>
+                        {n.message ?? ""}
+                      </td>
+                      <td className={`${tableCellClass} whitespace-nowrap`}>
+                        {n.createdAt
+                          ? new Date(n.createdAt).toLocaleString()
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </AdminCard>
       </AdminContainer>
     </RequireAuth>
   );
 }
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const Row = styled.div`
-  display: flex;
-  gap: 12px;
-  align-items: end;
-  flex-wrap: wrap;
-`;
-
-const Select = styled.select`
-  display: block;
-  border: 1px solid #d5d7da;
-  border-radius: 6px;
-  padding: 8px 10px;
-`;

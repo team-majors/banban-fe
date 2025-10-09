@@ -1,83 +1,177 @@
 "use client";
 
-import styled from "styled-components";
-import { DefaultButton } from "@/components/common/Button";
+import { forwardRef } from "react";
+import type {
+  ComponentPropsWithoutRef,
+  HTMLAttributes,
+} from "react";
 
-export const AdminContainer = styled.main`
-  margin: 0 auto;
-  max-width: 960px;
-  padding: 12px 16px 60px; /* match Sidebar inner padding for top alignment */
-`;
+const merge = (base: string, extra?: string) =>
+  extra ? `${base} ${extra}` : base;
 
-export const AdminPageHeader = styled.h1`
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 16px 0; /* reset default top margin */
-`;
+export function AdminContainer({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"main">) {
+  return (
+    <main
+      className={merge(
+        "mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 pb-16 pt-6 lg:px-8",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const AdminCard = styled.section`
-  background: #ffffff;
-  border: 1px solid #e9eaeb;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(10, 13, 18, 0.05);
-  padding: 16px;
-  margin-bottom: 16px;
-`;
+export function AdminPageHeader({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"h1">) {
+  return (
+    <h1
+      className={merge(
+        "text-2xl font-semibold leading-tight text-slate-900 lg:text-3xl",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const AdminCardTitle = styled.h2`
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 12px 0; /* reset default top margin */
-`;
+export function AdminCard({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"section">) {
+  return (
+    <section
+      className={merge(
+        "rounded-2xl border border-slate-200 bg-white/95 p-6 shadow-sm transition hover:shadow-md lg:p-7",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const SectionLabel = styled.div`
-  font-weight: 600;
-  font-size: 14px;
-  color: #374151;
-`;
+export function AdminCardTitle({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"h2">) {
+  return (
+    <h2
+      className={merge(
+        "mb-4 text-lg font-semibold leading-6 text-slate-900 lg:text-xl",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const SmallButton = styled(DefaultButton)`
-  padding: 4px 10px;
-  font-size: 12px;
-`;
+export function SectionLabel({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"div">) {
+  return (
+    <div
+      className={merge(
+        "text-sm font-semibold text-slate-600",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const Actions = styled.div`
-  display: flex;
-  gap: 8px;
-`;
+export const SmallButton = forwardRef<
+  HTMLButtonElement,
+  ComponentPropsWithoutRef<"button">
+>(({ className, type = "button", ...props }, ref) => (
+  <button
+    ref={ref}
+    type={type}
+    className={merge(
+      "inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400 disabled:cursor-not-allowed disabled:opacity-60",
+      className,
+    )}
+    {...props}
+  />
+));
 
-export const MetaRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 8px;
-`;
+SmallButton.displayName = "SmallButton";
 
-export const MetaItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-width: 220px;
-`;
+export function Actions({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={merge("flex flex-wrap items-center gap-2", className)}
+      {...props}
+    />
+  );
+}
 
-export const MetaLabel = styled.span`
-  font-size: 12px;
-  color: #6b7280;
-`;
+export function MetaRow({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={merge(
+        "flex flex-wrap items-center gap-3 border-b border-slate-100 pb-3 last:border-b-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const MetaValue = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-`;
+export function MetaItem({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={merge(
+        "flex min-w-[200px] flex-col gap-1",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
-export const OptionIndex = styled.div`
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #d5d7da;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #6b7280;
-`;
+export function MetaLabel({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"span">) {
+  return (
+    <span
+      className={merge("text-xs font-medium text-slate-500", className)}
+      {...props}
+    />
+  );
+}
+
+export function MetaValue({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<"span">) {
+  return (
+    <span
+      className={merge("text-sm font-semibold text-slate-900", className)}
+      {...props}
+    />
+  );
+}
+
+export function OptionIndex({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={merge(
+        "inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-300 bg-white text-xs font-medium text-slate-500",
+        className,
+      )}
+      {...props}
+    />
+  );
+}

@@ -25,10 +25,17 @@ import type {
   ReportStatus,
   ReportTargetType,
 } from "@/types/admin";
-import styled from "styled-components";
 import { useToast } from "@/components/common/Toast/useToast";
 import { Modal } from "@/components/common/Modal/Modal";
 import Link from "next/link";
+
+const selectClass =
+  "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200";
+const tableHeaderClass =
+  "px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
+const tableCellClass = "px-4 py-2 text-sm text-slate-700";
+const badgeClass =
+  "inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700";
 
 const DEFAULT_LIMIT = 20;
 
@@ -37,7 +44,7 @@ export default function AdminReportsPage() {
   const qc = useQueryClient();
 
   const [status, setStatus] = useState<ReportStatus>("PENDING");
-  const [page, setPage] = useState(0); // offset = page * limit
+  const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [targetType, setTargetType] = useState<ReportTargetType | undefined>(
@@ -83,17 +90,17 @@ export default function AdminReportsPage() {
   const hasNext = (page + 1) * limit < total;
   const hasPrev = page > 0;
 
-  // Target detail modal state
-  const [target, setTarget] = useState<{ type: ReportTargetType; id: number } | null>(
-    null,
-  );
+  const [target, setTarget] = useState<{
+    type: ReportTargetType;
+    id: number;
+  } | null>(null);
+
   const targetKey = useMemo(
     () =>
       target ? ["admin", "reports", "target", target.type, target.id] : undefined,
     [target],
   );
 
-  // selection for bulk action
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const allSelected = useMemo(() => {
     const ids = (data?.reports ?? []).map((r) => r.id);
@@ -122,7 +129,10 @@ export default function AdminReportsPage() {
     });
   };
 
-  const [confirm, setConfirm] = useState<null | { ids: number[]; to: ReportStatus }>(null);
+  const [confirm, setConfirm] = useState<null | {
+    ids: number[];
+    to: ReportStatus;
+  }>(null);
 
   const {
     data: targetReports,
@@ -143,11 +153,14 @@ export default function AdminReportsPage() {
 
         <AdminCard>
           <AdminCardTitle>필터</AdminCardTitle>
-          <Filters>
-            <div>
-              <label htmlFor="status">상태</label>
-              <Select
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex flex-col text-sm text-slate-600">
+              <label className="text-xs font-semibold text-slate-500" htmlFor="status">
+                상태
+              </label>
+              <select
                 id="status"
+                className={selectClass}
                 value={status}
                 onChange={(e) => {
                   setPage(0);
@@ -157,8 +170,9 @@ export default function AdminReportsPage() {
                 <option value="PENDING">PENDING</option>
                 <option value="CONFIRMED">CONFIRMED</option>
                 <option value="REJECTED">REJECTED</option>
-              </Select>
+              </select>
             </div>
+
             <Input $width="160px">
               <Input.Label>User ID</Input.Label>
               <Input.Field
@@ -171,20 +185,28 @@ export default function AdminReportsPage() {
                 }}
               />
             </Input>
-            <div>
-              <label>대상 타입</label>
-              <Select
+
+            <div className="flex flex-col text-sm text-slate-600">
+              <label className="text-xs font-semibold text-slate-500" htmlFor="targetType">
+                대상 타입
+              </label>
+              <select
+                id="targetType"
+                className={selectClass}
                 value={targetType ?? ""}
                 onChange={(e) => {
                   setPage(0);
-                  setTargetType((e.target.value || undefined) as ReportTargetType | undefined);
+                  setTargetType(
+                    (e.target.value || undefined) as ReportTargetType | undefined,
+                  );
                 }}
               >
                 <option value="">(all)</option>
                 <option value="FEED">FEED</option>
                 <option value="COMMENT">COMMENT</option>
-              </Select>
+              </select>
             </div>
+
             <Input $width="160px">
               <Input.Label>Target ID</Input.Label>
               <Input.Field
@@ -197,6 +219,7 @@ export default function AdminReportsPage() {
                 }}
               />
             </Input>
+
             <Input $width="240px">
               <Input.Label>Start</Input.Label>
               <Input.Field
@@ -204,10 +227,15 @@ export default function AdminReportsPage() {
                 type="datetime-local"
                 onChange={(e) => {
                   setPage(0);
-                  setStartDate(e.target.value ? new Date(e.target.value).toISOString() : undefined);
+                  setStartDate(
+                    e.target.value
+                      ? new Date(e.target.value).toISOString()
+                      : undefined,
+                  );
                 }}
               />
             </Input>
+
             <Input $width="240px">
               <Input.Label>End</Input.Label>
               <Input.Field
@@ -215,13 +243,22 @@ export default function AdminReportsPage() {
                 type="datetime-local"
                 onChange={(e) => {
                   setPage(0);
-                  setEndDate(e.target.value ? new Date(e.target.value).toISOString() : undefined);
+                  setEndDate(
+                    e.target.value
+                      ? new Date(e.target.value).toISOString()
+                      : undefined,
+                  );
                 }}
               />
             </Input>
-            <div>
-              <label>Size</label>
-              <Select
+
+            <div className="flex flex-col text-sm text-slate-600">
+              <label className="text-xs font-semibold text-slate-500" htmlFor="size">
+                Size
+              </label>
+              <select
+                id="size"
+                className={selectClass}
                 value={limit}
                 onChange={(e) => {
                   setPage(0);
@@ -232,83 +269,124 @@ export default function AdminReportsPage() {
                 <option value={20}>20</option>
                 <option value={50}>50</option>
                 <option value={100}>100</option>
-              </Select>
+              </select>
             </div>
-            <SmallButton as="button" onClick={() => refetch()}>적용</SmallButton>
-          </Filters>
+
+            <SmallButton onClick={() => refetch()}>적용</SmallButton>
+          </div>
         </AdminCard>
 
         <AdminCard>
           <AdminCardTitle>신고 목록</AdminCardTitle>
-          {isLoading && <p>로딩 중...</p>}
+          {isLoading && <p className="text-sm text-slate-500">로딩 중...</p>}
           {error && (
-            <p style={{ color: "#dc2626" }}>{(error as Error).message}</p>
+            <p className="text-sm text-red-600">{(error as Error).message}</p>
           )}
           {!isLoading && !error && (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ minWidth: "100%", fontSize: 14 }}>
-                <thead>
-                  <tr style={{ textAlign: "left", color: "#6b7280" }}>
-                    <th style={{ padding: 8 }}>
-                      <input type="checkbox" checked={allSelected} onChange={toggleAll} />
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              <table className="min-w-full divide-y divide-slate-200 text-sm">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className={`${tableHeaderClass} w-12`}>
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-slate-300 accent-slate-700"
+                        checked={allSelected}
+                        onChange={toggleAll}
+                      />
                     </th>
-                    <th style={{ padding: 8 }}>ID</th>
-                    <th style={{ padding: 8 }}>Reporter</th>
-                    <th style={{ padding: 8 }}>Target</th>
-                    <th style={{ padding: 8 }}>Count</th>
-                    <th style={{ padding: 8 }}>Reason</th>
-                    <th style={{ padding: 8 }}>Status</th>
-                    <th style={{ padding: 8 }}>Created</th>
-                    <th style={{ padding: 8 }}>Actions</th>
+                    <th className={tableHeaderClass}>ID</th>
+                    <th className={tableHeaderClass}>Reporter</th>
+                    <th className={tableHeaderClass}>Target</th>
+                    <th className={tableHeaderClass}>Count</th>
+                    <th className={tableHeaderClass}>Reason</th>
+                    <th className={tableHeaderClass}>Status</th>
+                    <th className={tableHeaderClass}>Created</th>
+                    <th className={tableHeaderClass}>Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-100 bg-white/95">
                   {(data?.reports ?? []).length === 0 ? (
                     <tr>
-                      <td style={{ padding: 8 }} colSpan={8}>
+                      <td
+                        colSpan={9}
+                        className="px-4 py-6 text-center text-sm text-slate-500"
+                      >
                         데이터가 없습니다.
                       </td>
                     </tr>
                   ) : (
                     (data?.reports ?? []).map((r) => (
-                      <tr key={r.id} style={{ borderTop: "1px solid #e5e7eb" }}>
-                        <td style={{ padding: 8 }}>
-                          <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggleOne(r.id)} />
+                      <tr key={r.id} className="hover:bg-slate-50/70">
+                        <td className={`${tableCellClass} w-12`}>
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-slate-300 accent-slate-700"
+                            checked={selected.has(r.id)}
+                            onChange={() => toggleOne(r.id)}
+                          />
                         </td>
-                        <td style={{ padding: 8 }}>{r.id}</td>
-                        <td style={{ padding: 8 }}>{r.reporterId}</td>
-                        <td style={{ padding: 8 }}>
-                          {r.targetType} #{r.targetId}
+                        <td className={tableCellClass}>{r.id}</td>
+                        <td className={tableCellClass}>{r.reporterId}</td>
+                        <td className={`${tableCellClass} space-x-2`}>
+                          <span>
+                            {r.targetType} #{r.targetId}
+                          </span>
                           {r.targetType === "FEED" ? (
                             <Link
                               href={`/?feedId=${r.targetId}&tab=comments`}
-                              style={{ marginLeft: 6, textDecoration: "underline" }}
+                              className="text-xs font-semibold text-slate-600 underline underline-offset-4"
                               title="피드로 이동"
                             >
                               열기
                             </Link>
                           ) : (
                             <SmallButton
-                              style={{ marginLeft: 6 }}
-                              onClick={() => setTarget({ type: r.targetType, id: r.targetId })}
+                              className="px-2 py-1 text-[11px]"
+                              onClick={() =>
+                                setTarget({ type: r.targetType, id: r.targetId })
+                              }
                             >
                               보기
                             </SmallButton>
                           )}
                         </td>
-                        <td style={{ padding: 8 }}>
+                        <td className={tableCellClass}>
                           <CountCell type={r.targetType} id={r.targetId} />
                         </td>
-                        <td style={{ padding: 8 }}>{r.reason}</td>
-                        <td style={{ padding: 8 }}>{r.status}</td>
-                        <td style={{ padding: 8 }}>
+                        <td className={tableCellClass}>{r.reason}</td>
+                        <td className={tableCellClass}>
+                          <span className={badgeClass}>{r.status}</span>
+                        </td>
+                        <td className={`${tableCellClass} whitespace-nowrap`}>
                           {new Date(r.createdAt).toLocaleString()}
                         </td>
-                        <td style={{ padding: 8 }}>
-                          <Actions>
-                            <SmallButton onClick={() => setConfirm({ ids: [r.id], to: "PENDING" })} disabled={r.status === "PENDING"}>대기</SmallButton>
-                            <SmallButton onClick={() => setConfirm({ ids: [r.id], to: "CONFIRMED" })} disabled={r.status === "CONFIRMED"}>확인</SmallButton>
-                            <SmallButton onClick={() => setConfirm({ ids: [r.id], to: "REJECTED" })} disabled={r.status === "REJECTED"}>거부</SmallButton>
+                        <td className={tableCellClass}>
+                          <Actions className="justify-start">
+                            <SmallButton
+                              onClick={() =>
+                                setConfirm({ ids: [r.id], to: "PENDING" })
+                              }
+                              disabled={r.status === "PENDING"}
+                            >
+                              대기
+                            </SmallButton>
+                            <SmallButton
+                              onClick={() =>
+                                setConfirm({ ids: [r.id], to: "CONFIRMED" })
+                              }
+                              disabled={r.status === "CONFIRMED"}
+                            >
+                              확인
+                            </SmallButton>
+                            <SmallButton
+                              onClick={() =>
+                                setConfirm({ ids: [r.id], to: "REJECTED" })
+                              }
+                              disabled={r.status === "REJECTED"}
+                            >
+                              거부
+                            </SmallButton>
                           </Actions>
                         </td>
                       </tr>
@@ -319,87 +397,122 @@ export default function AdminReportsPage() {
             </div>
           )}
 
-          <Actions style={{ marginTop: 8 }}>
+          <Actions className="mt-4 border-t border-slate-100 pt-4">
             <SmallButton
-              onClick={() => setConfirm({ ids: Array.from(selected), to: "PENDING" })}
+              onClick={() =>
+                setConfirm({ ids: Array.from(selected), to: "PENDING" })
+              }
               disabled={selected.size === 0}
             >
               선택 대기
             </SmallButton>
             <SmallButton
-              onClick={() => setConfirm({ ids: Array.from(selected), to: "CONFIRMED" })}
+              onClick={() =>
+                setConfirm({ ids: Array.from(selected), to: "CONFIRMED" })
+              }
               disabled={selected.size === 0}
             >
               선택 확인
             </SmallButton>
             <SmallButton
-              onClick={() => setConfirm({ ids: Array.from(selected), to: "REJECTED" })}
+              onClick={() =>
+                setConfirm({ ids: Array.from(selected), to: "REJECTED" })
+              }
               disabled={selected.size === 0}
             >
               선택 거부
             </SmallButton>
           </Actions>
 
-          <Pagination>
-            <SmallButton disabled={!hasPrev} onClick={() => hasPrev && setPage((p) => p - 1)}>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50/70 px-4 py-3">
+            <SmallButton
+              className="px-3 py-1.5"
+              disabled={!hasPrev}
+              onClick={() => hasPrev && setPage((p) => p - 1)}
+            >
               이전
             </SmallButton>
-            <span>
+            <span className="text-sm text-slate-600">
               {page + 1} / {Math.max(1, Math.ceil(total / limit))}
             </span>
-            <SmallButton disabled={!hasNext} onClick={() => hasNext && setPage((p) => p + 1)}>
+            <SmallButton
+              className="px-3 py-1.5"
+              disabled={!hasNext}
+              onClick={() => hasNext && setPage((p) => p + 1)}
+            >
               다음
             </SmallButton>
-          </Pagination>
+          </div>
         </AdminCard>
 
         <Modal isOpen={!!target} onClose={() => setTarget(null)}>
           <Modal.Header>
-            <h3 id="modal-title">대상 신고 상세</h3>
+            <h3 id="modal-title" className="text-lg font-semibold">
+              대상 신고 상세
+            </h3>
           </Modal.Header>
           <Modal.Body>
             {target && (
-              <div id="modal-content" style={{ textAlign: "left" }}>
+              <div id="modal-content" className="space-y-3 text-left">
                 <SectionLabel>
                   Target: {target.type} #{target.id}
                 </SectionLabel>
-                {targetLoading && <p>로딩 중...</p>}
-                {targetError && (
-                  <p style={{ color: "#dc2626" }}>{(targetError as Error).message}</p>
+                {targetLoading && (
+                  <p className="text-sm text-slate-500">로딩 중...</p>
                 )}
-                <div style={{ marginTop: 6, color: "#6b7280" }}>
+                {targetError && (
+                  <p className="text-sm text-red-600">
+                    {(targetError as Error).message}
+                  </p>
+                )}
+                <div className="text-xs text-slate-500">
                   총 신고 {(targetReports?.reports ?? []).length}건
                 </div>
-                <ul style={{ marginTop: 6, maxHeight: 260, overflow: "auto" }}>
+                <ul className="max-h-64 space-y-2 overflow-y-auto rounded-lg border border-slate-200 p-3 text-sm text-slate-700">
                   {(targetReports?.reports ?? []).map((tr) => (
-                    <li key={tr.id} style={{ padding: "6px 0", borderBottom: "1px solid #eee" }}>
-                      #{tr.id} • {tr.reason} • {tr.status} •
-                      <span style={{ color: "#6b7280" }}> {new Date(tr.createdAt).toLocaleString()}</span>
+                    <li
+                      key={tr.id}
+                      className="flex flex-col gap-1 rounded-lg bg-slate-50/60 px-3 py-2"
+                    >
+                      <div className="text-sm font-semibold text-slate-900">
+                        #{tr.id} • {tr.status}
+                      </div>
+                      <div>{tr.reason}</div>
+                      <div className="text-xs text-slate-500">
+                        {new Date(tr.createdAt).toLocaleString()}
+                      </div>
                     </li>
                   ))}
                   {(targetReports?.reports ?? []).length === 0 && (
-                    <li>데이터 없음</li>
+                    <li className="text-center text-sm text-slate-500">
+                      데이터 없음
+                    </li>
                   )}
                 </ul>
               </div>
             )}
           </Modal.Body>
+          <Actions className="justify-end border-t border-slate-200 px-6 py-4">
+            <SmallButton onClick={() => setTarget(null)}>닫기</SmallButton>
+          </Actions>
         </Modal>
 
         <Modal isOpen={!!confirm} onClose={() => setConfirm(null)}>
           <Modal.Header>
-            <h3 id="modal-title">상태 변경 확인</h3>
+            <h3 id="modal-title" className="text-lg font-semibold">
+              상태 변경 확인
+            </h3>
           </Modal.Header>
           <Modal.Body>
-            <div id="modal-content" style={{ textAlign: "left" }}>
+            <div id="modal-content" className="space-y-3 text-left">
               {confirm && (
-                <>
-                  <div style={{ marginBottom: 6 }}>총 {confirm.ids.length}건을 {confirm.to} 상태로 변경하시겠습니까?</div>
-                </>
+                <p className="text-sm text-slate-700">
+                  총 {confirm.ids.length}건을 {confirm.to} 상태로 변경하시겠습니까?
+                </p>
               )}
             </div>
           </Modal.Body>
-          <Actions>
+          <Actions className="justify-end border-t border-slate-200 px-6 py-4">
             <SmallButton onClick={() => setConfirm(null)}>취소</SmallButton>
             <SmallButton
               onClick={async () => {
@@ -427,29 +540,10 @@ function CountCell({ type, id }: { type: ReportTargetType; id: number }) {
     queryFn: () => getAdminReportCountByTarget(type, id),
     staleTime: 60_000,
   });
-  if (isLoading) return <span style={{ color: "#6b7280" }}>...</span>;
-  if (error) return <span style={{ color: "#dc2626" }}>err</span>;
-  return <span>{data ?? 0}</span>;
+
+  if (isLoading)
+    return <span className="text-xs text-slate-400">...</span>;
+  if (error)
+    return <span className="text-xs text-red-500">err</span>;
+  return <span className="font-semibold text-slate-900">{data ?? 0}</span>;
 }
-
-const Filters = styled.div`
-  display: flex;
-  gap: 12px;
-  align-items: end;
-  flex-wrap: wrap;
-`;
-
-const Select = styled.select`
-  display: block;
-  margin-top: 4px;
-  border: 1px solid #d5d7da;
-  border-radius: 6px;
-  padding: 6px 10px;
-`;
-
-const Pagination = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-`;

@@ -1,16 +1,19 @@
 import styled from "styled-components";
 import { useFeeds } from "@/hooks/useFeeds";
 import { useInView } from "react-intersection-observer";
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useContext, useEffect, useMemo, useRef } from "react";
 import { Block } from "../Block";
 import useScrollPositionStore from "@/store/useScrollPositionStore";
-import { usePoll } from "@/hooks/usePoll";
 import { useTodayISO } from "@/hooks/useTodayIso";
+import { useQueries } from "@tanstack/react-query";
+import { fetchPoll } from "@/remote/poll";
+import type { Poll } from "@/types/poll";
+import { useSearchParams } from "next/navigation";
+import { SectionContext } from "../SectionContext";
 
 export default function FeedStream() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeeds();
   const today = useTodayISO();
-  const { data: pollData } = usePoll(today);
 
   const [scrollTrigger, isInView] = useInView({
     threshold: 0,
@@ -18,6 +21,38 @@ export default function FeedStream() {
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const { scrollPosition, setScrollPosition } = useScrollPositionStore();
+  const searchParams = useSearchParams();
+  const { setSectionStatus, setTargetFeed } = useContext(SectionContext);
+
+  const dates = useMemo(() => {
+    const set = new Set<string>();
+    data?.pages?.forEach((page) => {
+      page?.data?.content?.forEach((item: any) => {
+        const d = item?.createdAt?.slice(0, 10);
+        if (d) set.add(d);
+      });
+    });
+    if (today) set.add(today);
+    return Array.from(set);
+  }, [data?.pages, today]);
+
+  const polls = useQueries({
+    queries: dates.map((d) => ({
+      queryKey: ["polls", d],
+      queryFn: () => fetchPoll(d),
+      staleTime: 60_000,
+      enabled: !!d,
+    })),
+  });
+
+  const pollMap = useMemo(() => {
+    const map = new Map<string, Poll>();
+    dates.forEach((d, i) => {
+      const q = polls[i];
+      if (q && q.data) map.set(d, q.data);
+    });
+    return map;
+  }, [polls, dates]);
 
   useEffect(() => {
     if (hasNextPage && isInView) {
@@ -56,6 +91,30 @@ export default function FeedStream() {
     };
   }, []);
 
+  // Deep-linking: /?feedId=123&tab=comments
+  useEffect(() => {
+    const feedIdParam = searchParams.get("feedId");
+    const tab = searchParams.get("tab");
+    if (!feedIdParam) return;
+    const feedId = Number(feedIdParam);
+    if (!Number.isFinite(feedId)) return;
+
+    let found: any = null;
+    data?.pages?.some((page) => {
+      const hit = page?.data?.content?.find((it: any) => it?.id === feedId);
+      if (hit) {
+        found = hit;
+        return true;
+      }
+      return false;
+    });
+
+    if (found) {
+      setTargetFeed(found);
+      if (tab === "comments") setSectionStatus("comments");
+    }
+  }, [data?.pages, searchParams, setSectionStatus, setTargetFeed]);
+
   return (
     <StyledFeedStreamContainer ref={scrollRef}>
       {data?.pages?.map((page, index) => (
@@ -66,15 +125,19 @@ export default function FeedStream() {
             return (
               <Fragment key={`page-${index}-item-${idx}`}>
                 {isSecondFromLast && hasNextPage && <div ref={scrollTrigger} />}
-                {pollData && (
-                  <>
-                    {item.type === "USER" || item.type === "POLL" ? (
-                      <Block type="feed" feedProps={item} pollData={pollData} />
-                    ) : (
-                      <Block type="ad" feedProps={item} pollData={pollData} />
-                    )}
-                  </>
-                )}
+                {(() => {
+                  const dateKey = item?.createdAt?.slice(0, 10) || today;
+                  const p = (dateKey && pollMap.get(dateKey)) || undefined;
+                  return (
+                    <>
+                      {item.type === "USER" || item.type === "POLL" ? (
+                        <Block type="feed" feedProps={item} pollData={p as Poll} />
+                      ) : (
+                        <Block type="ad" feedProps={item} pollData={p as Poll} />
+                      )}
+                    </>
+                  );
+                })()}
               </Fragment>
             );
           })}

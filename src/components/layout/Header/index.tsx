@@ -96,6 +96,11 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
       markAsRead([notification.id]);
     }
     setNotificationOpen(false);
+
+    // 피드 관련 알림이면 해당 피드로 이동
+    if (notification.target_type === "FEED" && notification.target_id) {
+      router.push(`/feeds/${notification.target_id}`);
+    }
   };
 
   const hasUnreadIndicator = useMemo(() => {

@@ -1,12 +1,10 @@
 import styled from "styled-components";
 import { useFeeds } from "@/hooks/useFeeds";
 import { useInView } from "react-intersection-observer";
-import { Fragment, useContext, useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { Block } from "../Block";
 import useScrollPositionStore from "@/store/useScrollPositionStore";
 import { usePoll } from "@/hooks/usePoll";
-import { useSearchParams } from "next/navigation";
-import { SectionContext } from "../SectionContext";
 import { useFeedFilterStore } from "@/store/useFeedFilterStore";
 
 export default function FeedStream() {
@@ -23,8 +21,6 @@ export default function FeedStream() {
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const { scrollPosition, setScrollPosition } = useScrollPositionStore();
-  const searchParams = useSearchParams();
-  const { setSectionStatus, setTargetFeed } = useContext(SectionContext);
 
   useEffect(() => {
     if (hasNextPage && isInView) {
@@ -62,30 +58,6 @@ export default function FeedStream() {
       );
     };
   }, []);
-
-  // Deep-linking: /?feedId=123&tab=comments
-  useEffect(() => {
-    const feedIdParam = searchParams.get("feedId");
-    const tab = searchParams.get("tab");
-    if (!feedIdParam) return;
-    const feedId = Number(feedIdParam);
-    if (!Number.isFinite(feedId)) return;
-
-    let found: any = null;
-    data?.pages?.some((page) => {
-      const hit = page?.data?.content?.find((it: any) => it?.id === feedId);
-      if (hit) {
-        found = hit;
-        return true;
-      }
-      return false;
-    });
-
-    if (found) {
-      setTargetFeed(found);
-      if (tab === "comments") setSectionStatus("comments");
-    }
-  }, [data?.pages, searchParams, setSectionStatus, setTargetFeed]);
 
   return (
     <StyledFeedStreamContainer ref={scrollRef}>

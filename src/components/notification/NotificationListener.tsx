@@ -66,7 +66,7 @@ export default function NotificationListener() {
           ? {
               label: "보기",
               onClick: () => {
-                router.push(`/?feedId=${notification.target_id}&tab=comments`);
+                router.push(`/feeds/${notification.target_id}`);
               },
             }
           : undefined,

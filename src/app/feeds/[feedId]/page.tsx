@@ -6,8 +6,6 @@ import LeftSection from "@/components/layout/LeftSection/LeftSection";
 import RightSection from "@/components/layout/RightSection/RightSection";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 import type { Feed } from "@/types/feeds";
-import FloatingButtonWithModal from "@/components/common/FloatingButtonWithModal";
-import { useAuthStore } from "@/store/useAuthStore";
 import { useFeeds } from "@/hooks/useFeeds";
 import { useFeedFilterStore } from "@/store/useFeedFilterStore";
 
@@ -16,7 +14,6 @@ export default function FeedPage() {
   const feedId = Number(params.feedId);
   const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">("feeds");
   const [targetFeed, setTargetFeed] = useState<Feed | null>(null);
-  const { isLoggedIn } = useAuthStore();
   const { sortBy, filterType } = useFeedFilterStore();
   const { data } = useFeeds({
     sort_by: sortBy,
@@ -59,13 +56,6 @@ export default function FeedPage() {
         <div className="flex gap-6 pt-[60px] h-[100dvh]">
           <LeftSection />
           <RightSection />
-
-          {isLoggedIn && (
-            <FloatingButtonWithModal
-              sectionStatus={sectionStatus}
-              targetFeed={targetFeed}
-            />
-          )}
         </div>
       </div>
     </SectionContext.Provider>

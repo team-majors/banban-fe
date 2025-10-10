@@ -37,10 +37,23 @@ interface CommentResponse {
   data: CommentData;
 }
 
+interface CreateCommentRequest {
+  feedId: number;
+  content: string;
+}
+
+interface CreateCommentResponse {
+  code: number;
+  status: "SUCCESS" | "FAIL";
+  data: CommentContent;
+}
+
 export type {
   CommentUser,
   CommentContent,
   CommentData,
   CommentRequest,
   CommentResponse,
+  CreateCommentRequest,
+  CreateCommentResponse,
 }

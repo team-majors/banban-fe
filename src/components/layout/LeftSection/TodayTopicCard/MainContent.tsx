@@ -8,6 +8,7 @@ import {
 } from "@/components/common/SelectOptionGroup/SelectOptionGroup";
 import CountdownDisplay from "./CountdownDisplay";
 import VoteResultPlaceHolder from "./VoteResultPlaceHolder/VoteResultPlaceHolder";
+import { useAuthStore } from "@/store/useAuthStore";
 
 function VoteResultDisplay({
   pieData,
@@ -47,6 +48,7 @@ export default function MainContent({
         firstOptionString={options?.[0]?.content || ""}
         secondOptionString={options?.[1]?.content || ""}
         onClick={handleVote}
+        isAuthenticated={isLoggedIn}
       />
     </>
   );

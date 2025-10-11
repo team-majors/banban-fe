@@ -6,8 +6,8 @@ export default function useHotFeed() {
   return useQuery<HotFeed[], Error>({
     queryKey: ["hotFeed"],
     queryFn: () => getHotFeed(),
-    staleTime: 1000 * 10,
-    refetchInterval: 5000,
+    staleTime: 1000 * 60,
+    refetchInterval: 1000 * 60,
     refetchOnWindowFocus: false,
   });
 }

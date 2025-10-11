@@ -15,6 +15,7 @@ interface SelectOptionGroupProps extends StyledSelectOptionGroupProps {
   firstOptionString: string;
   secondOptionString: string;
   onClick: (internalState: selectOption) => void;
+  isAuthenticated: boolean;
 }
 
 export const SelectOptionGroup = ({
@@ -22,16 +23,20 @@ export const SelectOptionGroup = ({
   firstOptionString,
   secondOptionString,
   onClick,
+  isAuthenticated,
   ...styleProps
 }: SelectOptionGroupProps) => {
+  const isDisabled = !isAuthenticated || (selected !== "firstOption" && selected !== "none");
+  const isDisabled2 = !isAuthenticated || (selected !== "secondOption" && selected !== "none");
+
   return (
     <StyledSelectOptionGroup {...styleProps}>
       <StyledButton
-        disabled={selected !== "firstOption" && selected !== "none"}
+        disabled={isDisabled}
         isIdle={selected === "none"}
         isSelected={selected === "firstOption"}
         onClick={() => {
-          if (selected === "none") {
+          if (selected === "none" && isAuthenticated) {
             onClick("firstOption");
           }
         }}
@@ -41,11 +46,11 @@ export const SelectOptionGroup = ({
         {firstOptionString}
       </StyledButton>
       <StyledButton
-        disabled={selected !== "secondOption" && selected !== "none"}
+        disabled={isDisabled2}
         isIdle={selected === "none"}
         isSelected={selected === "secondOption"}
         onClick={() => {
-          if (selected === "none") {
+          if (selected === "none" && isAuthenticated) {
             onClick("secondOption");
           }
         }}
@@ -114,6 +119,17 @@ const StyledButton = styled(DefaultButton).withConfig({
     background: white;
     background-clip: text;
     color: transparent;
+  }
+
+  /* disabled 상태에서는 hover 효과 제거 */
+  &:disabled:hover::before {
+    opacity: 1;
+  }
+
+  &:disabled:hover > div {
+    background: none;
+    background-clip: text;
+    color: #b9b9b9;
   }
 
   /* 🔹 disabled 상태 */

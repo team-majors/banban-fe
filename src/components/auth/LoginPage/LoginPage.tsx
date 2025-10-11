@@ -79,7 +79,9 @@ export default function LoginPage() {
 }
 
 const Container = styled.div`
-  height: 100%;
+  height: auto;
+  min-height: 500px;
+  max-height: 90vh;
   width: 542px;
   display: flex;
   flex-direction: column;
@@ -90,6 +92,7 @@ const Container = styled.div`
   border-radius: 24px;
   border: 1px solid #e9eaeb;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+  overflow-y: auto;
 `;
 
 const LogoBox = styled.div`

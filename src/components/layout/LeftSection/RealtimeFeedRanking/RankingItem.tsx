@@ -15,7 +15,9 @@ export default function RankingItem({ rank, title, figure }: RankingItemProps) {
         <Rank $highlight={rank <= 3}>{rank}</Rank>
         <div>{title}</div>
       </Left>
-      {figure && (
+          {figure === 0 ? (
+        <FigureSpacer />
+      ) : (
         <Figure $increase={figure > 0}>
           <div>{figure}</div>
           <ArrowWrapper>
@@ -74,4 +76,9 @@ const ArrowWrapper = styled.div`
   align-items: center;
   width: 16px;
   height: 16px;
+`;
+
+const FigureSpacer = styled.div`
+  width: 50px;
+  height: 24px;
 `;

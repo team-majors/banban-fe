@@ -13,6 +13,7 @@ const BackgroundStyle = styled.button`
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
   position: relative; /* 아이콘 겹치기 위해 필요 */
   overflow: hidden;
+  cursor: pointer;
 `;
 
 interface StateProp {

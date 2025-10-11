@@ -83,8 +83,8 @@ const MessageWrapper = styled.div`
 `;
 
 const RetryButton = styled.button`
-  padding: 12px 32px;
-  font-size: 16px;
+  padding: 8px 24px;
+  font-size: 14px;
   font-weight: 600;
   color: white;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

@@ -1,23 +1,28 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { CloseIcon } from '@/components/svg/CloseIcon';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { CloseIcon } from "@/components/svg/CloseIcon";
 
 interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onReport: (reason: string, detail?: string, targetType?: string, targetId?: number) => void;
+  onReport: (
+    reason: string,
+    detail?: string,
+    targetType?: string,
+    targetId?: number,
+  ) => void;
   targetType: string;
   targetId: number;
 }
 
 const reportReasons = [
-  { code: 'SPAM_AD', label: '스팸·광고성 게시물' },
-  { code: 'PROFANITY_HATE', label: '욕설·혐오 표현' },
-  { code: 'VIOLENCE_HARM', label: '폭력적·유해 콘텐츠' },
-  { code: 'OBSCENE_SEXUAL', label: '음란물·성적 콘텐츠' },
-  { code: 'PERSONAL_INFO', label: '개인정보 노출' },
-  { code: 'COPYRIGHT', label: '저작권 침해' },
-  { code: 'ETC', label: '기타(사유 입력)' }
+  { code: "SPAM_AD", label: "스팸·광고성 게시물" },
+  { code: "PROFANITY_HATE", label: "욕설·혐오 표현" },
+  { code: "VIOLENCE_HARM", label: "폭력적·유해 콘텐츠" },
+  { code: "OBSCENE_SEXUAL", label: "음란물·성적 콘텐츠" },
+  { code: "PERSONAL_INFO", label: "개인정보 노출" },
+  { code: "COPYRIGHT", label: "저작권 침해" },
+  { code: "ETC", label: "기타(사유 입력)" },
 ];
 
 export const ReportModal = ({
@@ -25,35 +30,35 @@ export const ReportModal = ({
   onClose,
   onReport,
   targetType,
-  targetId
+  targetId,
 }: ReportModalProps) => {
-  const [selectedReason, setSelectedReason] = useState<string>('');
+  const [selectedReason, setSelectedReason] = useState<string>("");
   const [isDetailMode, setIsDetailMode] = useState<boolean>(false);
-  const [detailText, setDetailText] = useState<string>('');
+  const [detailText, setDetailText] = useState<string>("");
 
   const handleReasonSelect = (reasonCode: string) => {
     setSelectedReason(reasonCode);
-    
-    if (reasonCode === 'ETC') {
+
+    if (reasonCode === "ETC") {
       setIsDetailMode(true);
     } else {
       onReport(reasonCode, undefined, targetType, targetId);
-      setSelectedReason('');
+      setSelectedReason("");
       onClose();
     }
   };
 
   const handleDetailSubmit = () => {
     if (detailText.trim()) {
-      onReport('ETC', detailText.trim(), targetType, targetId);
+      onReport("ETC", detailText.trim(), targetType, targetId);
       handleClose();
     }
   };
 
   const handleClose = () => {
-    setSelectedReason('');
+    setSelectedReason("");
     setIsDetailMode(false);
-    setDetailText('');
+    setDetailText("");
     onClose();
   };
 
@@ -65,13 +70,12 @@ export const ReportModal = ({
         <ModalHeader>
           <HeaderContent>
             <ModalTitle>
-              {isDetailMode ? '상세 사유 입력' : '신고하기'}
+              {isDetailMode ? "상세 사유 입력" : "신고하기"}
             </ModalTitle>
             <ModalSubtitle>
-              {isDetailMode 
-                ? '신고 사유를 자세히 설명해주세요.'
-                : '커뮤니티 정책에 어긋나는 게시물을 알려주세요. 신고하신 내용을 확인해 빠르게 대응할게요 🚨'
-              }
+              {isDetailMode
+                ? "신고 사유를 자세히 설명해주세요."
+                : "커뮤니티 정책에 어긋나는 게시물을 알려주세요. 신고하신 내용을 확인해 빠르게 대응할게요 🚨"}
             </ModalSubtitle>
           </HeaderContent>
           <CloseButton onClick={handleClose}>
@@ -91,7 +95,7 @@ export const ReportModal = ({
                 <CancelButton onClick={() => setIsDetailMode(false)}>
                   취소
                 </CancelButton>
-                <SubmitButton 
+                <SubmitButton
                   onClick={handleDetailSubmit}
                   disabled={!detailText.trim()}
                 >
@@ -133,6 +137,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContainer = styled.div`
+  padding-vertical: 4px;
   background: white;
   border-radius: 12px;
   width: 90%;
@@ -140,7 +145,8 @@ const ModalContainer = styled.div`
   min-height: 300px;
   max-height: 80vh;
   overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 `;
 
 const ModalHeader = styled.div`
@@ -204,9 +210,9 @@ const ReasonItem = styled.button<{ $isSelected: boolean }>`
   background: none;
   border: none;
   text-align: center;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
-  color: ${props => props.$isSelected ? '#3b82f6' : '#374151'};
+  color: ${(props) => (props.$isSelected ? "#3b82f6" : "#374151")};
   cursor: pointer;
   transition: all 0.2s;
 
@@ -279,17 +285,17 @@ const CancelButton = styled.button`
 
 const SubmitButton = styled.button<{ disabled: boolean }>`
   padding: 12px 24px;
-  background-color: ${props => props.disabled ? '#d1d5db' : '#ef4444'};
-  color: ${props => props.disabled ? '#9ca3af' : 'white'};
+  background-color: ${(props) => (props.disabled ? "#d1d5db" : "#ef4444")};
+  color: ${(props) => (props.disabled ? "#9ca3af" : "white")};
   border: none;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 500;
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   transition: all 0.2s;
 
   &:hover {
-    background-color: ${props => props.disabled ? '#d1d5db' : '#dc2626'};
+    background-color: ${(props) => (props.disabled ? "#d1d5db" : "#dc2626")};
   }
 
   &:disabled {

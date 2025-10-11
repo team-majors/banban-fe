@@ -12,6 +12,7 @@ export default function LeftSection() {
 }
 
 const StyledContainer = styled.div`
+  width: 430px;
   display: flex;
   flex-direction: column;
   gap: 10px;

@@ -1,5 +1,11 @@
 import { useMemo } from "react";
 
 export const useTodayISO = () => {
-  return useMemo(() => new Date().toISOString().split("T")[0], []);
+  return useMemo(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }, []);
 };

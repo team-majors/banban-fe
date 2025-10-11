@@ -11,6 +11,7 @@ import { useTodayISO } from "@/hooks/useTodayIso";
 import NoTopicState from "./NoTopicState";
 import useAuth from "@/hooks/useAuth";
 import LoginReqruiedModal from "./LoginRequiredModal";
+import { Spinner } from "@/components/svg/Spinner";
 
 export interface Option {
   id: number;
@@ -126,18 +127,25 @@ export default function TodayTopicCard() {
         />
       ) : (
         <>
-          <TitleSection>
-            <TitleLabel>🔥 오늘의 주제는 :</TitleLabel>
-            <TopicTitle as="h2">{data?.title}</TopicTitle>
-          </TitleSection>
-          <MainContent
-            isLoading={isLoading}
-            pieData={pieData}
-            votedOptionId={data?.votedOptionId}
-            options={data?.options}
-            displayedSelection={displayedSelection}
-            handleVote={handleVote}
-          />
+          {isLoading ? (
+            <SpinnerContainer>
+              <Spinner />
+            </SpinnerContainer>
+          ) : (
+            <>
+              <TitleSection>
+                <TitleLabel>🔥 오늘의 주제는 :</TitleLabel>
+                <TopicTitle as="h2">{data?.title}</TopicTitle>
+              </TitleSection>
+              <MainContent
+                pieData={pieData}
+                votedOptionId={data?.votedOptionId}
+                options={data?.options}
+                displayedSelection={displayedSelection}
+                handleVote={handleVote}
+              />
+            </>
+          )}
           {open && (
             <LoginReqruiedModal isOpen={open} onClose={() => setOpen(false)} />
           )}
@@ -150,6 +158,7 @@ export default function TodayTopicCard() {
 const Container = styled.section`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 0.625rem;
   min-width: 340px;
   max-width: 430px;
@@ -177,4 +186,12 @@ const TopicTitle = styled.div`
   font-size: 24px;
   padding: 10px;
   text-align: center;
+`;
+
+const SpinnerContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 300px;
 `;

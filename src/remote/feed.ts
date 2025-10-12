@@ -1,5 +1,9 @@
-import {apiFetch} from "@/lib/apiFetch";
-import {FeedsRequest, FeedsResponse, HotFeed, HotFeedResponse,} from "@/types/feeds";
+import { apiFetch } from "@/lib/apiFetch";
+import {
+  FeedsRequest,
+  FeedsResponse,
+  HotFeedSnapshot,
+} from "@/types/feeds";
 
 /**
  * 피드 목록 조회
@@ -26,7 +30,6 @@ export const getFeeds = async (
   return await apiFetch(url);
 };
 
-export const getHotFeed = async (): Promise<HotFeed[]> => {
-  const response: HotFeedResponse = await apiFetch("/feeds/hot");
-  return response.feeds;
+export const getHotFeed = async (): Promise<HotFeedSnapshot> => {
+  return apiFetch<HotFeedSnapshot>("/feeds/hot");
 };

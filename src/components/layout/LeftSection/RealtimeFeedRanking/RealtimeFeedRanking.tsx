@@ -1,19 +1,24 @@
+"use client";
+
 import ZapIcon from "@/components/svg/ZapIcon";
 import styled from "styled-components";
 import RankingItem from "./RankingItem";
 import useHotFeed from "@/hooks/useHotFeed";
 import { useMemo } from "react";
 import { HotFeed } from "@/types/feeds";
+import { useRouter } from "next/navigation";
 
 export default function RealtimeFeedRanking() {
   const { data } = useHotFeed();
+  const router = useRouter();
 
   const sortedFeeds = useMemo(
-    () => (data ? [...data].sort((a, b) => a.rank - b.rank) : []),
+    () =>
+      data?.feeds ? [...data.feeds].sort((a, b) => a.rank - b.rank) : [],
     [data],
   );
 
-  const restNum = 5 - sortedFeeds.length;
+  const restNum = Math.max(0, 5 - sortedFeeds.length);
 
   return (
     <Container>
@@ -24,15 +29,23 @@ export default function RealtimeFeedRanking() {
         실시간 피드 순위
       </Title>
       <RankingList>
-        {sortedFeeds.map((item: HotFeed) => (
-          <li key={item.feedId}>
-            <RankingItem
-              rank={item.rank}
-              title={item.content}
-              figure={item.rankChange}
-            />
-          </li>
-        ))}
+        {sortedFeeds.map((item: HotFeed) => {
+          const figure = item.rankChange ?? 0;
+          const handleSelect = () => {
+            router.push(`/feeds/${item.feedId}`);
+          };
+
+          return (
+            <li key={item.feedId}>
+              <RankingItem
+                rank={item.rank}
+                title={item.content}
+                figure={figure}
+                onSelect={handleSelect}
+              />
+            </li>
+          );
+        })}
         {Array.from({ length: restNum }, (_, index) => (
           <li key={index}>
             <RankingItem rank={sortedFeeds.length + index + 1} title={"-"} figure={0} />

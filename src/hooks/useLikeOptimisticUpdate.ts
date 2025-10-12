@@ -24,30 +24,64 @@ export const useFeedLikeOptimisticUpdate = ({ id }: UseFeedLikeOptimisticUpdateP
       }),
     }),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['feeds']});
+      const queryFilter = { queryKey: ["feeds"] as const };
 
-      const oldData = queryClient.getQueryData<InfiniteData<FeedsResponse, InfiniteQueryPageParamsOptions>>(['feeds']);
+      await queryClient.cancelQueries(queryFilter);
 
-      if (!oldData) return { oldData: null };
+      const previousFeeds = queryClient.getQueriesData<InfiniteData<FeedsResponse, InfiniteQueryPageParamsOptions>>(queryFilter);
 
-      const newData = structuredClone(oldData);
+      previousFeeds.forEach(([queryKey]) => {
+        queryClient.setQueryData<InfiniteData<FeedsResponse, InfiniteQueryPageParamsOptions> | undefined>(
+          queryKey,
+          (oldData) => {
+            if (!oldData) return oldData;
 
-      newData.pages.forEach((page) => {
-        page.data.content.forEach((feed: Feed) => {
-          if (feed.id === id) {
-            feed.isLiked = !feed.isLiked;
-            feed.likeCount += feed.isLiked ? 1 : -1;
-          }
-        });
+            const newData = structuredClone(oldData);
+            const isLikeSortQuery = isLikeSort(queryKey);
+            let didUpdateAny = false;
+
+            newData.pages.forEach((page) => {
+              let updatedInPage = false;
+
+              const updatedContent = page.data.content.map((feed: Feed) => {
+                if (feed.id !== id) {
+                  return feed;
+                }
+
+                const nextIsLiked = !feed.isLiked;
+                updatedInPage = true;
+                didUpdateAny = true;
+
+                return {
+                  ...feed,
+                  isLiked: nextIsLiked,
+                  likeCount: feed.likeCount + (nextIsLiked ? 1 : -1),
+                };
+              });
+
+              if (updatedInPage && isLikeSortQuery) {
+                page.data.content = reorderByLikeCount(updatedContent);
+              } else {
+                page.data.content = updatedContent;
+              }
+            });
+
+            return didUpdateAny ? newData : oldData;
+          },
+        );
       });
 
-      queryClient.setQueryData(['feeds'], newData);
-
-      return { oldData };
+      return { previousFeeds, queryFilter };
     },
     onError: (error, variables, context) => {
       console.error("Error occurred:", error);
-      queryClient.setQueryData(['feeds'], context?.oldData);
+      context?.previousFeeds?.forEach(([queryKey, data]) => {
+        queryClient.setQueryData(queryKey, data);
+      });
+    },
+    onSettled: (_, __, ___, context) => {
+      const filter = context?.queryFilter ?? { queryKey: ["feeds"] as const };
+      queryClient.invalidateQueries(filter);
     }
   });
 }
@@ -90,3 +124,51 @@ export const useCommentLikeOptimisticUpdate = ({ feedId, id }: UseCommentLikeOpt
     }
   });
 }
+
+const isLikeSort = (queryKey: unknown): boolean => {
+  if (!Array.isArray(queryKey)) return false;
+  const params = queryKey[1];
+
+  if (!params || typeof params !== "object") {
+    return false;
+  }
+
+  return "sort_by" in params && (params as { sort_by?: string }).sort_by === "like";
+};
+
+const reorderByLikeCount = (content: Feed[]): Feed[] => {
+  const ads: { index: number; item: Feed }[] = [];
+  const feeds: Feed[] = [];
+
+  content.forEach((item, index) => {
+    if (item.type === "AD") {
+      ads.push({ index, item });
+    } else {
+      feeds.push(item);
+    }
+  });
+
+  feeds.sort((a, b) => (b.likeCount ?? 0) - (a.likeCount ?? 0));
+
+  const result: Feed[] = [...content];
+  const adLookup = new Map<number, Feed>();
+
+  ads.forEach(({ index, item }) => {
+    adLookup.set(index, item);
+  });
+
+  let feedIndex = 0;
+
+  for (let i = 0; i < result.length; i += 1) {
+    const adAtPosition = adLookup.get(i);
+
+    if (adAtPosition) {
+      result[i] = adAtPosition;
+    } else {
+      result[i] = feeds[feedIndex] ?? result[i];
+      feedIndex += 1;
+    }
+  }
+
+  return result;
+};

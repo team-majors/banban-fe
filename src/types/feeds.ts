@@ -30,12 +30,23 @@ interface Feed {
   user_vote_option_id: number | null;
 }
 
+export interface HotFeedAuthor {
+  userId: number;
+  username: string;
+  profileImage: string | null;
+}
+
 export interface HotFeed {
-  content: string;
-  direction: "UP" | "DOWN";
-  feedId: number;
   rank: number;
-  rankChange: number;
+  feedId: number;
+  content: string;
+  rankChange: number | null;
+  direction: "UP" | "DOWN" | "SAME" | null;
+  author: HotFeedAuthor;
+  likeCount: number;
+  commentCount: number;
+  createdAt: string;
+  type: FeedType;
 }
 
 export interface FeedsData {
@@ -59,7 +70,8 @@ interface FeedsResponse {
   data: FeedsData;
 }
 
-export interface HotFeedResponse {
+export interface HotFeedSnapshot {
+  snapshotAt: string;
   feeds: HotFeed[];
 }
 

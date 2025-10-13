@@ -12,6 +12,7 @@ interface User {
 interface AdMeta {
   campaign_id?: string;
   category?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -56,7 +57,7 @@ export interface FeedsData {
   number_of_elements: number;
 }
 
-export interface FeedsRequest {
+interface FeedsRequest {
   last_id?: number;
   size?: number;
   sort_by?: SortBy;

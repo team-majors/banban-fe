@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import RequireAuth from "@/components/auth/RequireAuth";
@@ -198,9 +199,7 @@ export default function AdminNotificationsPage() {
                       <td className={tableCellClass}>
                         {n.targetType} #{n.targetId}
                       </td>
-                      <td className={tableCellClass}>
-                        {n.message ?? ""}
-                      </td>
+                      <td className={tableCellClass}>{n.message ?? ""}</td>
                       <td className={`${tableCellClass} whitespace-nowrap`}>
                         {n.createdAt
                           ? new Date(n.createdAt).toLocaleString()

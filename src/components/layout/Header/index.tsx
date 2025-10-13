@@ -49,7 +49,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   );
   const isTimeout = useNotificationStore((state) => state.isTimeout);
   const markAsRead = useNotificationStore((state) => state.markAsRead);
-  const markAllRead = useNotificationStore((state) => state.markAllRead);
+  const markAllRead = useNotificationStore((state) => state.markAllAsRead);
 
   const profileImageSrcState = user?.profileImageUrl || "/user.png";
   const [profileImageSrc, setProfileImageSrc] = useState(profileImageSrcState);
@@ -137,7 +137,11 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     return (
       <Container>
         <LogoArea>
-          <LogoButton type="button" aria-label="banban 홈으로" onClick={handleLogoClick}>
+          <LogoButton
+            type="button"
+            aria-label="banban 홈으로"
+            onClick={handleLogoClick}
+          >
             <BanBanLogo />
           </LogoButton>
         </LogoArea>

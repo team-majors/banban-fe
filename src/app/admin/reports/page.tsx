@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useMemo, useState } from "react";
@@ -97,7 +98,9 @@ export default function AdminReportsPage() {
 
   const targetKey = useMemo(
     () =>
-      target ? ["admin", "reports", "target", target.type, target.id] : undefined,
+      target
+        ? ["admin", "reports", "target", target.type, target.id]
+        : undefined,
     [target],
   );
 
@@ -138,13 +141,11 @@ export default function AdminReportsPage() {
     data: targetReports,
     isLoading: targetLoading,
     error: targetError,
-  } = useQuery<{ reports: AdminReportItem[] }>(
-    {
-      queryKey: targetKey as any,
-      queryFn: () => getAdminReportsByTarget(target!.type, target!.id),
-      enabled: !!target,
-    },
-  );
+  } = useQuery<{ reports: AdminReportItem[] }>({
+    queryKey: targetKey as any,
+    queryFn: () => getAdminReportsByTarget(target!.type, target!.id),
+    enabled: !!target,
+  });
 
   return (
     <RequireAuth>
@@ -155,7 +156,10 @@ export default function AdminReportsPage() {
           <AdminCardTitle>필터</AdminCardTitle>
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col text-sm text-slate-600">
-              <label className="text-xs font-semibold text-slate-500" htmlFor="status">
+              <label
+                className="text-xs font-semibold text-slate-500"
+                htmlFor="status"
+              >
                 상태
               </label>
               <select
@@ -181,13 +185,18 @@ export default function AdminReportsPage() {
                 placeholder="(opt)"
                 onChange={(e) => {
                   setPage(0);
-                  setUserId(e.target.value ? Number(e.target.value) : undefined);
+                  setUserId(
+                    e.target.value ? Number(e.target.value) : undefined,
+                  );
                 }}
               />
             </Input>
 
             <div className="flex flex-col text-sm text-slate-600">
-              <label className="text-xs font-semibold text-slate-500" htmlFor="targetType">
+              <label
+                className="text-xs font-semibold text-slate-500"
+                htmlFor="targetType"
+              >
                 대상 타입
               </label>
               <select
@@ -197,7 +206,9 @@ export default function AdminReportsPage() {
                 onChange={(e) => {
                   setPage(0);
                   setTargetType(
-                    (e.target.value || undefined) as ReportTargetType | undefined,
+                    (e.target.value || undefined) as
+                      | ReportTargetType
+                      | undefined,
                   );
                 }}
               >
@@ -215,7 +226,9 @@ export default function AdminReportsPage() {
                 placeholder="(opt)"
                 onChange={(e) => {
                   setPage(0);
-                  setTargetId(e.target.value ? Number(e.target.value) : undefined);
+                  setTargetId(
+                    e.target.value ? Number(e.target.value) : undefined,
+                  );
                 }}
               />
             </Input>
@@ -253,7 +266,10 @@ export default function AdminReportsPage() {
             </Input>
 
             <div className="flex flex-col text-sm text-slate-600">
-              <label className="text-xs font-semibold text-slate-500" htmlFor="size">
+              <label
+                className="text-xs font-semibold text-slate-500"
+                htmlFor="size"
+              >
                 Size
               </label>
               <select
@@ -344,7 +360,10 @@ export default function AdminReportsPage() {
                             <SmallButton
                               className="px-2 py-1 text-[11px]"
                               onClick={() =>
-                                setTarget({ type: r.targetType, id: r.targetId })
+                                setTarget({
+                                  type: r.targetType,
+                                  id: r.targetId,
+                                })
                               }
                             >
                               보기
@@ -507,7 +526,8 @@ export default function AdminReportsPage() {
             <div id="modal-content" className="space-y-3 text-left">
               {confirm && (
                 <p className="text-sm text-slate-700">
-                  총 {confirm.ids.length}건을 {confirm.to} 상태로 변경하시겠습니까?
+                  총 {confirm.ids.length}건을 {confirm.to} 상태로
+                  변경하시겠습니까?
                 </p>
               )}
             </div>
@@ -541,9 +561,7 @@ function CountCell({ type, id }: { type: ReportTargetType; id: number }) {
     staleTime: 60_000,
   });
 
-  if (isLoading)
-    return <span className="text-xs text-slate-400">...</span>;
-  if (error)
-    return <span className="text-xs text-red-500">err</span>;
+  if (isLoading) return <span className="text-xs text-slate-400">...</span>;
+  if (error) return <span className="text-xs text-red-500">err</span>;
   return <span className="font-semibold text-slate-900">{data ?? 0}</span>;
 }

@@ -16,16 +16,16 @@ import useReportMutation from "@/hooks/useReportMutation";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const CommentBlock = ({
-  comment,
+  props,
   pollData,
 }: {
   props: CommentContent;
   pollData?: Poll;
 }) => {
   const { id, feedId, content, author, likeCount, isLiked, userVoteOptionId } =
-    comment;
+    props;
 
-  const formattedCreatedAt = new Date(comment.createdAt).toLocaleDateString();
+  const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
 
   const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [isReportModalOpen, setReportModalOpen] = useState<boolean>(false);
@@ -72,7 +72,7 @@ const CommentBlock = ({
       <StyledLeftPadding />
       <CornerDownRightIcon size={30} color="#DADADA" />
       <Avatar
-        src={author.profileImage || ""}
+        src={author.profile_image || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={avatarBackground}

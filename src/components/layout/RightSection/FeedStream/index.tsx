@@ -66,14 +66,12 @@ export default function FeedStream() {
           {page?.data?.content?.map((item, idx, array) => {
             const isSecondFromLast = idx === array.length - 4;
             const itemKey =
-              item.type === "AD"
-                ? `ad-${item.id}-${idx}`
-                : `feed-${item.id}`;
+              item.type === "AD" ? `ad-${item.id}-${idx}` : `feed-${item.id}`;
 
             return (
               <Fragment key={itemKey}>
                 {isSecondFromLast && hasNextPage && <div ref={scrollTrigger} />}
-                {item.type === "USER" || item.type === "POLL" ? (
+                {item.type === "NORMAL" ? (
                   <Block type="feed" feedProps={item} pollData={todayPoll} />
                 ) : (
                   <Block type="ad" feedProps={item} pollData={todayPoll} />

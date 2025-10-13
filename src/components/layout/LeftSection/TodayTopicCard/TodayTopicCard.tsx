@@ -7,6 +7,10 @@ import { useMemo, useState, useCallback } from "react";
 import { makePieData } from "@/lib/chart";
 import { useQueryClient } from "@tanstack/react-query";
 import MainContent from "./MainContent";
+import NoTopicState from "./NoTopicState";
+import { Spinner } from "@/components/svg/Spinner";
+import LoginReqruiedModal from "./LoginRequiredModal";
+import useAuth from "@/hooks/useAuth";
 
 export interface Option {
   id: number;
@@ -46,10 +50,12 @@ function selectionToOptionId(
 
 export default function TodayTopicCard() {
   const { showToast } = useToast();
+  const { isLoggedIn } = useAuth();
   const { data, isLoading } = usePoll();
   const queryClient = useQueryClient();
   const [optimisticSelection, setOptimisticSelection] =
     useState<selectOption>("none");
+  const [open, setOpen] = useState(false);
 
   const pieData = useMemo(
     () => makePieData(data?.options ?? [], data?.votedOptionId ?? null),
@@ -112,7 +118,7 @@ export default function TodayTopicCard() {
 
   return (
     <Container>
-      {isError || (!isLoading && data === undefined) ? (
+      {!isLoading && data === undefined ? (
         <NoTopicState
           message="오늘의 주제가 없습니다"
           description="잠시 후 다시 시도해주세요"

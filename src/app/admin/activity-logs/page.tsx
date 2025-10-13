@@ -6,7 +6,6 @@ import {
   AdminPageHeader,
   AdminCard,
   AdminCardTitle,
-  Actions,
   SectionLabel,
   SmallButton,
 } from "@/components/admin/AdminUI";
@@ -36,7 +35,12 @@ interface Filters {
 export default function AdminActivityLogsPage() {
   const [filters, setFilters] = useState<Filters>({ page: 1, size: 20 });
 
-  const { data: logs, isLoading, error, refetch } = useQuery<ActivityLogsPage>({
+  const {
+    data: logs,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<ActivityLogsPage>({
     queryKey: ["admin", "activity-logs", filters],
     queryFn: () =>
       getActivityLogs({
@@ -80,9 +84,7 @@ export default function AdminActivityLogsPage() {
                   setFilters((f) => ({
                     ...f,
                     page: 1,
-                    userId: e.target.value
-                      ? Number(e.target.value)
-                      : undefined,
+                    userId: e.target.value ? Number(e.target.value) : undefined,
                   }))
                 }
               />
@@ -136,7 +138,9 @@ export default function AdminActivityLogsPage() {
             </div>
 
             <div className="flex flex-col text-sm text-slate-600">
-              <SectionLabel className="text-xs text-slate-500">Role</SectionLabel>
+              <SectionLabel className="text-xs text-slate-500">
+                Role
+              </SectionLabel>
               <select
                 className={selectClass}
                 onChange={(e) =>
@@ -188,7 +192,9 @@ export default function AdminActivityLogsPage() {
             </Input>
 
             <div className="flex flex-col text-sm text-slate-600">
-              <SectionLabel className="text-xs text-slate-500">Size</SectionLabel>
+              <SectionLabel className="text-xs text-slate-500">
+                Size
+              </SectionLabel>
               <select
                 className={selectClass}
                 defaultValue={20}
@@ -329,10 +335,8 @@ export default function AdminActivityLogsPage() {
               {filters.page} / {pages}
             </span>
             <SmallButton
-              disabled={!(logs?.hasNext)}
-              onClick={() =>
-                setFilters((f) => ({ ...f, page: f.page + 1 }))
-              }
+              disabled={!logs?.hasNext}
+              onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
               다음
             </SmallButton>

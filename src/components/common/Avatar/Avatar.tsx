@@ -21,13 +21,15 @@ export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
 
   useEffect(() => {
     // 이미 전체 URL인 경우 그대로 사용, 상대 경로인 경우에만 API 호출
-    if (src.startsWith('http://') || src.startsWith('https://')) {
+    if (src.startsWith("http://") || src.startsWith("https://")) {
       setUrl(src);
     } else {
       // 상대 경로인 경우에만 API 호출 (기존 로직)
       async function fetchAvatar() {
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${src.replace("/api", "")}`);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api${src.replace("/api", "")}`,
+          );
           if (response.ok) {
             const data = await response.json();
             setUrl(data.data);
@@ -36,6 +38,7 @@ export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
           }
         } catch (error) {
           setUrl("/no_img.png");
+          console.log(error);
         }
       }
       fetchAvatar();

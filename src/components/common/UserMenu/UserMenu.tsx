@@ -1,11 +1,6 @@
 import React, { forwardRef } from "react";
 import styled from "styled-components";
-import {
-  HelpCircleIcon,
-  LogoutIcon,
-  UserProfileIcon,
-  UsersIcon,
-} from "@/components/svg";
+import { HelpCircleIcon, LogoutIcon, UserProfileIcon } from "@/components/svg";
 
 interface MenuProps {
   onClose: () => void;

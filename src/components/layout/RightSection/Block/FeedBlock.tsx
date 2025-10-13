@@ -1,5 +1,5 @@
 import type { Feed } from "@/types/feeds";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
@@ -7,29 +7,40 @@ import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 import { Avatar } from "@/components/common/Avatar";
 import { FeedCommentButton, FeedHeartButton } from "@/components/common/Button";
-import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { ReportModal } from "@/components/common/Report";
 import useReportMutation from "@/hooks/useReportMutation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
+import styled from "styled-components";
+import { MoreIcon } from "@/components/svg/MoreIcon";
 
-const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
-  const { user, createdAt, commentCount, content, likeCount, id, isLiked } =
+const FeedBlockComponent = ({
+  props,
+  pollData,
+}: {
+  props: Feed;
+  pollData?: Poll;
+}) => {
+  const { user, created_at, comment_count, content, like_count, id, is_liked } =
     props;
   const { isLoggedIn, user: me } = useAuthStore();
 
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
+  const formattedCreatedAt = new Date(created_at).toLocaleDateString();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isReportModalOpen, setReportModalOpen] = useState(false);
   useClickOutside(dropdownRef, () => setDropdownOpen(false));
 
-  const [liked, setLiked] = useState<boolean>(isLiked);
-  const [count, setCount] = useState<number>(likeCount);
+  const [liked, setLiked] = useState<boolean>(is_liked);
+  const [count, setCount] = useState<number>(like_count);
 
   const likeMutation = useFeedLikeOptimisticUpdate({ id });
-  const avatarBackground = useVoteOptionColor(props.userVoteOptionId, pollData);
+
+  const avatarBackground = useVoteOptionColor(
+    props.user_vote_option_id,
+    pollData,
+  );
   const [reportReason, setReportReason] = useState<string>("");
   const [reportDetail, setReportDetail] = useState<string>("");
 
@@ -42,12 +53,31 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
   const handleLoginRequired = () => {
     // TODO: 로그인 유도 로직 구현 (모달 또는 페이지 이동)
     alert("로그인이 필요합니다.");
-  }, []);
+  };
+
+  const handleCloseDropdown = () => {
+    setDropdownOpen(false);
+  };
+
+  const handleReport = (reason: string, detail?: string) => {
+    setReportReason(reason);
+    setReportDetail(detail || "");
+    setTimeout(() => {
+      reportMutation.mutate({
+        targetType: "FEED",
+        targetId: id,
+        reasonCode: reportReason,
+        reasonDetail: reportDetail,
+      });
+    }, 0);
+  };
+
+  const isMyFeed = me?.username === user?.username;
 
   return (
     <StyledContainer>
       <Avatar
-        src={feed.user.profileImage || ""}
+        src={user?.profile_image || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={avatarBackground}
@@ -56,7 +86,7 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
       <StyledContentContainer>
         <StyledTitleContainer>
           <StyledTitleWrapper>
-            <StyledTitle>{feed.user.username}</StyledTitle>
+            <StyledTitle>{user?.username}</StyledTitle>
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
 
@@ -76,7 +106,8 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
                     // 관심 없음 처리 로직을 여기에 추가할 수 있음
                   }}
                   onReport={() => {
-                    handleOpenReportModal();
+                    handleCloseDropdown();
+                    setReportModalOpen(true);
                   }}
                 />
               )}
@@ -84,28 +115,32 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
               {isReportModalOpen && (
                 <ReportModal
                   isOpen={isReportModalOpen}
-                  onClose={handleCloseReportModal}
+                  onClose={() => setReportModalOpen(false)}
                   onReport={handleReport}
                   targetType="FEED"
-                  targetId={feed.id}
+                  targetId={id}
                 />
               )}
             </StyledMoreButtonWrapper>
           )}
         </StyledTitleContainer>
 
-        <StyledBodyContainer>{feed.content}</StyledBodyContainer>
+        <StyledBodyContainer>{content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
           <FeedHeartButton
             likeCount={count}
             isLiked={liked}
             isLoggedIn={isLoggedIn}
-            onClick={handleToggleLike}
+            onClick={() => {
+              setCount(liked ? count - 1 : count + 1);
+              setLiked(!liked);
+              likeMutation.mutate();
+            }}
             onLoginRequired={handleLoginRequired}
           />
           <FeedCommentButton
-            commentCount={commentCount}
+            commentCount={comment_count}
             onClick={() => {
               router.push(`/feeds/${id}`);
             }}

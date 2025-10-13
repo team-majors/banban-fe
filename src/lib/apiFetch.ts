@@ -67,7 +67,10 @@ export async function apiFetch<T>(
 
     // 토큰이 없거나, /users/profile 요청인 경우 리프레시 시도하지 않음
     if (!token || url === "/users/profile") {
-      logger.warn("비로그인 상태 또는 프로필 조회 실패 - 리프레시 불필요", { url, hasToken: !!token });
+      logger.warn("비로그인 상태 또는 프로필 조회 실패 - 리프레시 불필요", {
+        url,
+        hasToken: !!token,
+      });
       throw new Error("로그인이 필요합니다.");
     }
 
@@ -127,11 +130,4 @@ function getAccessToken(): string | null {
   const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   logger.debug("액세스 토큰 조회", { hasToken: !!token });
   return token;
-}
-
-function isUserLoggedIn(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-  );
 }

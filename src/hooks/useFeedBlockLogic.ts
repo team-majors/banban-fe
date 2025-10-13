@@ -25,18 +25,21 @@ export function useFeedBlockLogic(feed: Feed, pollData: Poll) {
   const [isReportModalOpen, setReportModalOpen] = useState(false);
 
   // 로컬 optimistic state (초기값은 feed로부터)
-  const [liked, setLiked] = useState<boolean>(feed?.isLiked ?? false);
-  const [count, setCount] = useState<number>(feed?.likeCount ?? 0);
+  const [liked, setLiked] = useState<boolean>(feed?.is_liked ?? false);
+  const [count, setCount] = useState<number>(feed?.like_count ?? 0);
 
   // 외부 변경(예: 부모로부터 feed가 업데이트되는 경우)에 동기화
   useEffect(() => {
-    setLiked(feed.isLiked);
-    setCount(feed.likeCount);
-  }, [feed.isLiked, feed.likeCount]);
+    setLiked(feed.is_liked);
+    setCount(feed.like_count);
+  }, [feed.is_liked, feed.like_count]);
 
   // hooks that must be called at top-level
   const likeMutation = useFeedLikeOptimisticUpdate({ id: feed.id });
-  const avatarBackground = useVoteOptionColor(feed.userVoteOptionId, pollData);
+  const avatarBackground = useVoteOptionColor(
+    feed.user_vote_option_id,
+    pollData,
+  );
   const reportMutation = useReportMutation();
 
   // stable callbacks
@@ -91,13 +94,13 @@ export function useFeedBlockLogic(feed: Feed, pollData: Poll) {
   }, [feed, setTargetFeed, setSectionStatus]);
 
   const formattedCreatedAt = useMemo(
-    () => new Date(feed.createdAt).toLocaleDateString(),
-    [feed.createdAt],
+    () => new Date(feed.created_at).toLocaleDateString(),
+    [feed.created_at],
   );
 
   const isMyFeed = useMemo(
-    () => me?.username === feed.user.username,
-    [me?.username, feed.user.username],
+    () => me?.username === feed?.user?.username,
+    [me?.username, feed?.user?.username],
   );
 
   return {

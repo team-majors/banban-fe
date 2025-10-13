@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiFetch } from "@/lib/apiFetch";
 import type {
+  ActivityLogsPage,
   AdminApiResponse,
   AdminReportsData,
   AdminSystemData,
-  ActivityLogsPage,
 } from "@/types/admin";
 import type { Poll } from "@/types/poll";
 import type {
@@ -13,7 +14,6 @@ import type {
   AdminNotification,
   NotificationType,
   NotificationTargetType,
-  ActivityLogsPage,
   ActivityStats,
 } from "@/types/admin";
 import STORAGE_KEYS from "@/constants/storageKeys";
@@ -128,12 +128,11 @@ export async function getAdminReportsByTarget(
   targetType: ReportTargetType,
   targetId: number,
 ): Promise<{ reports: AdminReportsData["reports"] }> {
-  const res = await apiFetch<AdminApiResponse<{ reports: AdminReportsData["reports"] }>>(
-    `/admin/reports/target/${targetType}/${targetId}`,
-  );
+  const res = await apiFetch<
+    AdminApiResponse<{ reports: AdminReportsData["reports"] }>
+  >(`/admin/reports/target/${targetType}/${targetId}`);
   return { reports: res.data?.reports ?? [] };
 }
-
 
 // Polls
 export async function createAdminPoll(payload: {
@@ -161,13 +160,10 @@ export async function updateAdminPoll(
   if (payload.title !== undefined) body.title = payload.title;
   if (payload.pollDate !== undefined) body.poll_date = payload.pollDate;
 
-  const res = await apiFetch<AdminApiResponse<Poll>>(
-    `/admin/polls/${pollId}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(body),
-    },
-  );
+  const res = await apiFetch<AdminApiResponse<Poll>>(`/admin/polls/${pollId}`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
   return res.data;
 }
 
@@ -175,8 +171,12 @@ export async function updateAdminPollOption(
   pollId: number,
   optionId: number,
   payload: { content: string },
-): Promise<{ id: number; content: string; voteCount: number; optionOrder: number }>
-{
+): Promise<{
+  id: number;
+  content: string;
+  voteCount: number;
+  optionOrder: number;
+}> {
   const res = await apiFetch<
     AdminApiResponse<{
       id: number;
@@ -184,20 +184,23 @@ export async function updateAdminPollOption(
       voteCount: number;
       optionOrder: number;
     }>
-  >(`/admin/polls/${pollId}/options/${optionId}`,
-    {
-      method: "PUT",
-      body: JSON.stringify({ content: payload.content }),
-    },
-  );
+  >(`/admin/polls/${pollId}/options/${optionId}`, {
+    method: "PUT",
+    body: JSON.stringify({ content: payload.content }),
+  });
   return res.data;
 }
 
 export async function adminVote(payload: {
   pollId: number;
   pollOptionId: number;
-}): Promise<{ id: number; userId: number; pollId: number; pollOptionId: number; createdAt: string }>
-{
+}): Promise<{
+  id: number;
+  userId: number;
+  pollId: number;
+  pollOptionId: number;
+  createdAt: string;
+}> {
   const res = await apiFetch<
     AdminApiResponse<{
       id: number;
@@ -222,9 +225,7 @@ export interface AdminPollListParams {
   size?: number;
 }
 
-export async function getAdminPolls(
-  params: AdminPollListParams,
-): Promise<{
+export async function getAdminPolls(params: AdminPollListParams): Promise<{
   polls: Poll[];
   page: number;
   size: number;
@@ -248,8 +249,8 @@ export async function getAdminPolls(
   // camelcase-keys turns has_next -> hasNext
   return {
     polls: d.items ?? [],
-    page: d.page ?? (params.page ?? 1),
-    size: d.size ?? (params.size ?? 10),
+    page: d.page ?? params.page ?? 1,
+    size: d.size ?? params.size ?? 10,
     hasNext: d.hasNext ?? d.has_next ?? false,
   };
 }
@@ -259,8 +260,9 @@ export async function getAdminPoll(pollId: number): Promise<Poll> {
   return res.data;
 }
 
-export async function deleteAdminPoll(pollId: number): Promise<{ message?: string; deleted_poll_id?: number }>
-{
+export async function deleteAdminPoll(
+  pollId: number,
+): Promise<{ message?: string; deleted_poll_id?: number }> {
   const res = await apiFetch<
     AdminApiResponse<{ message?: string; deleted_poll_id?: number }>
   >(`/admin/polls/${pollId}`, { method: "DELETE" });
@@ -270,10 +272,19 @@ export async function deleteAdminPoll(pollId: number): Promise<{ message?: strin
 export async function addAdminPollOption(
   pollId: number,
   content: string,
-): Promise<{ id: number; content: string; voteCount: number; optionOrder: number }>
-{
+): Promise<{
+  id: number;
+  content: string;
+  voteCount: number;
+  optionOrder: number;
+}> {
   const res = await apiFetch<
-    AdminApiResponse<{ id: number; content: string; voteCount: number; optionOrder: number }>
+    AdminApiResponse<{
+      id: number;
+      content: string;
+      voteCount: number;
+      optionOrder: number;
+    }>
   >(`/admin/polls/${pollId}/options`, {
     method: "POST",
     body: JSON.stringify({ content }),
@@ -284,8 +295,7 @@ export async function addAdminPollOption(
 export async function deleteAdminPollOption(
   pollId: number,
   optionId: number,
-): Promise<{ message?: string; deleted_option_id?: number }>
-{
+): Promise<{ message?: string; deleted_option_id?: number }> {
   const res = await apiFetch<
     AdminApiResponse<{ message?: string; deleted_option_id?: number }>
   >(`/admin/polls/${pollId}/options/${optionId}`, { method: "DELETE" });
@@ -295,10 +305,15 @@ export async function deleteAdminPollOption(
 export async function reorderAdminPollOptions(
   pollId: number,
   optionIds: number[],
-): Promise<{ message?: string; options?: Array<{ id: number; optionOrder: number }> }>
-{
+): Promise<{
+  message?: string;
+  options?: Array<{ id: number; optionOrder: number }>;
+}> {
   const res = await apiFetch<
-    AdminApiResponse<{ message?: string; options?: Array<{ id: number; optionOrder: number }> }>
+    AdminApiResponse<{
+      message?: string;
+      options?: Array<{ id: number; optionOrder: number }>;
+    }>
   >(`/admin/polls/${pollId}/options/reorder`, {
     method: "PUT",
     body: JSON.stringify({ option_ids: optionIds }),
@@ -367,16 +382,17 @@ export async function getAdminMetrics(): Promise<string> {
 }
 
 // System - cache actions
-export async function clearAllAdminCaches(): Promise<{ message: string; deletedKeys?: number }>
-{
+export async function clearAllAdminCaches(): Promise<{
+  message: string;
+  deletedKeys?: number;
+}> {
   const res = await apiFetch<
     AdminApiResponse<{ message: string; deletedKeys?: number }>
   >("/admin/cache/clear", { method: "POST" });
   return res.data;
 }
 
-export async function invalidateHotFeedCache(): Promise<{ message: string }>
-{
+export async function invalidateHotFeedCache(): Promise<{ message: string }> {
   const res = await apiFetch<AdminApiResponse<{ message: string }>>(
     "/admin/feeds/hot/cache",
     { method: "DELETE" },
@@ -437,8 +453,8 @@ export async function getActivityLogs(params: {
   return {
     logs: d.logs ?? [],
     total: d.total ?? 0,
-    page: d.page ?? (params.page ?? 1),
-    size: d.size ?? (params.size ?? 20),
+    page: d.page ?? params.page ?? 1,
+    size: d.size ?? params.size ?? 20,
     hasNext: (d as any).hasNext ?? d.has_next ?? false,
   };
 }
@@ -460,10 +476,21 @@ export async function getActivityLogsByUser(
   userId: number,
   page = 1,
   size = 20,
-): Promise<{ userId: number; logs: ActivityLogsPage["logs"]; total: number; page: number; size: number }>
-{
+): Promise<{
+  userId: number;
+  logs: ActivityLogsPage["logs"];
+  total: number;
+  page: number;
+  size: number;
+}> {
   const res = await apiFetch<
-    AdminApiResponse<{ user_id: number; logs: ActivityLogsPage["logs"]; total: number; page: number; size: number }>
+    AdminApiResponse<{
+      user_id: number;
+      logs: ActivityLogsPage["logs"];
+      total: number;
+      page: number;
+      size: number;
+    }>
   >(`/admin/activity-logs/users/${userId}?page=${page}&size=${size}`);
   const d = res.data as any;
   return {

@@ -16,16 +16,16 @@ import useReportMutation from "@/hooks/useReportMutation";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const CommentBlock = ({
-  props,
+  comment,
   pollData,
 }: {
   props: CommentContent;
   pollData?: Poll;
 }) => {
   const { id, feedId, content, author, likeCount, isLiked, userVoteOptionId } =
-    props;
+    comment;
 
-  const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
+  const formattedCreatedAt = new Date(comment.createdAt).toLocaleDateString();
 
   const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [isReportModalOpen, setReportModalOpen] = useState<boolean>(false);

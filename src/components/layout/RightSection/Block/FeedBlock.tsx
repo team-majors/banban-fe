@@ -1,7 +1,3 @@
-import styled from "styled-components";
-import { Avatar } from "@/components/common/Avatar";
-import { FeedHeartButton, FeedCommentButton } from "@/components/common/Button";
-import { MoreIcon } from "@/components/svg/MoreIcon";
 import type { Feed } from "@/types/feeds";
 import { useRef, useState } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
@@ -9,6 +5,9 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
+import { Avatar } from "@/components/common/Avatar";
+import { FeedCommentButton, FeedHeartButton } from "@/components/common/Button";
+import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { ReportModal } from "@/components/common/Report";
 import useReportMutation from "@/hooks/useReportMutation";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -43,41 +42,24 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
   const handleLoginRequired = () => {
     // TODO: 로그인 유도 로직 구현 (모달 또는 페이지 이동)
     alert("로그인이 필요합니다.");
-  };
-
-  const handleCloseDropdown = () => {
-    setDropdownOpen(false);
-  };
-
-  const handleReport = (reason: string, detail?: string) => {
-    setReportReason(reason);
-    setReportDetail(detail || "");
-    setTimeout(() => {
-      reportMutation.mutate({
-        targetType: "FEED",
-        targetId: id,
-        reasonCode: reportReason,
-        reasonDetail: reportDetail,
-      });
-    }, 0);
-  };
-
-  const isMyFeed = me?.username === user.username;
+  }, []);
 
   return (
     <StyledContainer>
       <Avatar
-        src={user.profileImage || ""}
+        src={feed.user.profileImage || ""}
         alt="사용자 프로필 이미지"
         size={40}
         background={avatarBackground}
       />
+
       <StyledContentContainer>
         <StyledTitleContainer>
           <StyledTitleWrapper>
-            <StyledTitle>{props.user.username}</StyledTitle>
+            <StyledTitle>{feed.user.username}</StyledTitle>
             <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
           </StyledTitleWrapper>
+
           {!isMyFeed && isLoggedIn && (
             <StyledMoreButtonWrapper ref={dropdownRef}>
               <StyledMoreButton
@@ -86,43 +68,40 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
               >
                 <MoreIcon />
               </StyledMoreButton>
+
               {isDropdownOpen && (
                 <OptionsDropdown
                   onHide={() => {
                     handleCloseDropdown();
-                    // 관심 없음 처리 로직
+                    // 관심 없음 처리 로직을 여기에 추가할 수 있음
                   }}
                   onReport={() => {
-                    handleCloseDropdown();
-                    setReportModalOpen(true);
+                    handleOpenReportModal();
                   }}
                 />
               )}
+
               {isReportModalOpen && (
                 <ReportModal
                   isOpen={isReportModalOpen}
-                  onClose={() => setReportModalOpen(false)}
+                  onClose={handleCloseReportModal}
                   onReport={handleReport}
                   targetType="FEED"
-                  targetId={id}
+                  targetId={feed.id}
                 />
               )}
             </StyledMoreButtonWrapper>
           )}
         </StyledTitleContainer>
 
-        <StyledBodyContainer>{content}</StyledBodyContainer>
+        <StyledBodyContainer>{feed.content}</StyledBodyContainer>
 
         <StyledIconButtonContainer>
           <FeedHeartButton
             likeCount={count}
             isLiked={liked}
             isLoggedIn={isLoggedIn}
-            onClick={() => {
-              setCount(liked ? count - 1 : count + 1);
-              setLiked(!liked);
-              likeMutation.mutate();
-            }}
+            onClick={handleToggleLike}
             onLoginRequired={handleLoginRequired}
           />
           <FeedCommentButton
@@ -136,6 +115,8 @@ const FeedBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
     </StyledContainer>
   );
 };
+
+export const FeedBlock = React.memo(FeedBlockComponent);
 
 const StyledContainer = styled.div`
   display: flex;
@@ -205,5 +186,3 @@ const StyledMoreButtonWrapper = styled.div`
   display: flex;
   align-items: center;
 `;
-
-export { FeedBlock };

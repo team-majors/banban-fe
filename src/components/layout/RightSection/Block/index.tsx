@@ -17,11 +17,15 @@ const Block = (props: BlockProps) => {
     case "ad":
       return <AdBlock props={props.feedProps} />;
     case "feed":
-      return <FeedBlock props={props.feedProps} pollData={props.pollData} />;
+      return <FeedBlock feed={props.feedProps} pollData={props.pollData} />;
     case "commentHead":
-      return <CommentHeadBlock props={props.feedProps} pollData={props.pollData} />;
+      return (
+        <CommentHeadBlock props={props.feedProps} pollData={props.pollData} />
+      );
     case "comment":
-      return <CommentBlock props={props.commentProps} pollData={props.pollData} />;
+      return (
+        <CommentBlock comment={props.commentProps} pollData={props.pollData} />
+      );
     default:
       return null;
   }

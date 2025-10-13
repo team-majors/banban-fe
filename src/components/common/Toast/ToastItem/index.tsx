@@ -7,11 +7,16 @@ import { ToastTheme } from "../ToastTheme";
 import { CloseIcon } from "@/components/svg";
 
 const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
-  const { type, message, duration = 3000 } = toast;
+  const { type, message, duration = 3000, action } = toast;
   const ref = useRef<SVGSVGElement>(null);
   const [isVisible, setIsVisible] = useState(true);
 
   const handleClose = () => setIsVisible(false);
+  const handleAction = () => {
+    if (!action) return;
+    action.onClick();
+    setIsVisible(false);
+  };
 
   const theme = ToastTheme[type];
 
@@ -27,6 +32,11 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
       <FlexContainer>
         <IconWrapper bgcolor={theme.color}>{theme.icon}</IconWrapper>
         <Message>{message}</Message>
+        {action && (
+          <ActionButton type="button" onClick={handleAction}>
+            {action.label}
+          </ActionButton>
+        )}
       </FlexContainer>
       <CloseIcon
         style={iconStyle}
@@ -99,6 +109,21 @@ const Message = styled.p`
   font-weight: 600;
   font-size: 14px;
   color: #000000;
+`;
+
+const ActionButton = styled.button`
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  background-color: #f1f5f9;
+  color: #1f2937;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e2e8f0;
+  }
 `;
 
 export default ToastItem;

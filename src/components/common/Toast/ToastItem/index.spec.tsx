@@ -1,4 +1,4 @@
-import { describe } from "vitest";
+import { describe, vi } from "vitest";
 import render from "@/utils/test/render";
 import ToastItem from "./index";
 import { fireEvent, screen, waitFor } from "@testing-library/react";
@@ -46,5 +46,21 @@ describe("ToastItem", () => {
     const closeBtn = screen.getByRole("button", { name: /close toast/i });
     expect(closeBtn).toHaveAttribute("aria-label", "Close Toast");
     expect(closeBtn).toHaveAttribute("role", "button");
+  });
+
+  it("action이 있으면 버튼이 노출되고 클릭 시 콜백이 호출된다", () => {
+    const onClick = vi.fn();
+    const toastWithAction: Toast = {
+      ...testToast,
+      action: {
+        label: "확인",
+        onClick,
+      },
+    };
+
+    render(<ToastItem toast={toastWithAction} />);
+    const actionButton = screen.getByRole("button", { name: "확인" });
+    fireEvent.click(actionButton);
+    expect(onClick).toHaveBeenCalled();
   });
 });

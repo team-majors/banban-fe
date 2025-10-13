@@ -1,21 +1,18 @@
 import styled from "styled-components";
-import { MoreIcon } from "@/components/svg/MoreIcon";
 import { ChevronLeftIcon } from "@/components/svg/ChevronLeftIcon";
-import { SectionContext } from "../SectionContext";
-import { useContext } from "react";
+import { useRouter } from "next/navigation";
 
 const CommentTab = () => {
-  const { setSectionStatus } = useContext(SectionContext);
+  const router = useRouter();
 
   return (
     <StyledContainer>
       <StyledCommentsTab>
         <StyledBackButton onClick={() => {
-          setSectionStatus("feeds");
+          router.push("/");
         }}>
           <ChevronLeftIcon size={24} />
         </StyledBackButton>
-        <MoreIcon size={20} />
       </StyledCommentsTab>
     </StyledContainer>
   );

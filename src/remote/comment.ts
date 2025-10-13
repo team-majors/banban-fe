@@ -1,4 +1,9 @@
-import type { CommentRequest, CommentResponse } from "@/types/comments";
+import type {
+  CommentRequest,
+  CommentResponse,
+  CreateCommentRequest,
+  CreateCommentResponse
+} from "@/types/comments";
 import { apiFetch } from "@/lib/apiFetch";
 
 export const getComments = async ({
@@ -17,4 +22,22 @@ export const getComments = async ({
   console.log(res);
 
   return res as CommentResponse;
+};
+
+export const createComment = async ({
+  feedId,
+  content,
+}: CreateCommentRequest): Promise<CreateCommentResponse> => {
+  const res = await apiFetch(`/comments/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      feed_id: feedId,
+      content,
+    }),
+  });
+
+  return res as CreateCommentResponse;
 };

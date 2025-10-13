@@ -6,7 +6,6 @@ import { Block } from "../Block";
 import { useContext } from "react";
 import { SectionContext } from "../SectionContext";
 import { usePoll } from "@/hooks/usePoll";
-import { useTodayISO } from "@/hooks/useTodayIso";
 
 const CommentStream = () => {
   const { targetFeed } = useContext(SectionContext);
@@ -14,8 +13,7 @@ const CommentStream = () => {
     feedId: targetFeed?.id || 0,
     size: 8,
   });
-  const today = useTodayISO();
-  const { data: pollData } = usePoll(today);
+  const { data: pollData } = usePoll();
 
   const [scrollTrigger, isInView] = useInView({
     threshold: 0,
@@ -26,6 +24,11 @@ const CommentStream = () => {
       fetchNextPage();
     }
   }, [isInView, hasNextPage]);
+
+  const totalComments = data?.pages?.reduce(
+    (acc, page) => acc + (page?.data?.content?.length || 0),
+    0
+  ) || 0;
 
   return (
     <StyledFeedStreamContainer>
@@ -52,7 +55,7 @@ const CommentStream = () => {
       <div className="flex justify-center items-center h-30">
         {isFetchingNextPage ? (
           <div>로딩중...</div>
-        ) : !hasNextPage ? (
+        ) : totalComments === 0 ? (
           <p className="text-gray-500">불러올 댓글이 없습니다</p>
         ) : null}
       </div>

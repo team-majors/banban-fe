@@ -6,16 +6,22 @@ interface RankingItemProps {
   rank: number;
   title: string;
   figure?: number;
+  onSelect?: () => void;
 }
 
-export default function RankingItem({ rank, title, figure }: RankingItemProps) {
+export default function RankingItem({
+  rank,
+  title,
+  figure,
+  onSelect,
+}: RankingItemProps) {
   return (
-    <Container>
+    <Container type="button" onClick={onSelect} disabled={!onSelect}>
       <Left>
         <Rank $highlight={rank <= 3}>{rank}</Rank>
         <div>{title}</div>
       </Left>
-          {figure === 0 ? (
+      {figure === 0 ? (
         <FigureSpacer />
       ) : (
         <Figure $increase={figure > 0}>
@@ -36,16 +42,24 @@ const COLOR = {
   decrease: "#59BCFB",
 };
 
-const Container = styled.div`
+const Container = styled.button`
   display: flex;
-  width: 100%;
   gap: 15px;
   justify-content: space-between;
-  width: 100%;
   color: #181d27;
   line-height: 24px;
   font-weight: 600;
   font-size: 14px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
 `;
 
 const Left = styled.div`

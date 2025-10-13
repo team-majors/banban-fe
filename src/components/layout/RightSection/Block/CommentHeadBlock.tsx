@@ -4,7 +4,7 @@ import { Feed } from "@/types/feeds";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 
-const CommentHeadBlock = ({ props, pollData }: { props: Feed; pollData: Poll }) => {
+const CommentHeadBlock = ({ props, pollData }: { props: Feed; pollData?: Poll }) => {
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
   const avatarBackground = useVoteOptionColor(props.userVoteOptionId, pollData);
 

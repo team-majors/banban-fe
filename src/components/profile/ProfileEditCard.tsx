@@ -88,6 +88,7 @@ const Container = styled.div`
   flex-direction: column;
   border: solid 1px #e9eaeb;
   box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08);
+  z-index: 950;
 `;
 
 const ProfileHeader = styled.div`

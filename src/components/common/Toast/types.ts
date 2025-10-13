@@ -5,4 +5,8 @@ export interface Toast {
   type: ToastType;
   message: string;
   duration?: number; // ms
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }

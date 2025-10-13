@@ -32,10 +32,11 @@ export default function Home() {
           <LeftSection />
           <RightSection />
 
+          {/* 메인 화면에서만 피드 작성 플러스 버튼 표시 */}
           {isLoggedIn && (
             <FloatingButtonWithModal
-              sectionStatus={sectionStatus}
-              targetFeed={targetFeed}
+              sectionStatus="feeds"
+              targetFeed={null}
             />
           )}
         </div>

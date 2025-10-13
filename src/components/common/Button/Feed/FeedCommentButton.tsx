@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { CommentIcon } from "@/components/svg/CommentIcon";
 import styled from "styled-components";
 
@@ -11,8 +10,6 @@ export function FeedCommentButton({
   commentCount: number;
   onClick: () => void;
 }) {
-  const [count] = useState<number>(commentCount);
-
   return (
     <StyledButton
       onClick={() => {
@@ -20,7 +17,7 @@ export function FeedCommentButton({
       }}
     >
       <CommentIcon />
-      <StyledSpan>{count}</StyledSpan>
+      <StyledSpan>{commentCount}</StyledSpan>
     </StyledButton>
   );
 }

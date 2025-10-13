@@ -4,6 +4,7 @@ import Image from "next/image";
 import styled from "styled-components";
 import { AddIcon } from "../svg";
 import { useToast } from "../common/Toast/useToast";
+import { useUploadProfileImage } from "@/hooks/useUploadProfileImage";
 
 export interface RegisterRequestType {
   email: string;
@@ -23,6 +24,10 @@ export default function ProfileImageContainer({
 }) {
   const { showToast } = useToast();
   const [newImage, setNewImage] = useState<string | undefined>(undefined);
+  const uploadProfileImageMutation = useUploadProfileImage();
+
+  // 프로필 편집 모드인지 회원가입 모드인지 판단
+  const isProfileEditMode = !setImageUrl;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputFile = e.target?.files?.[0];
@@ -34,6 +39,12 @@ export default function ProfileImageContainer({
       }
       return null;
     };
+
+    // 파일 크기 검증 (5MB)
+    if (inputFile.size > 5 * 1024 * 1024) {
+      showToast({ type: "error", message: "파일 크기는 5MB를 초과할 수 없습니다." });
+      return;
+    }
 
     if (inputFile) {
       const ext = getFileExt(inputFile.name);
@@ -49,11 +60,37 @@ export default function ProfileImageContainer({
           console.log(convertedFile);
           if (!convertedFile) return;
           imageUrl = URL.createObjectURL(convertedFile);
+
+          // 프로필 편집 모드일 때: 즉시 API 호출
+          if (isProfileEditMode) {
+            uploadProfileImageMutation.mutate(
+              { file: convertedFile },
+              {
+                onSuccess: () => {
+                  showToast({
+                    type: "success",
+                    message: "프로필 이미지가 업데이트되었습니다.",
+                    duration: 3000,
+                  });
+                },
+                onError: (error) => {
+                  console.error("프로필 이미지 업로드 실패:", error);
+                  showToast({
+                    type: "error",
+                    message: "프로필 이미지 업로드에 실패했습니다.",
+                    duration: 3000,
+                  });
+                  return;
+                },
+              }
+            );
+          }
         } else {
           imageUrl = URL.createObjectURL(inputFile);
         }
         setNewImage(imageUrl);
 
+        // 회원가입 모드일 때: 상태에 저장
         if (setImageUrl) {
           setImageUrl((prev) => ({
             ...prev,
@@ -95,17 +132,23 @@ export default function ProfileImageContainer({
           position: "absolute",
           right: 0,
           bottom: 0,
+          opacity: uploadProfileImageMutation.isPending ? 0.5 : 1,
+          cursor: uploadProfileImageMutation.isPending ? "not-allowed" : "pointer",
         }}
       >
         <input
           type="file"
-          accept="image/jpeg, image/jpg, image/bmp, image/webp, image/png"
+          accept="image/jpeg, image/jpg, image/bmp, image/webp, image/png, image/gif"
           onChange={handleFileChange}
           className="hidden"
-          multiple
+          disabled={uploadProfileImageMutation.isPending}
         />
         <Wrapper>
-          <AddIcon width={15} height={15} color="white" />
+          {uploadProfileImageMutation.isPending ? (
+            <span style={{ fontSize: "10px", color: "white" }}>...</span>
+          ) : (
+            <AddIcon width={15} height={15} color="white" />
+          )}
         </Wrapper>
       </label>
     </Container>

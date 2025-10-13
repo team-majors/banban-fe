@@ -34,10 +34,13 @@ export async function apiFetch<T>(
     context,
   });
 
+  // FormData인 경우 Content-Type을 자동으로 설정하도록 함
+  const isFormData = options.body instanceof FormData;
+
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${url}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },

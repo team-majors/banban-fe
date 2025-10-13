@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiFetch } from "@/lib/apiFetch";
 import { PollOption, Poll } from "@/types/poll";
 import { UserProfile } from "@/types/auth";
-import { ApiResponse } from "@/types/api";
 import { getUserProfile } from "@/remote/user";
+import { fetchPoll } from "@/remote/poll";
 
 interface UserVoteInfo {
   userProfile: UserProfile;
@@ -12,14 +11,12 @@ interface UserVoteInfo {
   voteStatus: "not_voted" | "voted" | "loading" | "error";
 }
 
-const fetchPollData = async (date: string): Promise<Poll> => {
-  const response: ApiResponse<Poll> = await apiFetch(
-    `/polls?poll_date=${date}`,
-  );
-  return response.data;
-};
+const fetchPollData = (date?: string) => fetchPoll(date);
 
-export const useUserVoteInfo = (date: string) => {
+export const useUserVoteInfo = (date?: string) => {
+  const normalized = date?.trim();
+  const effectiveDate = normalized && normalized.length > 0 ? normalized : undefined;
+
   // 유저 프로필 정보 조회
   const {
     data: userProfile,
@@ -38,8 +35,8 @@ export const useUserVoteInfo = (date: string) => {
     isLoading: isPollLoading,
     error: pollError,
   } = useQuery<Poll, Error>({
-    queryKey: ["poll", date],
-    queryFn: () => fetchPollData(date),
+    queryKey: ["poll", effectiveDate ?? "current"],
+    queryFn: () => fetchPollData(effectiveDate),
     staleTime: 1000 * 60, // 1분 캐시
     refetchOnWindowFocus: false,
     enabled: !!userProfile, // 유저 프로필이 로드된 후에만 실행

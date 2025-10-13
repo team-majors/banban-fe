@@ -19,8 +19,8 @@ const CommentBlock = ({
   comment,
   pollData,
 }: {
-  comment: CommentContent;
-  pollData: Poll;
+  props: CommentContent;
+  pollData?: Poll;
 }) => {
   const { id, feedId, content, author, likeCount, isLiked, userVoteOptionId } =
     comment;

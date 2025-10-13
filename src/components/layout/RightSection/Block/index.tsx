@@ -9,8 +9,8 @@ import { Poll } from "@/types/poll";
 type BlockType = "feed" | "ad" | "commentHead" | "comment";
 
 type BlockProps =
-  | { type: "feed" | "ad" | "commentHead"; feedProps: Feed; pollData: Poll }
-  | { type: "comment"; commentProps: CommentContent; pollData: Poll };
+  | { type: "feed" | "ad" | "commentHead"; feedProps: Feed; pollData?: Poll }
+  | { type: "comment"; commentProps: CommentContent; pollData?: Poll };
 
 const Block = (props: BlockProps) => {
   switch (props.type) {

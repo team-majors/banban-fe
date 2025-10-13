@@ -7,11 +7,6 @@ import { useMemo, useState, useCallback } from "react";
 import { makePieData } from "@/lib/chart";
 import { useQueryClient } from "@tanstack/react-query";
 import MainContent from "./MainContent";
-import { useTodayISO } from "@/hooks/useTodayIso";
-import NoTopicState from "./NoTopicState";
-import useAuth from "@/hooks/useAuth";
-import LoginReqruiedModal from "./LoginRequiredModal";
-import { Spinner } from "@/components/svg/Spinner";
 
 export interface Option {
   id: number;
@@ -51,10 +46,7 @@ function selectionToOptionId(
 
 export default function TodayTopicCard() {
   const { showToast } = useToast();
-  const { isLoggedIn } = useAuth();
-  const [open, setOpen] = useState(false);
-  const today = useTodayISO();
-  const { data, isLoading, isError } = usePoll(today);
+  const { data, isLoading } = usePoll();
   const queryClient = useQueryClient();
   const [optimisticSelection, setOptimisticSelection] =
     useState<selectOption>("none");

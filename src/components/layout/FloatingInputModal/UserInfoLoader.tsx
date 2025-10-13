@@ -4,7 +4,6 @@ import { Avatar } from "../../common/Avatar/Avatar";
 import { useUserVoteInfo } from "@/hooks/useUserVoteInfo";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { usePoll } from "@/hooks/usePoll";
-import { useTodayISO } from "@/hooks/useTodayIso";
 interface TargetUser {
   nickname: string;
   description: string;
@@ -21,7 +20,6 @@ interface UserInfoLoaderProps {
 
 export const UserInfoLoader = memo(
   ({ onUserLoaded, onError }: UserInfoLoaderProps) => {
-    const today = useTodayISO();
     // useUserVoteInfo 훅을 사용하여 유저 정보와 투표 정보 가져오기
     const {
       data: userVoteInfo,
@@ -32,9 +30,9 @@ export const UserInfoLoader = memo(
       userAvatar,
       username,
       userVoteOptionId,
-    } = useUserVoteInfo(today);
+    } = useUserVoteInfo();
 
-    const { data: pollData } = usePoll(today);
+    const { data: pollData } = usePoll();
 
     const textColor = useVoteOptionColor(userVoteOptionId, pollData);
 

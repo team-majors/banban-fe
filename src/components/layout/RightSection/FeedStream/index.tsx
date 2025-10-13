@@ -5,12 +5,15 @@ import { Fragment, useEffect, useRef } from "react";
 import { Block } from "../Block";
 import useScrollPositionStore from "@/store/useScrollPositionStore";
 import { usePoll } from "@/hooks/usePoll";
-import { useTodayISO } from "@/hooks/useTodayIso";
+import { useFeedFilterStore } from "@/store/useFeedFilterStore";
 
 export default function FeedStream() {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeeds();
-  const today = useTodayISO();
-  const { data: pollData } = usePoll(today);
+  const { sortBy, filterType } = useFeedFilterStore();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useFeeds({
+    sort_by: sortBy,
+    filter_type: filterType,
+  });
+  const { data: todayPoll } = usePoll();
 
   const [scrollTrigger, isInView] = useInView({
     threshold: 0,
@@ -62,18 +65,18 @@ export default function FeedStream() {
         <Fragment key={`page-${index}`}>
           {page?.data?.content?.map((item, idx, array) => {
             const isSecondFromLast = idx === array.length - 4;
+            const itemKey =
+              item.type === "AD"
+                ? `ad-${item.id}-${idx}`
+                : `feed-${item.id}`;
 
             return (
-              <Fragment key={`page-${index}-item-${idx}`}>
+              <Fragment key={itemKey}>
                 {isSecondFromLast && hasNextPage && <div ref={scrollTrigger} />}
-                {pollData && (
-                  <>
-                    {item.type === "USER" || item.type === "POLL" ? (
-                      <Block type="feed" feedProps={item} pollData={pollData} />
-                    ) : (
-                      <Block type="ad" feedProps={item} pollData={pollData} />
-                    )}
-                  </>
+                {item.type === "USER" || item.type === "POLL" ? (
+                  <Block type="feed" feedProps={item} pollData={todayPoll} />
+                ) : (
+                  <Block type="ad" feedProps={item} pollData={todayPoll} />
                 )}
               </Fragment>
             );

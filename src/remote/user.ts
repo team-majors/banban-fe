@@ -26,12 +26,14 @@ export const updateUsername = async ({ username }: { username: string }) => {
   return response;
 };
 
-export const updateProfileImage = async ({ file }: { file: string }) => {
-  const response = await apiFetch("/users/profile/image/", {
+export const updateProfileImage = async ({ file }: { file: File }) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await apiFetch("/users/profile/image", {
     method: "PUT",
-    body: JSON.stringify({
-      file,
-    }),
+    body: formData,
+    // FormData 사용 시 Content-Type 자동 설정되므로 헤더 제외
   });
 
   return response;

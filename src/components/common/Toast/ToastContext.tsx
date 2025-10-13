@@ -19,9 +19,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const showToast = useCallback(
-    ({ type, message, duration = 3000 }: Omit<Toast, "id">) => {
+    ({ type, message, duration = 3000, action }: Omit<Toast, "id">) => {
       const id = uuidv4();
-      const newToast: Toast = { id, type, message, duration };
+      const newToast: Toast = { id, type, message, duration, action };
 
       setToasts((prev) => [...prev, newToast]);
 

@@ -4,12 +4,13 @@ import { useState, useRef, useLayoutEffect } from "react";
 interface SegmentedControlProps extends React.HTMLAttributes<HTMLDivElement> {
   itemLabels: string[];
   initialIdx?: number;
-  // 로직 변화에 따라 변화, 추가될 수 있음
+  onItemClick?: (idx: number) => void;
 }
 
 export default function SegmentedControl({
   itemLabels,
   initialIdx,
+  onItemClick,
 }: SegmentedControlProps) {
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -32,6 +33,11 @@ export default function SegmentedControl({
     setIndicatorLeft(distance);
   }, [selectedIdx]);
 
+  const handleItemClick = (idx: number) => {
+    setSelectedIdx(idx);
+    onItemClick?.(idx);
+  };
+
   return (
     <StyledContainer>
       <StyledItemWrapper>
@@ -41,9 +47,7 @@ export default function SegmentedControl({
             ref={(el) => {
               itemRefs.current[idx] = el;
             }}
-            onClick={() => {
-              setSelectedIdx(idx);
-            }}
+            onClick={() => handleItemClick(idx)}
             $isSelected={selectedIdx === idx}
           >
             {label}

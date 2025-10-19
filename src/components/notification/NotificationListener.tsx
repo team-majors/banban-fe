@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import useAuth from "@/hooks/useAuth";
 import { useNotificationWebSocket } from "@/hooks/useNotificationWebSocket";
 import { useNotificationStore } from "@/store/useNotificationStore";
@@ -9,7 +10,6 @@ import type { WSNotificationMessage } from "@/types/notification";
 import { useRouter } from "next/navigation";
 import { logger } from "@/utils/logger";
 import { useToast } from "@/components/common/Toast/useToast";
-import { useQueryClient } from "@tanstack/react-query";
 
 const TIMEOUT_THRESHOLD_MS = 70_000;
 
@@ -56,6 +56,11 @@ export default function NotificationListener() {
     onNotification: (payload) => {
       const notification = mapNotificationPayload(payload);
       addNotification(notification);
+
+      // React Query 캐시 무효화하여 최신 알림 목록 동기화
+      queryClient.invalidateQueries({
+        queryKey: ["notifications"],
+      });
 
       toast.showToast({
         type: "info",

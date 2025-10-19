@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { DefaultButton } from "@/components/common/Button";
 import { BellIcon, UserIcon, DotIcon, BanBanLogo } from "@/components/svg";
 import styled from "styled-components";
@@ -14,8 +15,10 @@ import NotificationMenu from "./NotificationMenu";
 import { useNotificationStore } from "@/store/useNotificationStore";
 import { useNotifications } from "@/hooks/useNotifications";
 import type { Notification } from "@/types/notification";
+import { markNotificationsAsRead } from "@/remote/notification";
 import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
+import { logger } from "@/utils/logger";
 
 interface HeaderProps {
   isNew?: boolean;
@@ -30,6 +33,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   const { isLoggedIn, user, logout, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   useClickOutside(
@@ -88,7 +92,13 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     setUserMenuOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(false);
-    setNotificationOpen((prev) => !prev);
+    setNotificationOpen((prev) => {
+      // 알림 메뉴를 열 때 최신 데이터 요청
+      if (!prev) {
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      }
+      return !prev;
+    });
   };
   const handleProfile = () => handleToggleMenu();
 
@@ -105,9 +115,19 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     }
   }, [isNotificationOpen, notificationsData, markAsRead]);
 
-  const handleNotificationItemClick = (notification: Notification) => {
+  const handleNotificationItemClick = async (notification: Notification) => {
+    // 안읽은 알림이면 서버에 읽음 처리
     if (!notification.isRead) {
-      markAsRead([notification.id]);
+      try {
+        await markNotificationsAsRead([notification.id]);
+        // 로컬 상태 업데이트
+        markAsRead([notification.id]);
+        // 캐시 무효화하여 최신 데이터 반영
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      } catch (error) {
+        logger.error("알림 읽음 처리 실패", error);
+        // 에러 발생해도 UI는 계속 진행
+      }
     }
     setNotificationOpen(false);
 

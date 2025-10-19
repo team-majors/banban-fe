@@ -9,7 +9,7 @@ export const useNotifications = () => {
       getNotifications({ lastId: pageParam as number | null, size: 20 }),
     initialPageParam: null,
     getNextPageParam: (lastPage) => {
-      if (!lastPage.data.has_next) {
+      if (!lastPage.data.hasNext) {
         return undefined;
       }
       const lastNotification =

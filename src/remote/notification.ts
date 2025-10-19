@@ -28,6 +28,14 @@ export interface MarkNotificationsAsReadResponse {
   };
 }
 
+export interface MarkAllNotificationsAsReadResponse {
+  code: number;
+  status: "SUCCESS" | "FAILURE";
+  data: {
+    read_count: number;
+  };
+}
+
 export const getNotifications = async ({
   lastId,
   size = 20,
@@ -49,4 +57,12 @@ export const markNotificationsAsRead = async (
   });
 
   return res as MarkNotificationsAsReadResponse;
+};
+
+export const markAllNotificationsAsRead = async (): Promise<MarkAllNotificationsAsReadResponse> => {
+  const res = await apiFetch("/notifications/read-all", {
+    method: "PUT",
+  });
+
+  return res as MarkAllNotificationsAsReadResponse;
 };

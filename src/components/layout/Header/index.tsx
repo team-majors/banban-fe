@@ -15,7 +15,7 @@ import NotificationMenu from "./NotificationMenu";
 import { useNotificationStore } from "@/store/useNotificationStore";
 import { useNotifications } from "@/hooks/useNotifications";
 import type { Notification } from "@/types/notification";
-import { markNotificationsAsRead } from "@/remote/notification";
+import { markNotificationsAsRead, markAllNotificationsAsRead } from "@/remote/notification";
 import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
 import { logger } from "@/utils/logger";
@@ -62,7 +62,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   } = useNotifications();
 
   const unreadCount = useMemo(
-    () => notificationsData?.pages[0]?.data.unread_count ?? 0,
+    () => notificationsData?.pages[0]?.data.unreadCount ?? 0,
     [notificationsData],
   );
 
@@ -137,6 +137,18 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     }
   };
 
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsAsRead();
+      // 로컬 상태 업데이트
+      markAllRead();
+      // React Query 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    } catch (error) {
+      logger.error("전체 알림 읽음 처리 실패", error);
+    }
+  };
+
   const hasUnreadIndicator = useMemo(() => {
     if (typeof isNew === "boolean") return isNew;
     return unreadCount > 0;
@@ -202,7 +214,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
                     isFetchingNextPage={isFetchingNextPage}
                     connectionStatus={connectionStatus}
                     isTimeout={isTimeout}
-                    onMarkAllRead={markAllRead}
+                    onMarkAllRead={handleMarkAllRead}
                     onItemClick={handleNotificationItemClick}
                   />
                 )}

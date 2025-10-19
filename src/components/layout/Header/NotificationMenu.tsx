@@ -56,7 +56,7 @@ export default function NotificationMenu({
   );
 
   const unreadCount = useMemo(
-    () => data?.pages[0]?.data.unread_count ?? 0,
+    () => data?.pages[0]?.data.unreadCount ?? 0,
     [data],
   );
 

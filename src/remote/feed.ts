@@ -3,6 +3,7 @@ import {
   FeedsRequest,
   FeedsResponse,
   HotFeedSnapshot,
+  Feed,
 } from "@/types/feeds";
 
 /**
@@ -32,4 +33,27 @@ export const getFeeds = async (
 
 export const getHotFeed = async (): Promise<HotFeedSnapshot> => {
   return apiFetch<HotFeedSnapshot>("/feeds/hot");
+};
+
+/**
+ * 피드 수정
+ * @param feedId - 수정할 피드 ID
+ * @param content - 변경할 내용
+ * @returns 수정된 피드
+ */
+export const updateFeed = async (feedId: number, content: string): Promise<{ data: Feed }> => {
+  return apiFetch(`/feeds/${feedId}`, {
+    method: "PUT",
+    body: JSON.stringify({ content }),
+  });
+};
+
+/**
+ * 피드 삭제
+ * @param feedId - 삭제할 피드 ID
+ */
+export const deleteFeed = async (feedId: number): Promise<void> => {
+  await apiFetch(`/feeds/${feedId}`, {
+    method: "DELETE",
+  });
 };

@@ -1,14 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import { useFloatingInputModal } from "../../../hooks/useFloatingInputModal";
 import { FeedInputForm } from "./FeedInputForm";
 import { CancelConfirmModal } from "./CancelConfirmModal";
+import { useFloatingModalStore } from "@/store/useFloatingModalStore";
 
 interface FloatingInputModalProps {
   onClose: () => void;
   onSubmit: (content: string) => void;
   actionType?: "댓글" | "피드"; // 등록할 콘텐츠 타입
   feedId?: number; // 댓글일 경우 필요한 피드 ID
+  editMode?: boolean; // 피드 수정 모드 여부
+  initialContent?: string; // 수정 모드일 때 초기 내용
 }
 
 export const FloatingInputModal = ({
@@ -16,6 +20,8 @@ export const FloatingInputModal = ({
   onSubmit,
   actionType = "댓글",
   feedId,
+  editMode = false,
+  initialContent,
 }: FloatingInputModalProps) => {
   // 커스텀 훅 사용
   const {
@@ -37,7 +43,18 @@ export const FloatingInputModal = ({
     feedId,
     onClose,
     onSubmit,
+    editMode,
+    initialContent,
   });
+
+  // 전역 모달 상태 관리
+  useEffect(() => {
+    const { setOpen, setClose } = useFloatingModalStore.getState();
+    setOpen();
+    return () => {
+      setClose();
+    };
+  }, []);
 
   return (
     <>
@@ -52,6 +69,7 @@ export const FloatingInputModal = ({
         onUserError={handleUserError}
         actionType={actionType}
         isPosting={isPending}
+        editMode={editMode}
       />
 
       {showCancelConfirm && (

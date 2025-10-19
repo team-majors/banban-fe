@@ -13,6 +13,11 @@ import {useAuthStore} from "@/store/useAuthStore";
 import {useRouter} from "next/navigation";
 import styled from "styled-components";
 import {MoreIcon} from "@/components/svg/MoreIcon";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {updateFeed, deleteFeed} from "@/remote/feed";
+import {ConfirmModal} from "@/components/common/ConfirmModal/ConfirmModal";
+import {FloatingInputModal} from "@/components/layout/FloatingInputModal";
+import {useToast} from "@/components/common/Toast/useToast";
 
 const FeedBlockComponent = ({
                               props,
@@ -26,10 +31,14 @@ const FeedBlockComponent = ({
   const {isLoggedIn, user: me} = useAuthStore();
 
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isReportModalOpen, setReportModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   useClickOutside(dropdownRef, () => setDropdownOpen(false));
 
   const [liked, setLiked] = useState<boolean>(isLiked);
@@ -46,6 +55,30 @@ const FeedBlockComponent = ({
 
   const reportMutation = useReportMutation();
 
+  const updateMutation = useMutation({
+    mutationFn: (newContent: string) => updateFeed(id, newContent),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
+      showToast({ type: "success", message: "피드가 수정되었습니다.", duration: 3000 });
+      setEditModalOpen(false);
+    },
+    onError: (error) => {
+      showToast({ type: "error", message: "피드 수정에 실패했습니다.", duration: 3000 });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteFeed(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
+      showToast({ type: "success", message: "피드가 삭제되었습니다.", duration: 3000 });
+      setDeleteModalOpen(false);
+    },
+    onError: (error) => {
+      showToast({ type: "error", message: "피드 삭제에 실패했습니다.", duration: 3000 });
+    },
+  });
+
   const handleToggleDropdown = () => {
     setDropdownOpen((prev) => !prev);
   };
@@ -61,14 +94,20 @@ const FeedBlockComponent = ({
 
   const handleEdit = () => {
     handleCloseDropdown();
-    // TODO: 피드 수정 모달 열기
-    console.log("피드 수정 기능 - 구현 예정");
+    setEditModalOpen(true);
   };
 
   const handleDelete = () => {
     handleCloseDropdown();
-    // TODO: 피드 삭제 확인 모달 열기
-    console.log("피드 삭제 기능 - 구현 예정");
+    setDeleteModalOpen(true);
+  };
+
+  const handleEditSubmit = (newContent: string) => {
+    updateMutation.mutate(newContent);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteMutation.mutate();
   };
 
   const handleReport = (reason: string, detail?: string) => {
@@ -161,6 +200,29 @@ const FeedBlockComponent = ({
                 }}
             />
           </StyledIconButtonContainer>
+
+          {isEditModalOpen && (
+              <FloatingInputModal
+                  onClose={() => setEditModalOpen(false)}
+                  onSubmit={handleEditSubmit}
+                  actionType="피드"
+                  editMode={true}
+                  initialContent={content}
+              />
+          )}
+
+          {isDeleteModalOpen && (
+              <ConfirmModal
+                  isOpen={isDeleteModalOpen}
+                  onClose={() => setDeleteModalOpen(false)}
+                  onConfirm={handleConfirmDelete}
+                  title="피드를 삭제하시겠습니까?"
+                  message="삭제된 피드는 복구할 수 없습니다."
+                  confirmText="삭제"
+                  cancelText="취소"
+                  isDanger={true}
+              />
+          )}
         </StyledContentContainer>
       </StyledContainer>
   );

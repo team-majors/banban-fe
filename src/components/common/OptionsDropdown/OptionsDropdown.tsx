@@ -2,23 +2,43 @@ import { WarningCircle } from "@/components/svg";
 import styled from "styled-components";
 
 interface OptionsDropdownProps {
-  onHide: () => void;
-  onReport: () => void;
+  isMyFeed?: boolean;
+  onHide?: () => void;
+  onReport?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export const OptionsDropdown: React.FC<OptionsDropdownProps> = ({
+  isMyFeed,
   onHide,
   onReport,
+  onEdit,
+  onDelete,
 }) => {
   return (
     <Container>
-      <OptionButton onClick={onHide}>관심 없음</OptionButton>
-      <OptionButton $isReport onClick={onReport}>
-        신고
-        <Icon>
-          <WarningCircle />
-        </Icon>
-      </OptionButton>
+      {isMyFeed ? (
+        <>
+          <OptionButton onClick={onEdit}>수정</OptionButton>
+          <OptionButton $isDelete onClick={onDelete}>
+            삭제
+            <Icon>
+              <WarningCircle />
+            </Icon>
+          </OptionButton>
+        </>
+      ) : (
+        <>
+          <OptionButton onClick={onHide}>관심 없음</OptionButton>
+          <OptionButton $isReport onClick={onReport}>
+            신고
+            <Icon>
+              <WarningCircle />
+            </Icon>
+          </OptionButton>
+        </>
+      )}
     </Container>
   );
 };
@@ -38,12 +58,13 @@ const Container = styled.div.attrs(() => ({ role: "menu" }))`
   overflow: hidden;
 `;
 
-const OptionButton = styled.button<{ $isReport?: boolean }>`
+const OptionButton = styled.button<{ $isReport?: boolean; $isDelete?: boolean }>`
   width: 100%;
   padding: 16px;
   font-size: 14px;
   font-weight: 600;
-  color: ${({ $isReport }) => ($isReport ? "#FF4242" : "#333")};
+  color: ${({ $isReport, $isDelete }) =>
+    $isReport || $isDelete ? "#FF4242" : "#333"};
   background: none;
   border: none;
   text-align: left;

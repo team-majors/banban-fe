@@ -59,6 +59,18 @@ const FeedBlockComponent = ({
     setDropdownOpen(false);
   };
 
+  const handleEdit = () => {
+    handleCloseDropdown();
+    // TODO: 피드 수정 모달 열기
+    console.log("피드 수정 기능 - 구현 예정");
+  };
+
+  const handleDelete = () => {
+    handleCloseDropdown();
+    // TODO: 피드 삭제 확인 모달 열기
+    console.log("피드 삭제 기능 - 구현 예정");
+  };
+
   const handleReport = (reason: string, detail?: string) => {
     setReportReason(reason);
     setReportDetail(detail || "");
@@ -90,7 +102,7 @@ const FeedBlockComponent = ({
               <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
             </StyledTitleWrapper>
 
-            {!isMyFeed && isLoggedIn && (
+            {isLoggedIn && (
                 <StyledMoreButtonWrapper ref={dropdownRef}>
                   <StyledMoreButton
                       onClick={handleToggleDropdown}
@@ -101,6 +113,7 @@ const FeedBlockComponent = ({
 
                   {isDropdownOpen && (
                       <OptionsDropdown
+                          isMyFeed={isMyFeed}
                           onHide={() => {
                             handleCloseDropdown();
                             // 관심 없음 처리 로직을 여기에 추가할 수 있음
@@ -109,6 +122,8 @@ const FeedBlockComponent = ({
                             handleCloseDropdown();
                             setReportModalOpen(true);
                           }}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
                       />
                   )}
 

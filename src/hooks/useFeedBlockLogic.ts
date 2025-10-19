@@ -37,7 +37,7 @@ export function useFeedBlockLogic(feed: Feed, pollData: Poll) {
   // hooks that must be called at top-level
   const likeMutation = useFeedLikeOptimisticUpdate({ id: feed.id });
   const avatarBackground = useVoteOptionColor(
-    feed.user_vote_option_id,
+    feed.userVoteOptionId,
     pollData,
   );
   const reportMutation = useReportMutation();

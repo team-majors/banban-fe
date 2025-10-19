@@ -9,6 +9,7 @@ import type { WSNotificationMessage } from "@/types/notification";
 import { useRouter } from "next/navigation";
 import { logger } from "@/utils/logger";
 import { useToast } from "@/components/common/Toast/useToast";
+import { useQueryClient } from "@tanstack/react-query";
 
 const TIMEOUT_THRESHOLD_MS = 70_000;
 
@@ -32,6 +33,7 @@ export default function NotificationListener() {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const addNotification = useNotificationStore((state) => state.addNotification);
   const setConnectionStatus = useNotificationStore(
@@ -66,6 +68,9 @@ export default function NotificationListener() {
           ? {
               label: "보기",
               onClick: () => {
+                queryClient.invalidateQueries({
+                  queryKey: ["comments", notification.target_id],
+                });
                 router.push(`/feeds/${notification.target_id}`);
               },
             }

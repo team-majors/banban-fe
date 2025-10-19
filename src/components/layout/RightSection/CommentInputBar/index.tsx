@@ -15,7 +15,7 @@ export default function CommentInputBar({ feedId, onSubmit }: CommentInputBarPro
   const createCommentMutation = useCreateComment();
 
   const handleSubmit = useCallback(() => {
-    if (!content.trim()) return;
+    if (!content.trim() || createCommentMutation.isPending) return;
 
     createCommentMutation.mutate(
       { feedId, content: content.trim() },

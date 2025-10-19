@@ -1,29 +1,29 @@
-import type { Feed } from "@/types/feeds";
-import React, { useRef, useState } from "react";
-import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
-import { useClickOutside } from "@/hooks/useClickOutside";
-import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
-import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
-import { Poll } from "@/types/poll";
-import { Avatar } from "@/components/common/Avatar";
-import { FeedCommentButton, FeedHeartButton } from "@/components/common/Button";
-import { ReportModal } from "@/components/common/Report";
+import type {Feed} from "@/types/feeds";
+import React, {useRef, useState} from "react";
+import {OptionsDropdown} from "@/components/common/OptionsDropdown/OptionsDropdown";
+import {useClickOutside} from "@/hooks/useClickOutside";
+import {useFeedLikeOptimisticUpdate} from "@/hooks/useLikeOptimisticUpdate";
+import {useVoteOptionColor} from "@/hooks/useVoteOptionColor";
+import {Poll} from "@/types/poll";
+import {Avatar} from "@/components/common/Avatar";
+import {FeedCommentButton, FeedHeartButton} from "@/components/common/Button";
+import {ReportModal} from "@/components/common/Report";
 import useReportMutation from "@/hooks/useReportMutation";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "next/navigation";
+import {useAuthStore} from "@/store/useAuthStore";
+import {useRouter} from "next/navigation";
 import styled from "styled-components";
-import { MoreIcon } from "@/components/svg/MoreIcon";
+import {MoreIcon} from "@/components/svg/MoreIcon";
 
 const FeedBlockComponent = ({
-  props,
-  pollData,
-}: {
+                              props,
+                              pollData,
+                            }: {
   props: Feed;
   pollData?: Poll;
 }) => {
-  const { user, createdAt, commentCount, content, likeCount, id, isLiked } =
-    props;
-  const { isLoggedIn, user: me } = useAuthStore();
+  const {user, createdAt, commentCount, content, likeCount, id, isLiked} =
+      props;
+  const {isLoggedIn, user: me} = useAuthStore();
 
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -35,11 +35,11 @@ const FeedBlockComponent = ({
   const [liked, setLiked] = useState<boolean>(isLiked);
   const [count, setCount] = useState<number>(likeCount);
 
-  const likeMutation = useFeedLikeOptimisticUpdate({ id });
+  const likeMutation = useFeedLikeOptimisticUpdate({id});
 
   const avatarBackground = useVoteOptionColor(
-    props.user_vote_option_id,
-    pollData,
+      props.userVoteOptionId,
+      pollData,
   );
   const [reportReason, setReportReason] = useState<string>("");
   const [reportDetail, setReportDetail] = useState<string>("");
@@ -75,79 +75,79 @@ const FeedBlockComponent = ({
   const isMyFeed = me?.username === user?.username;
 
   return (
-    <StyledContainer>
-      <Avatar
-        src={user?.profileImage || ""}
-        alt="사용자 프로필 이미지"
-        size={40}
-        background={avatarBackground}
-      />
+      <StyledContainer>
+        <Avatar
+            src={user?.profileImage || ""}
+            alt="사용자 프로필 이미지"
+            size={40}
+            background={avatarBackground}
+        />
 
-      <StyledContentContainer>
-        <StyledTitleContainer>
-          <StyledTitleWrapper>
-            <StyledTitle>{user?.username}</StyledTitle>
-            <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
-          </StyledTitleWrapper>
+        <StyledContentContainer>
+          <StyledTitleContainer>
+            <StyledTitleWrapper>
+              <StyledTitle>{user?.username}</StyledTitle>
+              <StyledCreatedAt>{formattedCreatedAt}</StyledCreatedAt>
+            </StyledTitleWrapper>
 
-          {!isMyFeed && isLoggedIn && (
-            <StyledMoreButtonWrapper ref={dropdownRef}>
-              <StyledMoreButton
-                onClick={handleToggleDropdown}
-                aria-label="더보기 옵션 열기"
-              >
-                <MoreIcon />
-              </StyledMoreButton>
+            {!isMyFeed && isLoggedIn && (
+                <StyledMoreButtonWrapper ref={dropdownRef}>
+                  <StyledMoreButton
+                      onClick={handleToggleDropdown}
+                      aria-label="더보기 옵션 열기"
+                  >
+                    <MoreIcon/>
+                  </StyledMoreButton>
 
-              {isDropdownOpen && (
-                <OptionsDropdown
-                  onHide={() => {
-                    handleCloseDropdown();
-                    // 관심 없음 처리 로직을 여기에 추가할 수 있음
-                  }}
-                  onReport={() => {
-                    handleCloseDropdown();
-                    setReportModalOpen(true);
-                  }}
-                />
-              )}
+                  {isDropdownOpen && (
+                      <OptionsDropdown
+                          onHide={() => {
+                            handleCloseDropdown();
+                            // 관심 없음 처리 로직을 여기에 추가할 수 있음
+                          }}
+                          onReport={() => {
+                            handleCloseDropdown();
+                            setReportModalOpen(true);
+                          }}
+                      />
+                  )}
 
-              {isReportModalOpen && (
-                <ReportModal
-                  isOpen={isReportModalOpen}
-                  onClose={() => setReportModalOpen(false)}
-                  onReport={handleReport}
-                  targetType="FEED"
-                  targetId={id}
-                />
-              )}
-            </StyledMoreButtonWrapper>
-          )}
-        </StyledTitleContainer>
+                  {isReportModalOpen && (
+                      <ReportModal
+                          isOpen={isReportModalOpen}
+                          onClose={() => setReportModalOpen(false)}
+                          onReport={handleReport}
+                          targetType="FEED"
+                          targetId={id}
+                      />
+                  )}
+                </StyledMoreButtonWrapper>
+            )}
+          </StyledTitleContainer>
 
-        <StyledBodyContainer>{content}</StyledBodyContainer>
+          <StyledBodyContainer>{content}</StyledBodyContainer>
 
-        <StyledIconButtonContainer>
-          <FeedHeartButton
-            likeCount={count}
-            isLiked={liked}
-            isLoggedIn={isLoggedIn}
-            onClick={() => {
-              setCount(liked ? count - 1 : count + 1);
-              setLiked(!liked);
-              likeMutation.mutate();
-            }}
-            onLoginRequired={handleLoginRequired}
-          />
-          <FeedCommentButton
-            commentCount={commentCount}
-            onClick={() => {
-              router.push(`/feeds/${id}`);
-            }}
-          />
-        </StyledIconButtonContainer>
-      </StyledContentContainer>
-    </StyledContainer>
+          <StyledIconButtonContainer>
+            <FeedHeartButton
+                likeCount={count}
+                isLiked={liked}
+                isLoggedIn={isLoggedIn}
+                onClick={() => {
+                  setCount(liked ? count - 1 : count + 1);
+                  setLiked(!liked);
+                  likeMutation.mutate();
+                }}
+                onLoginRequired={handleLoginRequired}
+            />
+            <FeedCommentButton
+                commentCount={commentCount}
+                onClick={() => {
+                  router.push(`/feeds/${id}`);
+                }}
+            />
+          </StyledIconButtonContainer>
+        </StyledContentContainer>
+      </StyledContainer>
   );
 };
 

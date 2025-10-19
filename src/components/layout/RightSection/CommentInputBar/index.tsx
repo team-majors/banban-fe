@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { useCreateComment } from "@/hooks/useCreateComment";
+import { useToast } from "@/components/common/Toast/useToast";
 
 interface CommentInputBarProps {
   feedId: number;
@@ -11,17 +12,23 @@ interface CommentInputBarProps {
 
 export default function CommentInputBar({ feedId, onSubmit }: CommentInputBarProps) {
   const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const createCommentMutation = useCreateComment();
+  const toast = useToast();
 
   const handleSubmit = useCallback(() => {
-    if (!content.trim() || createCommentMutation.isPending) return;
+    // 중복 제출 방지: isPending과 isSubmitting 모두 체크
+    if (!content.trim() || createCommentMutation.isPending || isSubmitting) return;
+
+    setIsSubmitting(true);
 
     createCommentMutation.mutate(
       { feedId, content: content.trim() },
       {
         onSuccess: () => {
           setContent("");
+          setIsSubmitting(false);
           if (textareaRef.current) {
             textareaRef.current.style.height = "auto";
           }
@@ -29,11 +36,34 @@ export default function CommentInputBar({ feedId, onSubmit }: CommentInputBarPro
         },
         onError: (error) => {
           console.error("댓글 작성 실패:", error);
-          alert("댓글 작성에 실패했습니다. 다시 시도해주세요.");
+
+          // 입력창 비우기 (에러 발생 시에도)
+          setContent("");
+          setIsSubmitting(false);
+          if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+          }
+
+          // 에러 메시지 표시
+          const errorMessage = error instanceof Error ? error.message : "댓글 작성에 실패했습니다";
+
+          if (errorMessage.includes("동일한 내용")) {
+            toast.showToast({
+              type: "error",
+              message: "이전 댓글과 다른 내용을 입력해주세요.",
+              duration: 3000,
+            });
+          } else {
+            toast.showToast({
+              type: "error",
+              message: errorMessage,
+              duration: 3000,
+            });
+          }
         },
       }
     );
-  }, [feedId, content, onSubmit, createCommentMutation]);
+  }, [feedId, content, onSubmit, createCommentMutation, toast, isSubmitting]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -66,7 +96,7 @@ export default function CommentInputBar({ feedId, onSubmit }: CommentInputBarPro
         <SubmitButton
           type="button"
           onClick={handleSubmit}
-          disabled={!content.trim() || createCommentMutation.isPending}
+          disabled={!content.trim() || createCommentMutation.isPending || isSubmitting}
           aria-label="댓글 작성"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

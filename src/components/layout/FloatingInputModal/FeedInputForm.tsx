@@ -54,7 +54,7 @@ export const FeedInputForm = ({
             </CloseButton>
             <Title>
               <ActionTypeText>{actionType}</ActionTypeText>
-              <ActionText>{editMode && actionType === "피드" ? "수정하기" : "등록하기"}</ActionText>
+              <ActionText>{editMode ? "수정하기" : "등록하기"}</ActionText>
             </Title>
             <HeaderSpacer/>
           </Header>
@@ -114,7 +114,7 @@ export const FeedInputForm = ({
                 isActive={!!content.trim() && !isPosting}
                 onClick={onSubmit}
             >
-              {isPosting ? (editMode && actionType === "피드" ? "수정 중..." : "보내는 중...") : (editMode && actionType === "피드" ? "수정하기" : "보내기")}
+              {isPosting ? (editMode ? "수정 중..." : "보내는 중...") : (editMode ? "수정하기" : "보내기")}
             </DefaultButton>
           </Footer>
         </ModalContainer>

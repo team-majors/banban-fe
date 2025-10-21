@@ -4,7 +4,7 @@ import {FeedHeartButton} from "@/components/common/Button";
 import {MoreIcon} from "@/components/svg/MoreIcon";
 import {CornerDownRightIcon} from "@/components/svg/CornerDownRightIcon";
 import {CommentContent} from "@/types/comments";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {OptionsDropdown} from "@/components/common/OptionsDropdown/OptionsDropdown";
 import {useClickOutside} from "@/hooks/useClickOutside";
 import {ReportModal} from "@/components/common/Report";
@@ -14,11 +14,11 @@ import {useVoteOptionColor} from "@/hooks/useVoteOptionColor";
 import {Poll} from "@/types/poll";
 import useReportMutation from "@/hooks/useReportMutation";
 import {useAuthStore} from "@/store/useAuthStore";
-import {FloatingInputModal} from "@/components/layout/FloatingInputModal";
 import {ConfirmModal} from "@/components/common/ConfirmModal/ConfirmModal";
 import {useToast} from "@/components/common/Toast/useToast";
 import {deleteComment, updateComment} from "@/remote/comment";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {CommentComposer} from "@/components/layout/RightSection/CommentInputBar/CommentComposer";
 
 const CommentBlock = ({
                         props,
@@ -53,8 +53,15 @@ const CommentBlock = ({
   const queryClient = useQueryClient();
   const {showToast} = useToast();
   const {isLoggedIn} = useAuthStore();
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(content);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setEditContent(content);
+    }
+  }, [content, isEditing]);
 
   const updateMutation = useMutation({
     mutationFn: (newContent: string) => updateComment(id, newContent),
@@ -65,7 +72,7 @@ const CommentBlock = ({
         message: "댓글이 수정되었습니다.",
         duration: 3000,
       });
-      setEditModalOpen(false);
+      setIsEditing(false);
     },
     onError: () => {
       showToast({
@@ -115,7 +122,8 @@ const CommentBlock = ({
 
   const handleEdit = () => {
     handleCloseDropdown();
-    setEditModalOpen(true);
+    setEditContent(content);
+    setIsEditing(true);
   };
 
   const handleDelete = () => {
@@ -123,12 +131,38 @@ const CommentBlock = ({
     setDeleteModalOpen(true);
   };
 
-  const handleEditSubmit = (newContent: string) => {
-    updateMutation.mutate(newContent);
+  const handleEditSubmit = () => {
+    const trimmed = editContent.trim();
+
+    if (!trimmed) {
+      showToast({
+        type: "error",
+        message: "내용을 입력해주세요.",
+        duration: 2000,
+      });
+      return;
+    }
+
+    if (trimmed === content.trim()) {
+      showToast({
+        type: "info",
+        message: "변경된 내용이 없습니다.",
+        duration: 2000,
+      });
+      setIsEditing(false);
+      return;
+    }
+
+    updateMutation.mutate(trimmed);
   };
 
   const handleConfirmDelete = () => {
     deleteMutation.mutate();
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditContent(content);
   };
 
   const handleReport = (reason: string, detail?: string) => {
@@ -196,29 +230,35 @@ const CommentBlock = ({
             )}
           </StyledTitleContainer>
 
-          <StyledBodyContainer>{content}</StyledBodyContainer>
+          <StyledBodyContainer>
+            {isEditing ? (
+                <CommentComposer
+                    variant="edit"
+                    value={editContent}
+                    onChange={setEditContent}
+                    onSubmit={handleEditSubmit}
+                    onCancel={handleCancelEdit}
+                    isSubmitting={updateMutation.isPending}
+                    autoFocus
+                    placeholder="수정할 내용을 입력하세요..."
+                />
+            ) : (
+                content
+            )}
+          </StyledBodyContainer>
 
-          <StyledIconButtonContainer>
-            <FeedHeartButton
-                likeCount={likeCount}
-                isLiked={isLiked}
-                isLoggedIn={isLoggedIn}
-                onClick={() => {
-                  likeMutation.mutate();
-                }}
-                onLoginRequired={handleLoginRequired}
-            />
-          </StyledIconButtonContainer>
-
-          {isEditModalOpen && (
-              <FloatingInputModal
-                  onClose={() => setEditModalOpen(false)}
-                  onSubmit={handleEditSubmit}
-                  actionType="댓글"
-                  feedId={feedId}
-                  editMode={true}
-                  initialContent={content}
-              />
+          {!isEditing && (
+              <StyledIconButtonContainer>
+                <FeedHeartButton
+                    likeCount={likeCount}
+                    isLiked={isLiked}
+                    isLoggedIn={isLoggedIn}
+                    onClick={() => {
+                      likeMutation.mutate();
+                    }}
+                    onLoginRequired={handleLoginRequired}
+                />
+              </StyledIconButtonContainer>
           )}
 
           {isDeleteModalOpen && (

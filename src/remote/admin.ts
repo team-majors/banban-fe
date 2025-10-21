@@ -3,8 +3,10 @@ import { apiFetch } from "@/lib/apiFetch";
 import type {
   ActivityLogsPage,
   AdminApiResponse,
+  AdminPollCachePurgeResult,
   AdminReportsData,
   AdminSystemData,
+  PollCachePatternStat,
 } from "@/types/admin";
 import type { Poll } from "@/types/poll";
 import type {
@@ -398,6 +400,54 @@ export async function invalidateHotFeedCache(): Promise<{ message: string }> {
     { method: "DELETE" },
   );
   return res.data;
+}
+
+export async function resetAdminPollCache(): Promise<AdminPollCachePurgeResult> {
+  const res = await apiFetch<
+    AdminApiResponse<{
+      message?: string;
+      totalDeleted?: number;
+      total_deleted?: number;
+      deletedKeys?: number;
+      executedAt?: string;
+      executed_at?: string;
+      patterns?: Array<{ pattern?: string; deleted?: number }>;
+      deleted_patterns?: Array<{
+        pattern?: string;
+        keyPattern?: string;
+        deleted?: number;
+        deletedCount?: number;
+      }>;
+    }>
+  >("/admin/polls/cache", {
+    method: "DELETE",
+  });
+
+  const data = res.data ?? {};
+  const rawPatterns =
+    data.patterns ??
+    data.deleted_patterns ??
+    ([] as Array<{
+      pattern?: string;
+      keyPattern?: string;
+      deleted?: number;
+      deletedCount?: number;
+    }>);
+
+  const patterns: PollCachePatternStat[] = rawPatterns.map((p) => ({
+    pattern: p.pattern ?? p.keyPattern ?? "(unknown)",
+    deleted: p.deleted ?? p.deletedCount ?? 0,
+  }));
+
+  const totalDeleted =
+    data.totalDeleted ?? data.total_deleted ?? data.deletedKeys ?? 0;
+
+  return {
+    message: data.message ?? "투표 관련 캐시를 초기화했습니다.",
+    totalDeleted,
+    patterns,
+    executedAt: data.executedAt ?? data.executed_at,
+  };
 }
 
 // Notifications

@@ -2,6 +2,7 @@
 
 import styled from "styled-components";
 import { ReactNode, useEffect, useState } from "react";
+import type { FC, ButtonHTMLAttributes } from "react";
 import { createPortal } from "react-dom";
 import { CloseThickIcon } from "@/components/svg";
 
@@ -12,7 +13,14 @@ interface ModalProps {
   isCloseButton?: boolean;
 }
 
-export const Modal = ({
+type ModalActionVariant = "primary" | "secondary" | "danger";
+
+interface ModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  $variant?: ModalActionVariant;
+  fullWidth?: boolean;
+}
+
+const ModalBase = ({
   isOpen,
   onClose,
   children,
@@ -64,7 +72,7 @@ export const Modal = ({
 const Dimmed = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -74,11 +82,15 @@ const Dimmed = styled.div`
 const ModalBox = styled.div`
   position: relative;
   background: #fff;
-  border-radius: 16px;
-  padding: 20px;
-  width: 400px;
-  text-align: center;
+  border-radius: 12px;
+  padding: 24px;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  text-align: left;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 `;
 
 const CloseButton = styled.button`
@@ -110,14 +122,141 @@ const Header = ({ children }: { children: ReactNode }) => (
   <ModalHeaderWrapper>{children}</ModalHeaderWrapper>
 );
 Header.displayName = "Modal.Header";
-Modal.Header = Header;
 
 const Body = ({ children }: { children: ReactNode }) => <div>{children}</div>;
 Body.displayName = "Modal.Body";
-Modal.Body = Body;
 
 const Footer = ({ children }: { children: ReactNode }) => (
   <ModalFooterWrapper>{children}</ModalFooterWrapper>
 );
 Footer.displayName = "Modal.Footer";
+
+const ModalLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #111827;
+`;
+
+const ModalDescription = styled.p`
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #4b5563;
+`;
+
+const ModalActions = styled.div<{
+  align?: "start" | "center" | "end" | "stretch";
+  direction?: "row" | "column";
+}>`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: ${({ direction = "row" }) =>
+    direction === "row" ? "wrap" : "nowrap"};
+  flex-direction: ${({ direction = "row" }) => direction};
+  justify-content: ${({ align = "end", direction = "row" }) => {
+    if (direction === "column") {
+      return "flex-start";
+    }
+    switch (align) {
+      case "start":
+        return "flex-start";
+      case "center":
+        return "center";
+      case "stretch":
+        return "flex-start";
+      default:
+        return "flex-end";
+    }
+  }};
+  ${({ align }) => align === "stretch" && "& > * { flex: 1; min-width: 0; }"}
+  ${({ direction }) =>
+    direction === "column" && "& > * { width: 100%; min-width: 0; }"}
+`;
+
+const variantStyles: Record<ModalActionVariant, string> = {
+  primary: `
+    background-color: #111827;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #1f2937;
+    }
+
+    &:active {
+      background-color: #0f172a;
+    }
+  `,
+  secondary: `
+    background-color: #f9fafb;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+
+    &:hover {
+      background-color: #f3f4f6;
+    }
+
+    &:active {
+      background-color: #e5e7eb;
+    }
+  `,
+  danger: `
+    background-color: #dc2626;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #b91c1c;
+    }
+
+    &:active {
+      background-color: #991b1b;
+    }
+  `,
+};
+
+const ModalButton = styled.button<ModalButtonProps>`
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+  ${({ fullWidth }) => (fullWidth ? "width: 100%;" : "min-width: 120px;")}
+
+  ${({ $variant = "primary" }) => variantStyles[$variant]}
+`;
+
+type ModalComponent = FC<ModalProps> & {
+  Header: typeof Header;
+  Body: typeof Body;
+  Footer: typeof Footer;
+  Layout: typeof ModalLayout;
+  Title: typeof ModalTitle;
+  Description: typeof ModalDescription;
+  Actions: typeof ModalActions;
+  Button: typeof ModalButton;
+};
+
+export const Modal = ModalBase as ModalComponent;
+
+Modal.Header = Header;
+Modal.Body = Body;
 Modal.Footer = Footer;
+Modal.Layout = ModalLayout;
+Modal.Title = ModalTitle;
+Modal.Description = ModalDescription;
+Modal.Actions = ModalActions;
+Modal.Button = ModalButton;

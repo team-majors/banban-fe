@@ -17,8 +17,13 @@ import {
   getAdminMetrics,
   getAdminSystem,
   invalidateHotFeedCache,
+  resetAdminPollCache,
 } from "@/remote/admin";
-import type { AdminHealthDetailed, AdminSystemData } from "@/types/admin";
+import type {
+  AdminHealthDetailed,
+  AdminPollCachePurgeResult,
+  AdminSystemData,
+} from "@/types/admin";
 import { useState } from "react";
 import { Modal } from "@/components/common/Modal/Modal";
 import { useToast } from "@/components/common/Toast/useToast";
@@ -59,7 +64,14 @@ export default function AdminSystemPage() {
     staleTime: 10_000,
   });
 
-  const [confirm, setConfirm] = useState<null | "all" | "hot">(null);
+  const [confirm, setConfirm] = useState<null | "all" | "hot" | "poll">(null);
+  const [pollCacheResult, setPollCacheResult] =
+    useState<AdminPollCachePurgeResult | null>(null);
+  const pollCacheExecutedAtLabel =
+    pollCacheResult?.executedAt &&
+    !Number.isNaN(new Date(pollCacheResult.executedAt).getTime())
+      ? new Date(pollCacheResult.executedAt).toLocaleString()
+      : null;
 
   const clearCacheMutation = useMutation({
     mutationFn: clearAllAdminCaches,
@@ -87,6 +99,29 @@ export default function AdminSystemPage() {
       });
       qc.invalidateQueries({ queryKey: ["feeds", "hot"] });
       setConfirm(null);
+    },
+    onError: (err: unknown) => {
+      const msg = err instanceof Error ? err.message : "실패했습니다";
+      showToast({ type: "error", message: msg });
+      setConfirm(null);
+    },
+  });
+
+  const pollCacheMutation = useMutation({
+    mutationFn: resetAdminPollCache,
+    onSuccess: (res) => {
+      setPollCacheResult(res);
+      const deletedLabel =
+        typeof res.totalDeleted === "number"
+          ? ` (${res.totalDeleted.toLocaleString()}개 삭제)`
+          : "";
+      showToast({
+        type: "success",
+        message: `${res.message}${deletedLabel}`,
+      });
+      setConfirm(null);
+      qc.invalidateQueries({ queryKey: ["polls"] });
+      qc.invalidateQueries({ queryKey: ["admin", "polls"] });
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : "실패했습니다";
@@ -270,7 +305,56 @@ export default function AdminSystemPage() {
             <SmallButton onClick={() => setConfirm("hot")}>
               핫 피드 캐시 무효화
             </SmallButton>
+            <SmallButton onClick={() => setConfirm("poll")}>
+              투표 캐시 초기화
+            </SmallButton>
           </Actions>
+          {pollCacheResult && (
+            <div className="mt-4 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
+              <div className="flex items-center justify-between text-sm font-semibold text-slate-800">
+                <span>최근 투표 캐시 초기화 결과</span>
+                {pollCacheExecutedAtLabel && (
+                  <span className="text-xs font-normal text-slate-500">
+                    {pollCacheExecutedAtLabel}
+                  </span>
+                )}
+              </div>
+              <dl className="mt-2 space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <dt className="text-slate-500">삭제된 캐시 수</dt>
+                  <dd className="font-semibold text-slate-900">
+                    {pollCacheResult.totalDeleted.toLocaleString()}개
+                  </dd>
+                </div>
+              </dl>
+              {pollCacheResult.patterns.length > 0 ? (
+                <div className="mt-3 rounded-lg bg-slate-50 p-3">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    패턴별 삭제
+                  </div>
+                  <ul className="mt-2 space-y-1 text-xs text-slate-600">
+                    {pollCacheResult.patterns.map((pattern, index) => (
+                      <li
+                        key={`${pattern.pattern}-${index}`}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white/70 px-2 py-1"
+                      >
+                        <span className="font-mono text-xs text-slate-700">
+                          {pattern.pattern}
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {pattern.deleted.toLocaleString()}개
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-slate-500">
+                  삭제된 캐시 패턴이 없습니다.
+                </p>
+              )}
+            </div>
+          )}
         </AdminCard>
 
         <AdminCard>
@@ -316,7 +400,9 @@ export default function AdminSystemPage() {
             <div id="modal-content" className="text-sm text-slate-700">
               {confirm === "all"
                 ? "Redis의 모든 캐시가 삭제됩니다. 신중히 진행하세요."
-                : "핫 피드 캐시가 무효화됩니다."}
+                : confirm === "hot"
+                  ? "핫 피드 캐시가 무효화됩니다."
+                  : "일일 투표, 사용자 기록 등 투표 관련 캐시 10종이 즉시 삭제됩니다."}
             </div>
           </Modal.Body>
           <Actions className="justify-end border-t border-slate-200 px-6 py-4">
@@ -325,10 +411,14 @@ export default function AdminSystemPage() {
               onClick={() =>
                 confirm === "all"
                   ? clearCacheMutation.mutate()
-                  : hotCacheMutation.mutate()
+                  : confirm === "hot"
+                    ? hotCacheMutation.mutate()
+                    : pollCacheMutation.mutate()
               }
               disabled={
-                clearCacheMutation.isPending || hotCacheMutation.isPending
+                clearCacheMutation.isPending ||
+                hotCacheMutation.isPending ||
+                pollCacheMutation.isPending
               }
             >
               확인

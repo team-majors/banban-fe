@@ -57,8 +57,24 @@ export async function apiFetch<T>(
       context,
     });
 
-    const data = await res.json();
-    return camelcaseKeys(data, { deep: true }) as T;
+    if (res.status === 204 || res.status === 205) {
+      return undefined as T;
+    }
+
+    try {
+      const data = await res.json();
+      return camelcaseKeys(data, { deep: true }) as T;
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        logger.warn("JSON 본문이 없는 응답을 수신했습니다.", {
+          url,
+          status: res.status,
+          context,
+        });
+        return undefined as T;
+      }
+      throw error;
+    }
   }
 
   // 401 처리

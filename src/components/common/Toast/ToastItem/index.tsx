@@ -45,7 +45,7 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
         role="button"
         aria-label="Close Toast"
       />
-      <ProgressBar className={theme.bar} duration={duration} />
+      <ProgressBar className={theme.bar} $duration={duration} />
     </ToastWrapper>
   );
 };
@@ -89,11 +89,11 @@ const IconWrapper = styled.div<{ bgcolor: string }>`
   background-color: ${(props) => props.bgcolor};
 `;
 
-const ProgressBar = styled.div<{ duration: number }>`
+const ProgressBar = styled.div<{ $duration: number }>`
   position: absolute;
   bottom: 0;
   height: 6px;
-  animation: ${shrink} ${(props) => props.duration}ms linear forwards;
+  animation: ${shrink} ${(props) => props.$duration}ms linear forwards;
 `;
 
 const FlexContainer = styled.div`

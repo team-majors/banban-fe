@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useFloatingInputModal } from "../../../hooks/useFloatingInputModal";
 import { FeedInputForm } from "./FeedInputForm";
 import { CancelConfirmModal } from "./CancelConfirmModal";
+import { DraftRestoreModal } from "./DraftRestoreModal";
 import { useFloatingModalStore } from "@/store/useFloatingModalStore";
 
 interface FloatingInputModalProps {
@@ -28,6 +29,8 @@ export const FloatingInputModal = ({
     content,
     targetUser,
     showCancelConfirm,
+    showDraftRestorePrompt,
+    pendingDraftContent,
     isPending,
     handleSubmit,
     handleCancel,
@@ -38,6 +41,8 @@ export const FloatingInputModal = ({
     handleSaveDraft,
     handleDiscardDraft,
     handleCancelConfirm,
+    handleRestoreDraft,
+    handleSkipDraftRestore,
   } = useFloatingInputModal({
     actionType,
     feedId,
@@ -77,6 +82,14 @@ export const FloatingInputModal = ({
           onSave={handleSaveDraft}
           onDiscard={handleDiscardDraft}
           onCancel={handleCancelConfirm}
+        />
+      )}
+
+      {showDraftRestorePrompt && (
+        <DraftRestoreModal
+          onRestore={handleRestoreDraft}
+          onSkip={handleSkipDraftRestore}
+          preview={pendingDraftContent}
         />
       )}
     </>

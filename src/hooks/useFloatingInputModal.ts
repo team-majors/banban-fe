@@ -28,7 +28,7 @@ export const useFloatingInputModal = ({
   editMode = false,
   initialContent,
 }: UseFloatingInputModalProps) => {
-  const { saveDraft, clearDraft, restoreDraft } = useDraft(actionType);
+  const { getDraft, saveDraft, clearDraft, restoreDraft } = useDraft(actionType);
   const { mutate, isPending } = usePostContent({
     onAfterSuccess: (actionType, content) => {
       if (actionType === "피드") {
@@ -43,14 +43,20 @@ export const useFloatingInputModal = ({
   const [content, setContent] = useState(initialContent || "");
   const [targetUser, setTargetUser] = useState<TargetUser | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showDraftRestorePrompt, setShowDraftRestorePrompt] = useState(false);
+  const [pendingDraftContent, setPendingDraftContent] = useState<string | null>(null);
   const { showToast } = useToast();
 
   // 초안 복원 (피드 상태에서만, 수정 모드 제외)
   useEffect(() => {
     if (actionType === "피드" && !editMode) {
-      restoreDraft(setContent);
+      const existingDraft = getDraft();
+      if (existingDraft) {
+        setPendingDraftContent(existingDraft);
+        setShowDraftRestorePrompt(true);
+      }
     }
-  }, [actionType, editMode, restoreDraft, showToast]);
+  }, [actionType, editMode, getDraft]);
 
   const handleSubmit = useCallback(() => {
     if (!content.trim()) return; // 빈 문자열 방어
@@ -138,11 +144,32 @@ export const useFloatingInputModal = ({
     setShowCancelConfirm(false);
   }, []);
 
+  const handleRestoreDraft = useCallback(() => {
+    const restored = restoreDraft(setContent);
+    if (restored) {
+      showToast({
+        type: "info",
+        message: "임시 저장한 내용을 불러왔어요.",
+        duration: 2000,
+      });
+    }
+    setShowDraftRestorePrompt(false);
+    setPendingDraftContent(null);
+  }, [restoreDraft, setContent, showToast]);
+
+  const handleSkipDraftRestore = useCallback(() => {
+    clearDraft();
+    setShowDraftRestorePrompt(false);
+    setPendingDraftContent(null);
+  }, [clearDraft]);
+
   return {
     // 상태
     content,
     targetUser,
     showCancelConfirm,
+    showDraftRestorePrompt,
+    pendingDraftContent,
     isPending,
 
     // 핸들러
@@ -155,5 +182,7 @@ export const useFloatingInputModal = ({
     handleSaveDraft,
     handleDiscardDraft,
     handleCancelConfirm,
+    handleRestoreDraft,
+    handleSkipDraftRestore,
   };
 };

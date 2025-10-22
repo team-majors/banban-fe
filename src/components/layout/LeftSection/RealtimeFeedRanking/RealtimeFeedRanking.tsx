@@ -7,9 +7,23 @@ import useHotFeed from "@/hooks/useHotFeed";
 import { useMemo } from "react";
 import { HotFeed } from "@/types/feeds";
 import { useRouter } from "next/navigation";
+import { usePoll } from "@/hooks/usePoll";
 
 export default function RealtimeFeedRanking() {
-  const { data } = useHotFeed();
+  const {
+    data: todayPoll,
+    isLoading: isPollLoading,
+    isError: isPollError,
+  } = usePoll();
+  const pollId = todayPoll?.id;
+
+  const hotFeedEnabled = typeof pollId === "number";
+
+  const {
+    data,
+    isLoading: isHotFeedLoading,
+    isError: isHotFeedError,
+  } = useHotFeed(pollId, { enabled: hotFeedEnabled });
   const router = useRouter();
 
   const sortedFeeds = useMemo(
@@ -28,30 +42,60 @@ export default function RealtimeFeedRanking() {
         </IconWrapper>
         실시간 피드 순위
       </Title>
-      <RankingList>
-        {sortedFeeds.map((item: HotFeed) => {
-          const figure = item.rankChange ?? 0;
-          const handleSelect = () => {
-            router.push(`/feeds/${item.feedId}`);
-          };
+      {isPollLoading && (
+        <StatusMessage>투표 정보를 불러오는 중입니다...</StatusMessage>
+      )}
 
-          return (
-            <li key={item.feedId}>
+      {!isPollLoading && !hotFeedEnabled && !isPollError && (
+        <StatusMessage>
+          {"오늘의 주제가 없습니다\n잠시 후 다시 시도해주세요"}
+        </StatusMessage>
+      )}
+
+      {!isPollLoading && isPollError && (
+        <StatusMessage>
+          {"투표 정보를 불러오지 못했습니다\n잠시 후 다시 확인해주세요"}
+        </StatusMessage>
+      )}
+
+      {hotFeedEnabled && !isHotFeedLoading && !isHotFeedError && (
+        <RankingList>
+          {sortedFeeds.map((item: HotFeed) => {
+            const figure = item.rankChange ?? 0;
+            const handleSelect = () => {
+              router.push(`/feeds/${item.feedId}`);
+            };
+
+            return (
+              <li key={item.feedId}>
+                <RankingItem
+                  rank={item.rank}
+                  title={item.content}
+                  figure={figure}
+                  onSelect={handleSelect}
+                />
+              </li>
+            );
+          })}
+          {Array.from({ length: restNum }, (_, index) => (
+            <li key={index}>
               <RankingItem
-                rank={item.rank}
-                title={item.content}
-                figure={figure}
-                onSelect={handleSelect}
+                rank={sortedFeeds.length + index + 1}
+                title={"-"}
+                figure={0}
               />
             </li>
-          );
-        })}
-        {Array.from({ length: restNum }, (_, index) => (
-          <li key={index}>
-            <RankingItem rank={sortedFeeds.length + index + 1} title={"-"} figure={0} />
-          </li>
-        ))}
-      </RankingList>
+          ))}
+        </RankingList>
+      )}
+
+      {hotFeedEnabled && (isHotFeedLoading || isHotFeedError) && (
+        <StatusMessage>
+          {isHotFeedError
+            ? "핫 피드를 불러오지 못했습니다.\n잠시 후 다시 확인해주세요"
+            : "핫 피드를 불러오는 중입니다..."}
+        </StatusMessage>
+      )}
     </Container>
   );
 }
@@ -88,4 +132,17 @@ const RankingList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+`;
+
+const StatusMessage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 32px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6b7280;
+  text-align: center;
+  white-space: pre-line;
 `;

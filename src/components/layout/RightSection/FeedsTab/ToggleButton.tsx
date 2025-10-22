@@ -5,37 +5,43 @@ interface ToggleButtonProps {
 }
 
 export default function ToggleButton({
-  isChecked,
-  onChange,
-  disabled = false,
-}: ToggleButtonProps) {
+                                       isChecked,
+                                       onChange,
+                                       disabled = false,
+                                     }: ToggleButtonProps) {
   const handleChange = () => {
     if (disabled) return;
     onChange(!isChecked);
   };
 
   const cursorClass = disabled ? "cursor-not-allowed" : "cursor-pointer";
-  const labelColorClass = disabled
-    ? "text-neutral-300 dark:text-gray-500"
-    : "text-neutral-500 dark:text-gray-300";
+  const labelClassName = (() => {
+    if (disabled) {
+      return "font-light text-neutral-300 dark:text-neutral-500";
+    }
+    if (isChecked) {
+      return "font-bold text-[#1F2024] dark:text-neutral-50";
+    }
+    return "font-light text-[#71727a] dark:text-neutral-300";
+  })();
 
   return (
-    <label
-      className={`inline-flex items-center ${cursorClass} gap-3 select-none`}
-    >
-      <span className={`text-sm font-light ${labelColorClass} select-none`}>
-        스쿼드
+      <label
+          className={`inline-flex items-center ${cursorClass} gap-3 select-none`}
+      >
+      <span className={`text-sm ${labelClassName} select-none`}>
+        같은 선택 팀
       </span>
-      <input
-        type="checkbox"
-        value=""
-        className="sr-only peer"
-        checked={isChecked}
-        onChange={handleChange}
-        disabled={disabled}
-      />
-      <div
-        className={`
+        <input
+            type="checkbox"
+            value=""
+            className="sr-only peer"
+            checked={isChecked}
+            onChange={handleChange}
+            disabled={disabled}
+        />
+        <div
+            className={`
           relative w-9 h-5 
           ${disabled ? "bg-gray-100" : "bg-gray-200"}
           peer-focus:outline-none peer-focus:ring-blue-300
@@ -50,16 +56,16 @@ export default function ToggleButton({
           after:rounded-full after:h-4 after:w-4 after:transition-all
           dark:border-gray-600
           ${
-            !disabled &&
-            `peer-checked:bg-gradient-to-r 
+                !disabled &&
+                `peer-checked:bg-gradient-to-r 
              peer-checked:from-[#6142FF] 
              peer-checked:to-[#1478FF]
              dark:peer-checked:bg-gradient-to-r 
              dark:peer-checked:from-[#6142FF] 
              dark:peer-checked:to-[#1478FF]`
-          }
+            }
         `}
-      ></div>
-    </label>
+        ></div>
+      </label>
   );
 }

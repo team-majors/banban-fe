@@ -147,6 +147,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       clearTokens();
       set({ user: null, isLoggedIn: false, error: null });
+      // ✅ 모든 상태를 완전히 초기화하기 위해 홈으로 강제 리다이렉트
+      if (typeof window !== "undefined") {
+        window.location.href = "/";
+      }
     }
   },
 }));

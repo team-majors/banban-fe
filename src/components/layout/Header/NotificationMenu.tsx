@@ -1,17 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useCallback } from "react";
 import styled from "styled-components";
 import type {
   Notification,
   NotificationConnectionStatus,
+  NotificationType,
 } from "@/types/notification";
+import { useInView } from "react-intersection-observer";
+import type { InfiniteData } from "@tanstack/react-query";
+import type { NotificationResponse } from "@/remote/notification";
+import { Avatar } from "@/components/common/Avatar";
 
 interface NotificationMenuProps {
-  notifications: Notification[];
+  data?: InfiniteData<NotificationResponse>;
+  fetchNextPage: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
   connectionStatus: NotificationConnectionStatus;
   isTimeout: boolean;
   onMarkAllRead: () => void;
+  onDeleteRead: () => void;
   onItemClick: (notification: Notification) => void;
 }
 
@@ -25,13 +34,43 @@ const STATUS_LABELS: Record<NotificationConnectionStatus, string> = {
 };
 
 export default function NotificationMenu({
-  notifications,
+  data,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
   connectionStatus,
   isTimeout,
   onMarkAllRead,
+  onDeleteRead,
   onItemClick,
 }: NotificationMenuProps) {
-  const hasUnread = notifications.some((notification) => !notification.is_read);
+  const { ref: scrollTriggerRef } = useInView({
+    threshold: 0,
+    onChange: (inView) => {
+      if (inView && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+  });
+
+  const allNotifications = useMemo(
+    () => data?.pages?.flatMap((page) => page.data.notifications) ?? [],
+    [data],
+  );
+
+  const unreadCount = useMemo(
+    () => data?.pages[0]?.data.unreadCount ?? 0,
+    [data],
+  );
+
+  const hasUnread = unreadCount > 0;
+
+  const readCount = useMemo(
+    () => allNotifications.filter((n) => n.isRead).length,
+    [allNotifications],
+  );
+
+  const hasRead = readCount > 0;
 
   const statusLabel = useMemo(() => {
     if (isTimeout) return "지연됨";
@@ -52,26 +91,65 @@ export default function NotificationMenu({
         >
           모두 읽음
         </MarkAllButton>
+        <DeleteButton
+          type="button"
+          onClick={onDeleteRead}
+          disabled={!hasRead}
+          title={hasRead ? "읽은 알림을 모두 삭제합니다" : "읽은 알림이 없습니다"}
+        >
+          삭제
+        </DeleteButton>
       </MenuHeader>
 
       <MenuContent>
-        {notifications.length === 0 ? (
+        {allNotifications.length === 0 ? (
           <EmptyState>받은 알림이 없습니다.</EmptyState>
         ) : (
-          <NotificationList>
-            {notifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                role="menuitem"
-                tabIndex={0}
-                onClick={() => onItemClick(notification)}
-                $unread={!notification.is_read}
+          <>
+            <NotificationList>
+              {allNotifications.map((notification) => (
+                <NotificationItem
+                  key={notification.id}
+                  role="menuitem"
+                  tabIndex={0}
+                  onClick={() => onItemClick(notification)}
+                  $unread={!notification.isRead}
+                  $type={notification.type}
+                  aria-label={`${notification.fromUser?.username}: ${notification.message}${
+                    !notification.isRead ? " (읽지 않은 알림)" : " (읽은 알림)"
+                  }`}
+                >
+                  <AvatarWrapper $unread={!notification.isRead} $type={notification.type}>
+                    <Avatar
+                      src={notification.fromUser?.profileImage || ""}
+                      alt={notification.fromUser?.username || "사용자"}
+                      size={32}
+                    />
+                    {!notification.isRead && <UnreadIndicator $type={notification.type} />}
+                  </AvatarWrapper>
+                  <NotificationContent>
+                    <UserInfo>
+                      <Username $unread={!notification.isRead}>
+                        {notification.fromUser?.username}
+                      </Username>
+                      <Meta>{formatTimestamp(notification.createdAt)}</Meta>
+                    </UserInfo>
+                    <Message $unread={!notification.isRead}>
+                      {formatNotificationMessage(notification.message)}
+                    </Message>
+                  </NotificationContent>
+                </NotificationItem>
+              ))}
+            </NotificationList>
+            {hasNextPage && (
+              <InfiniteScrollTrigger
+                ref={scrollTriggerRef}
+                data-fetching={isFetchingNextPage}
               >
-                <Message>{notification.message}</Message>
-                <Meta>{formatTimestamp(notification.created_at)}</Meta>
-              </NotificationItem>
-            ))}
-          </NotificationList>
+                {isFetchingNextPage ? "로딩 중..." : "더 불러오기"}
+              </InfiniteScrollTrigger>
+            )}
+          </>
         )}
       </MenuContent>
     </Menu>
@@ -95,6 +173,32 @@ function formatTimestamp(value: string) {
   if (days < 7) return `${days}일 전`;
 
   return date.toLocaleString();
+}
+
+function formatNotificationMessage(
+  message: string,
+): (string | React.ReactNode)[] {
+  const keywords = ["새 댓글", "멘션"];
+  let parts: (string | React.ReactNode)[] = [message];
+
+  keywords.forEach((keyword) => {
+    parts = parts.flatMap((part, partIndex) => {
+      if (typeof part !== "string") return [part];
+
+      const regex = new RegExp(`(${keyword})`, "g");
+      const split = part.split(regex);
+
+      return split.map((text, idx) =>
+        text === keyword ? (
+          <strong key={`${partIndex}-${idx}`}>{text}</strong>
+        ) : (
+          text
+        ),
+      );
+    });
+  });
+
+  return parts;
 }
 
 const Menu = styled.div`
@@ -179,6 +283,25 @@ const MarkAllButton = styled.button`
   }
 `;
 
+const DeleteButton = styled.button`
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 4px 6px;
+
+  &:hover:not(:disabled) {
+    color: #dc2626;
+  }
+
+  &:disabled {
+    color: #fecaca;
+    cursor: not-allowed;
+  }
+`;
+
 const MenuContent = styled.div`
   max-height: 320px;
   overflow-y: auto;
@@ -199,17 +322,37 @@ const NotificationList = styled.ul`
   padding: 0;
 `;
 
-const NotificationItem = styled.li<{ $unread: boolean }>`
+const NotificationItem = styled.li<{ $unread: boolean; $type: NotificationType }>`
+  display: flex;
+  gap: 10px;
   padding: 12px 14px;
   border-bottom: 1px solid #f1f5f9;
+  border-left: ${({ $unread, $type }) =>
+    $unread
+      ? $type === "MENTION"
+        ? "2px solid #10b981"
+        : "2px solid #6366f1"
+      : "2px solid transparent"};
+  padding-left: 12px;
   cursor: pointer;
-  background: ${({ $unread }) => ($unread ? "#f8fafc" : "transparent")};
+  background: ${({ $unread, $type }) =>
+    $unread
+      ? $type === "MENTION"
+        ? "#ecfdf5"
+        : "#eef6ff"
+      : "transparent"};
   transition:
     background 0.2s ease,
+    border-left-color 0.2s ease,
     transform 0.2s ease;
 
   &:hover {
-    background: #eef2ff;
+    background: ${({ $unread, $type }) =>
+      $unread
+        ? $type === "MENTION"
+          ? "#d1fae5"
+          : "#e0efff"
+        : "#eef2ff"};
   }
 
   &:last-child {
@@ -217,17 +360,61 @@ const NotificationItem = styled.li<{ $unread: boolean }>`
   }
 `;
 
-const Message = styled.p`
-  margin: 0 0 4px 0;
-  font-size: 13px;
+const AvatarWrapper = styled.div<{ $unread: boolean; $type: NotificationType }>`
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const NotificationContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: space-between;
+`;
+
+const Username = styled.span<{ $unread: boolean }>`
+  font-weight: ${({ $unread }) => ($unread ? 700 : 600)};
+  font-size: 12px;
+  color: ${({ $unread }) => ($unread ? "#0f172a" : "#475569")};
+  transition: all 0.2s ease;
+`;
+
+const Message = styled.p<{ $unread: boolean }>`
+  margin: 0;
+  font-size: 12px;
   line-height: 1.4;
-  color: #0f172a;
+  color: ${({ $unread }) => ($unread ? "#0f172a" : "#64748b")};
+  font-weight: ${({ $unread }) => ($unread ? 500 : 400)};
+  transition: all 0.2s ease;
 `;
 
 const Meta = styled.span`
   display: block;
   font-size: 11px;
   color: #94a3b8;
+  white-space: nowrap;
+`;
+
+const UnreadIndicator = styled.div<{ $type: NotificationType }>`
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${({ $type }) => ($type === "MENTION" ? "#10b981" : "#6366f1")};
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #e2e8f0;
 `;
 
 const EmptyState = styled.div`
@@ -235,4 +422,23 @@ const EmptyState = styled.div`
   text-align: center;
   font-size: 13px;
   color: #94a3b8;
+`;
+
+const InfiniteScrollTrigger = styled.div`
+  padding: 12px 14px;
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  border-top: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #eef2ff;
+  }
+
+  &[data-fetching="true"] {
+    cursor: not-allowed;
+    color: #cbd5e1;
+  }
 `;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { DefaultButton } from "@/components/common/Button";
 import { BellIcon, UserIcon, DotIcon, BanBanLogo } from "@/components/svg";
 import styled from "styled-components";
@@ -12,9 +13,13 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import HeaderSkeleton from "@/components/common/Skeleton/HeaderSkeleton";
 import NotificationMenu from "./NotificationMenu";
 import { useNotificationStore } from "@/store/useNotificationStore";
+import { useNotifications } from "@/hooks/useNotifications";
 import type { Notification } from "@/types/notification";
+import { markNotificationsAsRead, markAllNotificationsAsRead, deleteReadNotifications } from "@/remote/notification";
 import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
+import { logger } from "@/utils/logger";
+import { useToast } from "@/components/common/Toast/useToast";
 
 interface HeaderProps {
   isNew?: boolean;
@@ -29,6 +34,8 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   const { isLoggedIn, user, logout, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const toast = useToast();
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   useClickOutside(
@@ -42,14 +49,24 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   );
   useClickOutside(notificationRef, () => setNotificationOpen(false), "click");
 
-  const notifications = useNotificationStore((state) => state.notifications);
-  const unreadCount = useNotificationStore((state) => state.unreadCount);
   const connectionStatus = useNotificationStore(
     (state) => state.connectionStatus,
   );
   const isTimeout = useNotificationStore((state) => state.isTimeout);
   const markAsRead = useNotificationStore((state) => state.markAsRead);
   const markAllRead = useNotificationStore((state) => state.markAllAsRead);
+
+  const {
+    data: notificationsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useNotifications();
+
+  const unreadCount = useMemo(
+    () => notificationsData?.pages[0]?.data.unreadCount ?? 0,
+    [notificationsData],
+  );
 
   const profileImageSrcState = user?.profileImageUrl || "/user.png";
   const [profileImageSrc, setProfileImageSrc] = useState(profileImageSrcState);
@@ -77,29 +94,79 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     setUserMenuOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(false);
-    setNotificationOpen((prev) => !prev);
+    setNotificationOpen((prev) => {
+      // 알림 메뉴를 열 때 최신 데이터 요청
+      if (!prev) {
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      }
+      return !prev;
+    });
   };
   const handleProfile = () => handleToggleMenu();
 
   useEffect(() => {
     if (!isNotificationOpen) return;
-    const unreadIds = notifications
-      .filter((notification) => !notification.is_read)
+    const allNotifications = notificationsData?.pages?.flatMap(
+      (page) => page.data.notifications,
+    ) ?? [];
+    const unreadIds = allNotifications
+      .filter((notification) => !notification.isRead)
       .map((notification) => notification.id);
     if (unreadIds.length > 0) {
       markAsRead(unreadIds);
     }
-  }, [isNotificationOpen, notifications, markAsRead]);
+  }, [isNotificationOpen, notificationsData, markAsRead]);
 
-  const handleNotificationItemClick = (notification: Notification) => {
-    if (!notification.is_read) {
-      markAsRead([notification.id]);
+  const handleNotificationItemClick = async (notification: Notification) => {
+    // 안읽은 알림이면 서버에 읽음 처리
+    if (!notification.isRead) {
+      try {
+        await markNotificationsAsRead([notification.id]);
+        // 로컬 상태 업데이트
+        markAsRead([notification.id]);
+        // 캐시 무효화하여 최신 데이터 반영
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      } catch (error) {
+        logger.error("알림 읽음 처리 실패", error);
+        // 에러 발생해도 UI는 계속 진행
+      }
     }
     setNotificationOpen(false);
 
     // 피드 관련 알림이면 해당 피드로 이동
-    if (notification.target_type === "FEED" && notification.target_id) {
-      router.push(`/feeds/${notification.target_id}`);
+    if (notification.targetType === "FEED" && notification.targetId) {
+      router.push(`/feeds/${notification.targetId}`);
+    } else if (notification.targetType === "COMMENT" && notification.relatedId) {
+      // 댓글 관련 알림이면 해당 피드로 이동 (relatedId는 feedId)
+      router.push(`/feeds/${notification.relatedId}`);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsAsRead();
+      // 로컬 상태 업데이트
+      markAllRead();
+      // React Query 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    } catch (error) {
+      logger.error("전체 알림 읽음 처리 실패", error);
+    }
+  };
+
+  const handleDeleteRead = async () => {
+    try {
+      await deleteReadNotifications();
+      // React Query 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      logger.info("읽은 알림 삭제 완료");
+    } catch (error) {
+      logger.error("읽은 알림 삭제 실패", error);
+      toast.showToast({
+        type: "error",
+        message: "알림 삭제에 실패했습니다.",
+        duration: 3000,
+      });
     }
   };
 
@@ -162,10 +229,14 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
                 </IconButton>
                 {isNotificationOpen && (
                   <NotificationMenu
-                    notifications={notifications}
+                    data={notificationsData}
+                    fetchNextPage={fetchNextPage}
+                    hasNextPage={hasNextPage}
+                    isFetchingNextPage={isFetchingNextPage}
                     connectionStatus={connectionStatus}
                     isTimeout={isTimeout}
-                    onMarkAllRead={markAllRead}
+                    onMarkAllRead={handleMarkAllRead}
+                    onDeleteRead={handleDeleteRead}
                     onItemClick={handleNotificationItemClick}
                   />
                 )}

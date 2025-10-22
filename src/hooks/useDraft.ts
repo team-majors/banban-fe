@@ -21,6 +21,12 @@ export const useDraft = (actionType: ActionType, autoRestore = false) => {
   const getStorageKey = (type: ActionType) =>
     type === "댓글" ? "comment-draft" : "feed-draft";
 
+  const getDraft = useCallback(() => {
+    const currentDraftContent =
+      safeLocalStorage.get(getStorageKey(actionType)) || "";
+    return currentDraftContent;
+  }, [actionType]);
+
   // draft 저장
   const saveDraft = useCallback(
     (content: string) => {
@@ -62,6 +68,7 @@ export const useDraft = (actionType: ActionType, autoRestore = false) => {
 
   return {
     draftContent,
+    getDraft,
     saveDraft,
     clearDraft,
     restoreDraft,

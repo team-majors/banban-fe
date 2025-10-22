@@ -46,6 +46,18 @@ export interface AdminSystemData {
   recommendations: string[];
 }
 
+export interface PollCachePatternStat {
+  pattern: string;
+  deleted: number;
+}
+
+export interface AdminPollCachePurgeResult {
+  message: string;
+  totalDeleted: number;
+  patterns: PollCachePatternStat[];
+  executedAt?: string;
+}
+
 export interface ActivityLogItem {
   id: number;
   userId: number;

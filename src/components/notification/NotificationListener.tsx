@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import useAuth from "@/hooks/useAuth";
 import { useNotificationWebSocket } from "@/hooks/useNotificationWebSocket";
 import { useNotificationStore } from "@/store/useNotificationStore";
@@ -15,16 +16,14 @@ const TIMEOUT_THRESHOLD_MS = 70_000;
 function mapNotificationPayload(payload: WSNotificationMessage): Notification {
   return {
     id: payload.id,
-    user_id: payload.user_id,
-    notification_type: payload.notification_type,
     type: payload.notification_type,
-    from_user_id: payload.from_user_id,
-    target_type: payload.target_type,
-    target_id: payload.target_id,
+    targetType: payload.target_type,
+    targetId: payload.target_id,
+    relatedId: payload.related_id,
     message: payload.message,
-    is_read: payload.is_read,
-    created_at: payload.created_at,
-    read_at: payload.read_at,
+    isRead: payload.is_read,
+    createdAt: payload.created_at,
+    readAt: payload.read_at,
   };
 }
 
@@ -32,6 +31,7 @@ export default function NotificationListener() {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const addNotification = useNotificationStore((state) => state.addNotification);
   const setConnectionStatus = useNotificationStore(
@@ -58,18 +58,37 @@ export default function NotificationListener() {
       const notification = mapNotificationPayload(payload);
       addNotification(notification);
 
+      // React Query 캐시 무효화하여 최신 알림 목록 동기화
+      queryClient.invalidateQueries({
+        queryKey: ["notifications"],
+      });
+
       toast.showToast({
         type: "info",
         message: notification.message,
         duration: 3000,
-        action: notification.target_type === "FEED"
-          ? {
-              label: "보기",
-              onClick: () => {
-                router.push(`/feeds/${notification.target_id}`);
-              },
-            }
-          : undefined,
+        action:
+          notification.target_type === "FEED"
+            ? {
+                label: "보기",
+                onClick: () => {
+                  queryClient.invalidateQueries({
+                    queryKey: ["comments", notification.target_id],
+                  });
+                  router.push(`/feeds/${notification.target_id}`);
+                },
+              }
+            : notification.target_type === "COMMENT" && notification.related_id
+            ? {
+                label: "보기",
+                onClick: () => {
+                  queryClient.invalidateQueries({
+                    queryKey: ["comments", notification.related_id],
+                  });
+                  router.push(`/feeds/${notification.related_id}`);
+                },
+              }
+            : undefined,
       });
     },
     onConnected: (payload) => {

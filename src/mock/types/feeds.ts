@@ -1,7 +1,7 @@
 interface MockUser {
   user_id: number;
   username: string;
-  profile_image: string | null;
+  profileImage: string | null;
 }
 
 interface MockAdMeta {

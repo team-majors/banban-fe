@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { FloatingInputModal } from "@/components/layout/FloatingInputModal";
 import { FloatingButton } from "@/components/common/Button/Floating/FloatingButton";
 import type { Feed } from "@/types/feeds";
+import { useFloatingModalStore } from "@/store/useFloatingModalStore";
 
 interface FloatingButtonWithModalProps {
   sectionStatus: "feeds" | "comments";
@@ -16,6 +17,7 @@ export default function FloatingButtonWithModal({
   targetFeed,
 }: FloatingButtonWithModalProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isAnyModalOpen = useFloatingModalStore((state) => state.isFloatingModalOpen);
 
   const handleToggleModal = useCallback(() => {
     setIsModalOpen((prev) => !prev);
@@ -32,9 +34,12 @@ export default function FloatingButtonWithModal({
 
   const actionType = sectionStatus === "comments" ? "댓글" : "피드";
 
+  // 자체 모달이 열려있거나 외부에서 모달이 열려있으면 버튼 숨김
+  const shouldHideButton = isModalOpen || isAnyModalOpen;
+
   return (
     <>
-      <FloatingButtonContainer>
+      <FloatingButtonContainer $isHidden={shouldHideButton}>
         <FloatingButton
           state={isModalOpen ? "close" : "add"}
           onToggle={handleToggleModal}
@@ -53,9 +58,12 @@ export default function FloatingButtonWithModal({
   );
 }
 
-const FloatingButtonContainer = styled.div`
+const FloatingButtonContainer = styled.div<{ $isHidden?: boolean }>`
   position: fixed;
   bottom: 24px;
   right: 24px;
   z-index: 1000;
+  opacity: ${({ $isHidden }) => ($isHidden ? "0" : "1")};
+  pointer-events: ${({ $isHidden }) => ($isHidden ? "none" : "auto")};
+  transition: opacity 0.2s ease;
 `;

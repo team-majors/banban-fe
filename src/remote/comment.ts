@@ -1,22 +1,23 @@
 import type {
+  CommentContent,
   CommentRequest,
   CommentResponse,
   CreateCommentRequest,
-  CreateCommentResponse
+  CreateCommentResponse,
 } from "@/types/comments";
-import { apiFetch } from "@/lib/apiFetch";
+import {apiFetch} from "@/lib/apiFetch";
 
 export const getComments = async ({
-  feedId,
-  lastId,
-  size,
-}: CommentRequest): Promise<CommentResponse> => {
+                                    feedId,
+                                    lastId,
+                                    size,
+                                  }: CommentRequest): Promise<CommentResponse> => {
   const feedIdParam = `feed_id=${feedId}&`;
   const lastIdParam = lastId ? `last_id=${lastId}&` : "";
   const sizeParam = `size=${size}`;
 
   const res = await apiFetch(
-    `/comments/?${feedIdParam}${lastIdParam}${sizeParam}`,
+      `/comments/?${feedIdParam}${lastIdParam}${sizeParam}`,
   );
 
   console.log(res);
@@ -25,9 +26,9 @@ export const getComments = async ({
 };
 
 export const createComment = async ({
-  feedId,
-  content,
-}: CreateCommentRequest): Promise<CreateCommentResponse> => {
+                                      feedId,
+                                      content,
+                                    }: CreateCommentRequest): Promise<CreateCommentResponse> => {
   const res = await apiFetch(`/comments/`, {
     method: "POST",
     headers: {
@@ -40,4 +41,20 @@ export const createComment = async ({
   });
 
   return res as CreateCommentResponse;
+};
+
+export const updateComment = async (
+    commentId: number,
+    content: string,
+): Promise<{ data: CommentContent }> => {
+  return apiFetch(`/comments/${commentId}`, {
+    method: "PUT",
+    body: JSON.stringify({content}),
+  });
+};
+
+export const deleteComment = async (commentId: number): Promise<void> => {
+  await apiFetch(`/comments/${commentId}`, {
+    method: "DELETE",
+  });
 };

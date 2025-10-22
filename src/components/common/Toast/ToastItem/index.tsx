@@ -30,7 +30,7 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
   return (
     <ToastWrapper>
       <FlexContainer>
-        <IconWrapper bgcolor={theme.color}>{theme.icon}</IconWrapper>
+        <IconWrapper $bgcolor={theme.color}>{theme.icon}</IconWrapper>
         <Message>{message}</Message>
         {action && (
           <ActionButton type="button" onClick={handleAction}>
@@ -45,7 +45,7 @@ const ToastItem: React.FC<{ toast: Toast }> = ({ toast }) => {
         role="button"
         aria-label="Close Toast"
       />
-      <ProgressBar className={theme.bar} duration={duration} />
+      <ProgressBar className={theme.bar} $duration={duration} />
     </ToastWrapper>
   );
 };
@@ -79,21 +79,21 @@ const ToastWrapper = styled.div`
   background-color: white;
 `;
 
-const IconWrapper = styled.div<{ bgcolor: string }>`
+const IconWrapper = styled.div<{ $bgcolor: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
   width: 24px;
   height: 24px;
   border-radius: 9999px;
-  background-color: ${(props) => props.bgcolor};
+  background-color: ${(props) => props.$bgcolor};
 `;
 
-const ProgressBar = styled.div<{ duration: number }>`
+const ProgressBar = styled.div<{ $duration: number }>`
   position: absolute;
   bottom: 0;
   height: 6px;
-  animation: ${shrink} ${(props) => props.duration}ms linear forwards;
+  animation: ${shrink} ${(props) => props.$duration}ms linear forwards;
 `;
 
 const FlexContainer = styled.div`

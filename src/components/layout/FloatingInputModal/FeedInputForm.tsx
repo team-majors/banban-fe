@@ -1,8 +1,8 @@
-import styled from "styled-components";
-import { Avatar } from "../../common/Avatar/Avatar";
-import { CloseIcon } from "../../svg";
-import { DefaultButton } from "../../common/Button/Default/DefaultButton";
-import { UserInfoLoader } from "./UserInfoLoader";
+import styled, {keyframes} from "styled-components";
+import {Avatar} from "../../common/Avatar/Avatar";
+import {CloseIcon} from "../../svg";
+import {DefaultButton} from "@/components/common/Button";
+import {UserInfoLoader} from "./UserInfoLoader";
 
 interface TargetUser {
   nickname: string;
@@ -24,103 +24,125 @@ interface FeedInputFormProps {
   onUserError: (error: Error) => void;
   actionType: "댓글" | "피드";
   isPosting: boolean;
+  editMode?: boolean; // 피드 수정 모드 여부
 }
 
 export const FeedInputForm = ({
-  content,
-  onContentChange,
-  onKeyDown,
-  onCancel,
-  onSubmit,
-  targetUser,
-  onUserLoaded,
-  onUserError,
-  actionType,
-  isPosting,
-}: FeedInputFormProps) => {
+                                content,
+                                onContentChange,
+                                onKeyDown,
+                                onCancel,
+                                onSubmit,
+                                targetUser,
+                                onUserLoaded,
+                                onUserError,
+                                actionType,
+                                isPosting,
+                                editMode = false,
+                              }: FeedInputFormProps) => {
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onContentChange(e.target.value);
   };
 
   return (
-    <ModalOverlay onClick={onCancel}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
-        {/* 상단 헤더 */}
-        <Header>
-          <CloseButton onClick={onCancel}>
-            <CloseIcon width={20} height={20} />
-          </CloseButton>
-          <Title>
-            <ActionTypeText>{actionType}</ActionTypeText>
-            <ActionText>등록하기</ActionText>
-          </Title>
-          <HeaderSpacer />
-        </Header>
+      <ModalOverlay onClick={onCancel}>
+        <ModalContainer onClick={(e) => e.stopPropagation()}>
+          {/* 상단 헤더 */}
+          <Header>
+            <CloseButton onClick={onCancel}>
+              <CloseIcon width={20} height={20}/>
+            </CloseButton>
+            <Title>
+              <ActionTypeText>{actionType}</ActionTypeText>
+              <ActionText>{editMode ? "수정하기" : "등록하기"}</ActionText>
+            </Title>
+            <HeaderSpacer/>
+          </Header>
 
-        {/* 대상 정보 영역 - UserInfoLoader로 데이터 로딩 */}
-        <UserInfoLoader onUserLoaded={onUserLoaded} onError={onUserError} />
+          {/* 대상 정보 영역 - UserInfoLoader로 데이터 로딩 */}
+          <UserInfoLoader onUserLoaded={onUserLoaded} onError={onUserError}/>
 
-        {/* 유저 정보 표시 - 데이터 로딩 완료 후에만 표시 */}
-        {targetUser && (
-          <TargetInfo>
-            <Avatar
-              src={targetUser.avatarUrl}
-              alt={`${targetUser.nickname}의 프로필 이미지`}
-              size={48}
-              background={targetUser.avatarBackground || "#f0f0f0"}
-            />
-            <UserInfo>
-              <Nickname>@{targetUser.nickname}</Nickname>
-              <Description>
-                {targetUser.description.startsWith("> ") ? (
-                  <>
-                    <span style={{ color: "#6b7280" }}>{">"} </span>
-                    <span
-                      style={{
-                        background: targetUser.voteTextColor || "#ec4899",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        fontWeight: "bold",
-                      }}
-                    >
+          {/* 유저 정보 표시 - 데이터 로딩 완료 후에만 표시 */}
+          {targetUser && (
+              <TargetInfo>
+                <Avatar
+                    src={targetUser.avatarUrl}
+                    alt={`${targetUser.nickname}의 프로필 이미지`}
+                    size={48}
+                    background={targetUser.avatarBackground || "#f0f0f0"}
+                />
+                <UserInfo>
+                  <Nickname>@{targetUser.nickname}</Nickname>
+                  <Description>
+                    {targetUser.description.startsWith("> ") ? (
+                        <>
+                          <span style={{color: "#6b7280"}}>{">"} </span>
+                          <span
+                              style={{
+                                background: targetUser.voteTextColor || "#ec4899",
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                backgroundClip: "text",
+                                fontWeight: "bold",
+                              }}
+                          >
                       {targetUser.description.substring(2)}
                     </span>
-                  </>
-                ) : (
-                  targetUser.description
-                )}
-              </Description>
-            </UserInfo>
-          </TargetInfo>
-        )}
+                        </>
+                    ) : (
+                        targetUser.description
+                    )}
+                  </Description>
+                </UserInfo>
+              </TargetInfo>
+          )}
 
-        {/* 입력 영역 */}
-        <InputSection>
-          <TextInput
-            value={content}
-            onChange={handleContentChange}
-            onKeyDown={onKeyDown}
-            placeholder="당신의 의견을 들려주세요!"
-            rows={4}
-          />
-        </InputSection>
+          {/* 입력 영역 */}
+          <InputSection>
+            <TextInput
+                value={content}
+                onChange={handleContentChange}
+                onKeyDown={onKeyDown}
+                placeholder="당신의 의견을 들려주세요!"
+                rows={4}
+            />
+          </InputSection>
 
-        {/* 하단 버튼 */}
-        <Footer>
-          <DefaultButton
-            isActive={!!content.trim() && !isPosting}
-            onClick={onSubmit}
-          >
-            {isPosting ? "보내는 중..." : "보내기"}
-          </DefaultButton>
-        </Footer>
-      </ModalContainer>
-    </ModalOverlay>
+          {/* 하단 버튼 */}
+          <Footer>
+            <DefaultButton
+                isActive={!!content.trim() && !isPosting}
+                onClick={onSubmit}
+            >
+              {isPosting ? (editMode ? "수정 중..." : "보내는 중...") : (editMode ? "수정하기" : "보내기")}
+            </DefaultButton>
+          </Footer>
+        </ModalContainer>
+      </ModalOverlay>
   );
 };
 
 // 스타일 컴포넌트들
+const overlayFadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const modalSlideUp = keyframes`
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+
 const ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -133,6 +155,7 @@ const ModalOverlay = styled.div`
   z-index: 1000;
   padding: 20px;
   pointer-events: none;
+  animation: ${overlayFadeIn} 0.18s ease;
 
   & > * {
     pointer-events: auto;
@@ -148,9 +171,11 @@ const ModalContainer = styled.div`
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08),
-    0px 4px 6px -2px rgba(10, 13, 18, 0.03);
+  0px 4px 6px -2px rgba(10, 13, 18, 0.03);
   display: flex;
   flex-direction: column;
+  animation: ${modalSlideUp} 0.22s ease;
+  will-change: transform, opacity;
 `;
 
 const Header = styled.div`

@@ -1,7 +1,7 @@
 export type SortBy = "created" | "like" | "comment";
 export type SortOrder = "asc" | "desc";
 export type FilterType = "all" | "same_vote";
-export type FeedType = "NORMAL" | "AD";
+export type FeedType = "USER" | "AD" | "NOTICE";
 
 interface User {
   id: number;
@@ -63,6 +63,7 @@ interface FeedsRequest {
   sort_by?: SortBy;
   sort_order?: SortOrder;
   filter_type?: FilterType;
+  poll_id?: number;
 }
 
 interface FeedsResponse {

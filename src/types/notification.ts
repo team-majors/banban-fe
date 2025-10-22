@@ -23,21 +23,23 @@ export type WSMessageType =
   | "error"
   | "system";
 
+export interface FromUser {
+  id: number;
+  username: string;
+  profileImage: string | null;
+}
+
 export interface Notification {
   id: number;
-  user_id: number;
-  notification_type: NotificationType;
-  /**
-   * @deprecated WebSocket 메시지 필드와 일치하지 않습니다. notification_type을 사용하세요.
-   */
-  type?: NotificationType;
-  from_user_id?: number;
-  target_type: TargetType;
-  target_id: number;
+  type: NotificationType;
+  targetType: TargetType;
+  targetId: number;
+  relatedId?: number;
+  fromUser?: FromUser;
   message: string;
-  is_read: boolean;
-  created_at: string;
-  read_at?: string | null;
+  isRead: boolean;
+  createdAt: string;
+  readAt?: string | null;
 }
 
 export interface WSMessage {
@@ -53,6 +55,7 @@ export interface WSNotificationMessage extends WSMessage {
   from_user_id?: number;
   target_type: TargetType;
   target_id: number;
+  related_id?: number;
   message: string;
   is_read: boolean;
   created_at: string;

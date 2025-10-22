@@ -13,7 +13,7 @@ interface StyledImageWrapperProps {
   size?: number;
 }
 interface GradientBorderProps {
-  background?: string;
+  $background?: string;
 }
 
 export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
@@ -46,7 +46,7 @@ export const Avatar = ({ src, alt, size, background }: AvatarProps) => {
   }, [src]);
 
   return (
-    <GradientBorder background={background}>
+    <GradientBorder $background={background}>
       <StyledImageWrapper size={size}>
         <Image
           role="img"
@@ -73,8 +73,8 @@ const GradientBorder = styled.div<GradientBorderProps>`
   align-items: center;
   padding: 2px;
   border-radius: 50%;
-  background: ${({ background }) =>
-    background || "linear-gradient(to right, #ec4899, #d946ef)"};
+  background: ${({ $background }) =>
+    $background || "linear-gradient(to right, #ec4899, #d946ef)"};
 `;
 
 const StyledImageWrapper = styled.div<StyledImageWrapperProps>`

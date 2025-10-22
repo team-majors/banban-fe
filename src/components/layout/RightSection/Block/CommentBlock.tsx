@@ -19,6 +19,38 @@ import {useToast} from "@/components/common/Toast/useToast";
 import {deleteComment, updateComment} from "@/remote/comment";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import {CommentComposer} from "@/components/layout/RightSection/CommentInputBar/CommentComposer";
+import type { CommentUser } from "@/types/comments";
+
+function formatCommentWithMentions(
+  content: string,
+  mentionedUsers: CommentUser[]
+): (string | React.ReactNode)[] {
+  if (!mentionedUsers || mentionedUsers.length === 0) {
+    return [content];
+  }
+
+  const mentions = mentionedUsers.map((user) => `@${user.username}`);
+  let parts: (string | React.ReactNode)[] = [content];
+
+  mentions.forEach((mention, mentionIndex) => {
+    parts = parts.flatMap((part, partIndex) => {
+      if (typeof part !== "string") return [part];
+
+      const regex = new RegExp(`(${mention})`, "g");
+      const split = part.split(regex);
+
+      return split.map((text, idx) =>
+        text === mention ? (
+          <strong key={`${partIndex}-${mentionIndex}-${idx}`}>{text}</strong>
+        ) : (
+          text
+        )
+      );
+    });
+  });
+
+  return parts;
+}
 
 const CommentBlock = ({
                         props,
@@ -36,6 +68,7 @@ const CommentBlock = ({
     isLiked,
     userVoteOptionId,
     isMine,
+    mentionedUsers,
   } = props;
 
   const formattedCreatedAt = new Date(props.createdAt).toLocaleDateString();
@@ -243,7 +276,7 @@ const CommentBlock = ({
                     placeholder="수정할 내용을 입력하세요..."
                 />
             ) : (
-                content
+                formatCommentWithMentions(content, mentionedUsers)
             )}
           </StyledBodyContainer>
 

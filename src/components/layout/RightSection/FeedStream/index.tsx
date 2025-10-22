@@ -82,74 +82,62 @@ export default function FeedStream() {
     };
   }, []);
 
+  const isLoading = isPollLoading || (feedsEnabled && isFeedsLoading);
+  const hasData = feedsEnabled && data?.pages?.length && data.pages[0]?.data?.content?.length;
+
   return (
     <StyledFeedStreamContainer ref={scrollRef}>
-      {isPollLoading && (
-        <div className="flex h-full items-center justify-center text-sm text-slate-500">
-          오늘의 투표를 불러오는 중입니다...
-        </div>
-      )}
+      {isLoading ? (
+        <StatusNotice>피드를 불러오는 중입니다...</StatusNotice>
+      ) : hasData ? (
+        <>
+          {data.pages?.map((page, index) => (
+            <Fragment key={`page-${index}`}>
+              {page?.data?.content?.map((item, idx, array) => {
+                const isSecondFromLast = idx === array.length - 4;
+                const itemKey =
+                  item.type === "AD"
+                    ? `ad-${item.id}-${idx}`
+                    : `feed-${item.id}`;
 
-      {!isPollLoading && !feedsEnabled && !isPollError && (
-        <StatusNotice>
-          {"오늘의 주제가 없습니다\n잠시 후 다시 시도해주세요"}
-        </StatusNotice>
+                return (
+                  <Fragment key={itemKey}>
+                    {isSecondFromLast && hasNextPage && (
+                      <div ref={scrollTrigger} />
+                    )}
+                    {item.type === "USER" || item.type === "NOTICE" ? (
+                      <Block
+                        type="feed"
+                        feedProps={item}
+                        pollData={todayPoll}
+                      />
+                    ) : (
+                      <Block
+                        type="ad"
+                        feedProps={item}
+                        pollData={todayPoll}
+                      />
+                    )}
+                  </Fragment>
+                );
+              })}
+            </Fragment>
+          ))}
+          <div className="flex h-30 items-center justify-center">
+            {isFetchingNextPage ? (
+              <StatusNotice compact>
+                추가 피드를 불러오는 중입니다...
+              </StatusNotice>
+            ) : (
+              <StatusNotice muted compact>
+                {hasNextPage ? "" : "불러올 피드가 없습니다"}
+              </StatusNotice>
+            )}
+          </div>
+        </>
+      ) : (
+        <StatusNotice>불러올 피드가 없습니다</StatusNotice>
       )}
-      {!isPollLoading && isPollError && (
-        <StatusNotice>
-          {"투표 정보를 불러오지 못했습니다\n잠시 후 다시 확인해주세요"}
-        </StatusNotice>
-      )}
-      {feedsEnabled &&
-        (isFeedsLoading ? (
-          <StatusNotice>피드를 불러오는 중입니다...</StatusNotice>
-        ) : (
-          <>
-            {data?.pages?.map((page, index) => (
-              <Fragment key={`page-${index}`}>
-                {page?.data?.content?.map((item, idx, array) => {
-                  const isSecondFromLast = idx === array.length - 4;
-                  const itemKey =
-                    item.type === "AD"
-                      ? `ad-${item.id}-${idx}`
-                      : `feed-${item.id}`;
-
-                  return (
-                    <Fragment key={itemKey}>
-                      {isSecondFromLast && hasNextPage && (
-                        <div ref={scrollTrigger} />
-                      )}
-                      {item.type === "USER" || item.type === "NOTICE" ? (
-                        <Block
-                          type="feed"
-                          feedProps={item}
-                          pollData={todayPoll}
-                        />
-                      ) : (
-                        <Block
-                          type="ad"
-                          feedProps={item}
-                          pollData={todayPoll}
-                        />
-                      )}
-                    </Fragment>
-                  );
-                })}
-              </Fragment>
-            ))}
-            <div className="flex h-30 items-center justify-center">
-              {isFetchingNextPage ? (
-                <StatusNotice compact>
-                  추가 피드를 불러오는 중입니다...
-                </StatusNotice>
-              ) : (
-                <StatusNotice muted compact>
-                  {hasNextPage ? "" : "불러올 피드가 없습니다"}
-                </StatusNotice>
-              )}
-            </div>
-          </>
-        ))}
     </StyledFeedStreamContainer>
   );
 }

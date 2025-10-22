@@ -10,7 +10,9 @@ export default function CountdownDisplay() {
       const now = new Date();
 
       // 한국 시간으로 변환 (toLocaleString 사용)
-      const koreaTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+      const koreaTime = new Date(
+        now.toLocaleString("en-US", { timeZone: "Asia/Seoul" }),
+      );
 
       // 오늘 자정까지 계산
       const midnight = new Date(koreaTime);
@@ -23,11 +25,13 @@ export default function CountdownDisplay() {
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        const formattedHours = hours.toString().padStart(2, '0');
-        const formattedMinutes = minutes.toString().padStart(2, '0');
-        const formattedSeconds = seconds.toString().padStart(2, '0');
+        const formattedHours = hours.toString().padStart(2, "0");
+        const formattedMinutes = minutes.toString().padStart(2, "0");
+        const formattedSeconds = seconds.toString().padStart(2, "0");
 
-        setTimeLeft(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+        setTimeLeft(
+          `${formattedHours}:${formattedMinutes}:${formattedSeconds}`,
+        );
       } else {
         setTimeLeft("00:00:00");
       }
@@ -53,9 +57,8 @@ export default function CountdownDisplay() {
 const CountdownSection = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 60px;
-  padding: 4px;
-  gap: 4px;
+  min-height: 56px;
+  gap: 2px;
   text-align: center;
 `;
 

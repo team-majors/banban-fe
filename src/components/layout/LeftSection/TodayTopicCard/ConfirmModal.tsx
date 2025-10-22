@@ -6,9 +6,13 @@ import styled from "styled-components";
 export default function ConfirmModal({
   onClose,
   onVote,
+  optionLabel,
+  color,
 }: {
   onClose: () => void;
   onVote: () => void;
+  optionLabel: string | undefined;
+  color: string;
 }) {
   const voteHandler = () => {
     onVote();
@@ -21,7 +25,7 @@ export default function ConfirmModal({
         <ModalCheck />
       </IconWrapper>
       <Title>선택을 확정할까요?</Title>
-      <HighlightText>24시간 자유, 월 300씩 들어오는 백수</HighlightText>
+      <HighlightText color={color}>{optionLabel}</HighlightText>
       <SubText>투표는 1번만 가능합니다. 이후에는 변경할 수 없습니다.</SubText>
       <ButtonGroup>
         <Button onClick={onClose}>취소</Button>
@@ -45,13 +49,13 @@ const IconWrapper = styled.div`
 const Title = styled.div`
   font-size: 16px;
   color: #666;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 `;
 
-const HighlightText = styled.div`
+const HighlightText = styled.div<{ color: string }>`
   font-size: 18px;
   font-weight: 700;
-  color: #ff05ce;
+  color: ${({ color }) => color};
   margin-bottom: 8px;
 `;
 

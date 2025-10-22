@@ -1,7 +1,7 @@
 export interface PollOption {
   id: number;
   content: string;
-  voteCount: number | null;
+  voteCount: number;
   optionOrder: number;
 }
 

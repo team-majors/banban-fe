@@ -1,10 +1,12 @@
 import { CHART_CONFIG } from "@/constants/chart";
+import { PollOption } from "@/types/poll";
 
 type PieData = {
   option: string;
   count: number;
   userSelected: boolean;
   percent: number;
+  optionOrder: number;
 };
 
 export type TextPosition = {
@@ -16,8 +18,8 @@ export type TextPosition = {
 };
 
 export function makePieData(
-  options: { id: number; content: string; voteCount: number | null }[],
-  votedOptionId: number | null | undefined,
+  options: PollOption[],
+  votedOptionId: number | null,
 ): PieData[] {
   const total = options.reduce(
     (sum, opt) => sum + (opt.voteCount === null ? 0 : opt.voteCount),
@@ -36,14 +38,10 @@ export function makePieData(
       count,
       userSelected: votedOptionId === option.id,
       percent,
+      optionOrder: option.optionOrder,
     };
   });
   return data;
-
-  // return [
-  //   ...data.filter((d) => !d.userSelected),
-  //   ...data.filter((d) => d.userSelected),
-  // ];
 }
 
 export const calculateTextPosition = (

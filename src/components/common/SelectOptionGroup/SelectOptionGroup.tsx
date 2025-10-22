@@ -26,9 +26,11 @@ export const SelectOptionGroup = ({
   isAuthenticated,
   ...styleProps
 }: SelectOptionGroupProps) => {
-  const isDisabled = !isAuthenticated || (selected !== "firstOption" && selected !== "none");
-  const isDisabled2 = !isAuthenticated || (selected !== "secondOption" && selected !== "none");
-
+  const isDisabled =
+    !isAuthenticated || (selected !== "firstOption" && selected !== "none");
+  const isDisabled2 =
+    !isAuthenticated || (selected !== "secondOption" && selected !== "none");
+  console.log(selected, isAuthenticated, "asdfasdfasdfasdfasdfasdfas");
   return (
     <StyledSelectOptionGroup {...styleProps}>
       <StyledButton

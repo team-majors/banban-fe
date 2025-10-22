@@ -1,154 +1,113 @@
 import styled from "styled-components";
-import { selectOption } from "@/components/common/SelectOptionGroup/SelectOptionGroup";
-import { usePoll } from "@/hooks/usePoll";
-import { useVote } from "@/hooks/useVote";
-import { useToast } from "@/components/common/Toast/useToast";
 import { useMemo, useState, useCallback } from "react";
-import { makePieData } from "@/lib/chart";
-import { useQueryClient } from "@tanstack/react-query";
+import useAuth from "@/hooks/useAuth";
+import { usePoll } from "@/hooks/usePoll";
+
 import MainContent from "./MainContent";
 import NoTopicState from "./NoTopicState";
 import { Spinner } from "@/components/svg/Spinner";
 import LoginReqruiedModal from "./LoginRequiredModal";
-import useAuth from "@/hooks/useAuth";
+import ConfirmModal from "./ConfirmModal";
 
-export interface Option {
-  id: number;
-  content: string;
-}
+import { makePieData } from "@/lib/chart";
+import { selectOption } from "@/components/common/SelectOptionGroup/SelectOptionGroup";
 
-const VOTE_TOAST = {
-  success: { type: "success" as const, message: "투표 완료!" },
-  error: { type: "error" as const, message: "투표 실패!" },
-  duration: 3000,
-};
-
-function optionIdToSelection(
-  optionId: number | null | undefined,
-  options?: Option[],
-): selectOption {
-  if (!optionId || !options) return "none";
-  if (options[0]?.id === optionId) return "firstOption";
-  if (options[1]?.id === optionId) return "secondOption";
-  return "none";
-}
-
-function selectionToOptionId(
-  selection: selectOption,
-  options?: Option[],
-): number | null {
-  if (!options) return null;
-  switch (selection) {
-    case "firstOption":
-      return options[0]?.id ?? null;
-    case "secondOption":
-      return options[1]?.id ?? null;
-    default:
-      return null;
-  }
-}
+import useVoteFlow from "@/hooks/useVoteFlow";
 
 export default function TodayTopicCard() {
-  const { showToast } = useToast();
   const { isLoggedIn } = useAuth();
   const { data, isLoading } = usePoll();
-  const queryClient = useQueryClient();
-  const [optimisticSelection, setOptimisticSelection] =
-    useState<selectOption>("none");
-  const [open, setOpen] = useState(false);
+  const { mutate, optimisticSelection } = useVoteFlow(data);
+
+  const [openLoginModal, setOpenLoginModal] = useState(false);
+  const [selected, setSelected] = useState<selectOption>("none");
+  const [optionLabel, setOptionLabel] = useState<string>("");
 
   const pieData = useMemo(
     () => makePieData(data?.options ?? [], data?.votedOptionId ?? null),
     [data],
   );
 
-  const currentSelection = optionIdToSelection(
-    data?.votedOptionId,
-    data?.options,
-  );
+  const currentSelection =
+    data?.hasVoted === false
+      ? "none"
+      : data?.options?.find((opt) => opt.id === data?.votedOptionId)
+          ?.optionOrder === 1
+      ? "firstOption"
+      : "secondOption";
 
   const displayedSelection =
     optimisticSelection !== "none" ? optimisticSelection : currentSelection;
 
-  const showToastWithType = useCallback(
-    (type: "success" | "error", message: string) => {
-      showToast({ type, message, duration: VOTE_TOAST.duration });
-    },
-    [showToast],
-  );
+  const firstOption = data?.options.find((opt) => opt.optionOrder === 1);
+  const secondOption = data?.options.find((opt) => opt.optionOrder === 2);
 
-  const { mutate } = useVote({
-    onMutate: (variables) => {
-      const newSelection = optionIdToSelection(variables.id, data?.options);
-      setOptimisticSelection(newSelection);
-
-      return { previousSelectOption: data?.votedOptionId };
-    },
-    onSuccess: () => {
-      showToastWithType("success", VOTE_TOAST.success.message);
-      queryClient.invalidateQueries({ queryKey: ["polls"] });
-    },
-    onError: (error, _variables, context) => {
-      showToastWithType(
-        "error",
-        `${VOTE_TOAST.error.message} ${error.message}`,
-      );
-      const previousSelection = optionIdToSelection(
-        context?.previousSelectOption,
-        data?.options,
-      );
-      setOptimisticSelection(previousSelection);
-    },
-  });
+  const handleConfirm = (selection: selectOption) => {
+    if (!isLoggedIn) return setOpenLoginModal(true);
+    setSelected(selection);
+    setOptionLabel(
+      selection === "firstOption"
+        ? firstOption?.content ?? ""
+        : secondOption?.content ?? "",
+    );
+  };
 
   const handleVote = useCallback(
     (selection: selectOption) => {
-      // 로그인 하지 않았을 경우
-      if (!isLoggedIn) {
-        setOpen(true);
-      }
-
       if (displayedSelection === selection) return;
-
-      const optionId = selectionToOptionId(selection, data?.options);
+      const optionId =
+        selection === "firstOption" ? firstOption?.id : secondOption?.id;
       if (optionId) mutate({ id: optionId });
     },
-    [isLoggedIn, displayedSelection, data?.options, mutate],
+    [displayedSelection, firstOption, secondOption, mutate],
   );
 
-  return (
-    <Container>
-      {!isLoading && data === undefined ? (
+  if (isLoading)
+    return (
+      <Container>
+        <SpinnerContainer>
+          <Spinner />
+        </SpinnerContainer>
+      </Container>
+    );
+
+  if (!data)
+    return (
+      <Container>
         <NoTopicState
           message="오늘의 주제가 없습니다"
           description="잠시 후 다시 시도해주세요"
         />
-      ) : (
-        <>
-          {isLoading ? (
-            <SpinnerContainer>
-              <Spinner />
-            </SpinnerContainer>
-          ) : (
-            <>
-              <TitleSection>
-                <TitleLabel>🔥 오늘의 주제는 :</TitleLabel>
-                <TopicTitle as="h2">{data?.title}</TopicTitle>
-              </TitleSection>
-              <MainContent
-                pieData={pieData}
-                votedOptionId={data?.votedOptionId}
-                options={data?.options}
-                displayedSelection={displayedSelection}
-                handleVote={handleVote}
-                isLoggedIn={isLoggedIn}
-              />
-            </>
-          )}
-          {open && (
-            <LoginReqruiedModal isOpen={open} onClose={() => setOpen(false)} />
-          )}
-        </>
+      </Container>
+    );
+
+  return (
+    <Container>
+      <TitleSection>
+        <TitleLabel>🔥 오늘의 주제는 :</TitleLabel>
+        <TopicTitle as="h2">{data.title}</TopicTitle>
+      </TitleSection>
+
+      <MainContent
+        pieData={pieData}
+        votedOptionId={data.votedOptionId}
+        options={data.options}
+        displayedSelection={displayedSelection}
+        handleVote={handleConfirm}
+        isLoggedIn={isLoggedIn}
+      />
+
+      {openLoginModal && (
+        <LoginReqruiedModal isOpen onClose={() => setOpenLoginModal(false)} />
+      )}
+
+      {selected !== "none" && (
+        <ConfirmModal
+          onClose={() => setSelected("none")}
+          onVote={() => handleVote(selected)}
+          optionLabel={optionLabel}
+          color={selected === "firstOption" ? "#ff05ce" : "#1478FF"}
+        />
       )}
     </Container>
   );
@@ -169,22 +128,23 @@ const Container = styled.section`
 
 const TitleSection = styled.div`
   display: flex;
-  min-height: 88px;
   flex-direction: column;
   min-height: 70px;
 `;
 
 const TitleLabel = styled.div`
   font-weight: 600;
-  padding: 10px;
+  margin-bottom: 8px;
 `;
 
 const TopicTitle = styled.div`
   width: 100%;
-  font-weight: 900;
+  font-weight: 800;
   font-size: 24px;
-  padding: 10px;
+  padding: 4px;
+  margin-bottom: 4px;
   text-align: center;
+  line-height: 1.3;
 `;
 
 const SpinnerContainer = styled.div`

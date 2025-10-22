@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import VoteResultCircle, { PieData } from "./chart/VoteResultCircle";
-import { Option } from "./TodayTopicCard";
 import {
   selectOption,
   SelectOptionGroup,
 } from "@/components/common/SelectOptionGroup/SelectOptionGroup";
 import CountdownDisplay from "./CountdownDisplay";
 import VoteResultPlaceHolder from "./VoteResultPlaceHolder/VoteResultPlaceHolder";
+import { PollOption } from "@/types/poll";
 
 function VoteResultDisplay({
   pieData,
@@ -32,11 +32,18 @@ export default function MainContent({
 }: {
   pieData: PieData[];
   votedOptionId: number | null | undefined;
-  options?: Option[];
+  options?: PollOption[];
   displayedSelection: selectOption;
   handleVote: (selection: selectOption) => void;
   isLoggedIn: boolean;
 }) {
+  const firstOptionString = options?.find(
+    (option) => option.optionOrder === 1,
+  )?.content;
+  const secondOptionString = options?.find(
+    (option) => option.optionOrder === 2,
+  )?.content;
+
   return (
     <>
       <VoteResultCircleContainer>
@@ -46,8 +53,8 @@ export default function MainContent({
       <SelectOptionGroup
         selected={displayedSelection}
         rowGap="10px"
-        firstOptionString={options?.[0]?.content || ""}
-        secondOptionString={options?.[1]?.content || ""}
+        firstOptionString={firstOptionString || ""}
+        secondOptionString={secondOptionString || ""}
         onClick={handleVote}
         isAuthenticated={isLoggedIn}
       />
@@ -58,6 +65,5 @@ export default function MainContent({
 const VoteResultCircleContainer = styled.div`
   display: flex;
   justify-content: center;
-  min-height: 248px;
   max-height: 280px;
 `;

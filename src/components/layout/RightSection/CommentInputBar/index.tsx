@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import styled from "styled-components";
 import { useCreateComment } from "@/hooks/useCreateComment";
 import { useToast } from "@/components/common/Toast/useToast";
+import { useUserVoteInfo } from "@/hooks/useUserVoteInfo";
 import { CommentComposer } from "./CommentComposer";
 
 interface CommentInputBarProps {
@@ -16,6 +17,7 @@ export default function CommentInputBar({ feedId, onSubmit }: CommentInputBarPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const createCommentMutation = useCreateComment();
   const toast = useToast();
+  const { hasVoted } = useUserVoteInfo();
 
   const handleSubmit = useCallback(() => {
     // 중복 제출 방지: isPending과 isSubmitting 모두 체크
@@ -71,7 +73,8 @@ export default function CommentInputBar({ feedId, onSubmit }: CommentInputBarPro
         onChange={handleChange}
         onSubmit={handleSubmit}
         isSubmitting={createCommentMutation.isPending || isSubmitting}
-        placeholder="댓글을 입력하세요..."
+        placeholder={hasVoted ? "댓글을 입력하세요..." : "투표 후 댓글을 작성할 수 있습니다"}
+        disabled={!hasVoted}
       />
     </Container>
   );

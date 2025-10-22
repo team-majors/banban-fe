@@ -31,14 +31,15 @@ export const DraftRestoreModal = ({
             <PreviewContent>{previewText}</PreviewContent>
           </PreviewBox>
         )}
-        <Modal.Actions direction="column">
-          <Modal.Button onClick={onRestore} fullWidth>
+        <ModalFooter>
+          <ModalButton variant="primary" onClick={onRestore}>
             이어서 작성하기
-          </Modal.Button>
-          <Modal.Button $variant="secondary" onClick={onSkip} fullWidth>
+          </ModalButton>
+          <Divider />
+          <ModalButton variant="danger" onClick={onSkip}>
             새로 작성할게요
-          </Modal.Button>
-        </Modal.Actions>
+          </ModalButton>
+        </ModalFooter>
       </Modal.Layout>
     </Modal>
   );
@@ -66,5 +67,44 @@ const PreviewContent = styled.p`
   color: #111827;
   line-height: 1.4;
   white-space: pre-line;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+`;
+
+const Divider = styled.div`
+  width: 100%;
+  height: 1px;
+  background: #f3f4f6;
+  margin: 4px 0;
+`;
+
+const ModalButton = styled.button<{ variant: "primary" | "danger" }>`
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: center;
+  border-radius: 6px;
+
+  color: ${(props) => (props.variant === "danger" ? "#FF8B8B" : "#111827")};
+
+  &:hover {
+    background: ${(props) =>
+      props.variant === "danger" ? "#fef2f2" : "#f9fafb"};
+  }
+
+  &:active {
+    background: ${(props) =>
+      props.variant === "danger" ? "#fee2e2" : "#f3f4f6"};
+  }
 `;
 

@@ -17,7 +17,7 @@ type ModalActionVariant = "primary" | "secondary" | "danger";
 
 interface ModalButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   $variant?: ModalActionVariant;
-  fullWidth?: boolean;
+  $fullWidth?: boolean;
 }
 
 const ModalBase = ({
@@ -234,7 +234,7 @@ const ModalButton = styled.button<ModalButtonProps>`
   border: none;
   cursor: pointer;
   transition: background-color 0.18s ease, color 0.18s ease;
-  ${({ fullWidth }) => (fullWidth ? "width: 100%;" : "min-width: 120px;")}
+  ${({ $fullWidth }) => ($fullWidth ? "width: 100%;" : "min-width: 120px;")}
 
   ${({ $variant = "primary" }) => variantStyles[$variant]}
 `;

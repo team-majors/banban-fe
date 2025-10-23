@@ -94,7 +94,11 @@ export function CommentComposer({
         {isEdit ? (
           <EditActions>
             {onCancel && (
-              <SecondaryButton type="button" onClick={onCancel} disabled={isSubmitting}>
+              <SecondaryButton
+                type="button"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
                 취소
               </SecondaryButton>
             )}
@@ -136,14 +140,16 @@ const ComposerContainer = styled.div<{ $variant: ComposerVariant }>`
 const ComposerBody = styled.div<{ $variant: ComposerVariant }>`
   display: flex;
   flex-direction: ${({ $variant }) => ($variant === "edit" ? "column" : "row")};
-  align-items: ${({ $variant }) => ($variant === "edit" ? "stretch" : "flex-end")};
+  align-items: ${({ $variant }) =>
+    $variant === "edit" ? "stretch" : "flex-end"};
   gap: ${({ $variant }) => ($variant === "edit" ? "12px" : "8px")};
 `;
 
 const StyledTextarea = styled.textarea<{ $variant: ComposerVariant }>`
   flex: 1;
   resize: none;
-  border: 1px solid ${({ $variant }) => ($variant === "edit" ? "#c4b5fd" : "#e2e8f0")};
+  border: 1px solid
+    ${({ $variant }) => ($variant === "edit" ? "#c4b5fd" : "#e2e8f0")};
   border-radius: ${({ $variant }) => ($variant === "edit" ? "12px" : "20px")};
   padding: 10px 16px;
   font-size: 14px;
@@ -153,7 +159,8 @@ const StyledTextarea = styled.textarea<{ $variant: ComposerVariant }>`
   max-height: 120px;
   overflow-y: auto;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  background: ${({ $variant }) => ($variant === "edit" ? "#faf5ff" : "#ffffff")};
+  background: ${({ $variant }) =>
+    $variant === "edit" ? "#faf5ff" : "#ffffff"};
 
   &:focus {
     border-color: #3f13ff;
@@ -165,13 +172,14 @@ const StyledTextarea = styled.textarea<{ $variant: ComposerVariant }>`
   }
 
   &::-webkit-scrollbar {
-    width: 4px;
+    display: none;
   }
 
-  &::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.3);
-    border-radius: 999px;
-  }
+  /* Firefox 스크롤바 숨기기 */
+  scrollbar-width: none;
+
+  /* IE (구버전) 스크롤바 숨기기 */
+  -ms-overflow-style: none;
 
   &:disabled {
     background: #f8fafc;

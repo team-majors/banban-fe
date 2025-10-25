@@ -1,12 +1,14 @@
 import React, { forwardRef } from "react";
 import styled from "styled-components";
-import { HelpCircleIcon, LogoutIcon, UserProfileIcon } from "@/components/svg";
+import { HelpCircleIcon, LogoutIcon, UserProfileIcon, SettingsIcon } from "@/components/svg";
 
 interface MenuProps {
   onClose: () => void;
   onLogout: () => void;
   onOpenProfile?: () => void;
   onOpenCommunityInfo?: () => void;
+  onOpenAdminSettings?: () => void;
+  isAdmin?: boolean;
 }
 interface MenuItem {
   label: string;
@@ -15,7 +17,7 @@ interface MenuItem {
 }
 
 export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
-  ({ onClose, onLogout, onOpenProfile, onOpenCommunityInfo }, ref) => {
+  ({ onClose, onLogout, onOpenProfile, onOpenCommunityInfo, onOpenAdminSettings, isAdmin }, ref) => {
     const menuItems: MenuItem[] = [
       {
         label: "프로필",
@@ -25,6 +27,18 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
           onOpenProfile?.();
         },
       },
+      ...(isAdmin
+        ? [
+            {
+              label: "관리자 설정",
+              icon: <SettingsIcon />,
+              onClick: () => {
+                onClose();
+                onOpenAdminSettings?.();
+              },
+            },
+          ]
+        : []),
       {
         label: "커뮤니티 정보",
         icon: <HelpCircleIcon />,

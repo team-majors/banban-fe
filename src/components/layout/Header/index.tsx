@@ -1,37 +1,44 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { DefaultButton } from "@/components/common/Button";
-import { BellIcon, UserIcon, DotIcon, BanBanLogo } from "@/components/svg";
+import {useEffect, useMemo, useRef, useState} from "react";
+import {useQueryClient} from "@tanstack/react-query";
+import {DefaultButton} from "@/components/common/Button";
+import {BanBanLogo, BellIcon, DotIcon, UserIcon} from "@/components/svg";
 import styled from "styled-components";
 import useAuth from "@/hooks/useAuth";
-import { usePathname, useRouter } from "next/navigation";
-import { UserMenu } from "@/components/common/UserMenu/UserMenu";
+import {usePathname, useRouter} from "next/navigation";
+import {UserMenu} from "@/components/common/UserMenu/UserMenu";
 import Image from "next/image";
-import { useClickOutside } from "@/hooks/useClickOutside";
+import {useClickOutside} from "@/hooks/useClickOutside";
 import HeaderSkeleton from "@/components/common/Skeleton/HeaderSkeleton";
 import NotificationMenu from "./NotificationMenu";
-import { useNotificationStore } from "@/store/useNotificationStore";
-import { useNotifications } from "@/hooks/useNotifications";
-import type { Notification } from "@/types/notification";
-import { markNotificationsAsRead, markAllNotificationsAsRead, deleteReadNotifications } from "@/remote/notification";
-import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
-import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
-import { logger } from "@/utils/logger";
-import { useToast } from "@/components/common/Toast/useToast";
+import {useNotificationStore} from "@/store/useNotificationStore";
+import {useNotifications} from "@/hooks/useNotifications";
+import type {Notification} from "@/types/notification";
+import {
+  deleteReadNotifications,
+  markAllNotificationsAsRead,
+  markNotificationsAsRead
+} from "@/remote/notification";
+import {ProfileEditCard} from "@/components/profile/ProfileEditCard";
+import {CommunityInfoCard} from "@/components/communityInfo/CommunityInfoCard";
+import {logger} from "@/utils/logger";
+import {useToast} from "@/components/common/Toast/useToast";
+import {isAdmin as checkIsAdmin} from "@/utils/jwt";
+import STORAGE_KEYS from "@/constants/storageKeys";
 
 interface HeaderProps {
   isNew?: boolean;
   onRegister?: () => void;
 }
 
-export default function Header({ isNew, onRegister }: HeaderProps) {
+export default function Header({isNew, onRegister}: HeaderProps) {
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [isProfileCardOpen, setProfileCardOpen] = useState(false);
   const [isCommunityCardOpen, setCommunityCardOpen] = useState(false);
-  const { isLoggedIn, user, logout, loading } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const {isLoggedIn, user, logout, loading} = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -39,18 +46,18 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   useClickOutside(
-    menuRef,
-    () => {
-      setUserMenuOpen(false);
-      setProfileCardOpen(false);
-      setCommunityCardOpen(false);
-    },
-    "click",
+      menuRef,
+      () => {
+        setUserMenuOpen(false);
+        setProfileCardOpen(false);
+        setCommunityCardOpen(false);
+      },
+      "click",
   );
   useClickOutside(notificationRef, () => setNotificationOpen(false), "click");
 
   const connectionStatus = useNotificationStore(
-    (state) => state.connectionStatus,
+      (state) => state.connectionStatus,
   );
   const isTimeout = useNotificationStore((state) => state.isTimeout);
   const markAsRead = useNotificationStore((state) => state.markAsRead);
@@ -64,8 +71,8 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   } = useNotifications();
 
   const unreadCount = useMemo(
-    () => notificationsData?.pages[0]?.data.unreadCount ?? 0,
-    [notificationsData],
+      () => notificationsData?.pages[0]?.data.unreadCount ?? 0,
+      [notificationsData],
   );
 
   const profileImageSrcState = user?.profileImageUrl || "/user.png";
@@ -74,6 +81,25 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   useEffect(() => {
     setProfileImageSrc(profileImageSrcState);
   }, [profileImageSrcState]);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setIsAdmin(false);
+      return;
+    }
+
+    try {
+      const token =
+          typeof window !== "undefined"
+              ? localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+              : null;
+
+      setIsAdmin(checkIsAdmin(token));
+    } catch (error) {
+      logger.warn("Failed to check admin status:", error);
+      setIsAdmin(false);
+    }
+  }, [isLoggedIn]);
 
   const handleToggleMenu = () => {
     setNotificationOpen(false);
@@ -97,7 +123,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     setNotificationOpen((prev) => {
       // 알림 메뉴를 열 때 최신 데이터 요청
       if (!prev) {
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        queryClient.invalidateQueries({queryKey: ["notifications"]});
       }
       return !prev;
     });
@@ -107,11 +133,11 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   useEffect(() => {
     if (!isNotificationOpen) return;
     const allNotifications = notificationsData?.pages?.flatMap(
-      (page) => page.data.notifications,
+        (page) => page.data.notifications,
     ) ?? [];
     const unreadIds = allNotifications
-      .filter((notification) => !notification.isRead)
-      .map((notification) => notification.id);
+        .filter((notification) => !notification.isRead)
+        .map((notification) => notification.id);
     if (unreadIds.length > 0) {
       markAsRead(unreadIds);
     }
@@ -125,7 +151,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
         // 로컬 상태 업데이트
         markAsRead([notification.id]);
         // 캐시 무효화하여 최신 데이터 반영
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        queryClient.invalidateQueries({queryKey: ["notifications"]});
       } catch (error) {
         logger.error("알림 읽음 처리 실패", error);
         // 에러 발생해도 UI는 계속 진행
@@ -148,7 +174,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
       // 로컬 상태 업데이트
       markAllRead();
       // React Query 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({queryKey: ["notifications"]});
     } catch (error) {
       logger.error("전체 알림 읽음 처리 실패", error);
     }
@@ -158,7 +184,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     try {
       await deleteReadNotifications();
       // React Query 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({queryKey: ["notifications"]});
       logger.info("읽은 알림 삭제 완료");
     } catch (error) {
       logger.error("읽은 알림 삭제 실패", error);
@@ -189,6 +215,14 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     setCommunityCardOpen(true);
   };
 
+  const handleOpenAdminSettings = () => {
+    setUserMenuOpen(false);
+    setNotificationOpen(false);
+    setProfileCardOpen(false);
+    setCommunityCardOpen(false);
+    router.push("/admin");
+  };
+
   const handleLogoClick = () => {
     setUserMenuOpen(false);
     setNotificationOpen(false);
@@ -199,94 +233,96 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
 
   if (pathname === "/login") return null;
 
-  if (loading) return <HeaderSkeleton />;
+  if (loading) return <HeaderSkeleton/>;
   else
     return (
-      <Container>
-        <LogoArea>
-          <LogoButton
-            type="button"
-            aria-label="banban 홈으로"
-            onClick={handleLogoClick}
-          >
-            <BanBanLogo />
-          </LogoButton>
-        </LogoArea>
+        <Container>
+          <LogoArea>
+            <LogoButton
+                type="button"
+                aria-label="banban 홈으로"
+                onClick={handleLogoClick}
+            >
+              <BanBanLogo/>
+            </LogoButton>
+          </LogoArea>
 
-        <Actions>
-          {isLoggedIn ? (
-            <ButtonsWrapper>
-              <NotificationWrapper ref={notificationRef}>
-                <IconButton
-                  aria-label="알림"
-                  onClick={handleNotificationToggle}
-                  $active={isNotificationOpen}
-                >
-                  <BellIcon />
-                  {hasUnreadIndicator && (
-                    <NotificationDot data-testid="notification-dot" />
-                  )}
-                </IconButton>
-                {isNotificationOpen && (
-                  <NotificationMenu
-                    data={notificationsData}
-                    fetchNextPage={fetchNextPage}
-                    hasNextPage={hasNextPage}
-                    isFetchingNextPage={isFetchingNextPage}
-                    connectionStatus={connectionStatus}
-                    isTimeout={isTimeout}
-                    onMarkAllRead={handleMarkAllRead}
-                    onDeleteRead={handleDeleteRead}
-                    onItemClick={handleNotificationItemClick}
-                  />
-                )}
-              </NotificationWrapper>
+          <Actions>
+            {isLoggedIn ? (
+                <ButtonsWrapper>
+                  <NotificationWrapper ref={notificationRef}>
+                    <IconButton
+                        aria-label="알림"
+                        onClick={handleNotificationToggle}
+                        $active={isNotificationOpen}
+                    >
+                      <BellIcon/>
+                      {hasUnreadIndicator && (
+                          <NotificationDot data-testid="notification-dot"/>
+                      )}
+                    </IconButton>
+                    {isNotificationOpen && (
+                        <NotificationMenu
+                            data={notificationsData}
+                            fetchNextPage={fetchNextPage}
+                            hasNextPage={hasNextPage}
+                            isFetchingNextPage={isFetchingNextPage}
+                            connectionStatus={connectionStatus}
+                            isTimeout={isTimeout}
+                            onMarkAllRead={handleMarkAllRead}
+                            onDeleteRead={handleDeleteRead}
+                            onItemClick={handleNotificationItemClick}
+                        />
+                    )}
+                  </NotificationWrapper>
 
-              <ProfileWrapper ref={menuRef}>
-                <IconButton
-                  aria-label="프로필"
-                  onClick={handleProfile}
-                  $active={isUserMenuOpen}
-                >
-                  {user?.profileImageUrl ? (
-                    <Image
-                      src={profileImageSrc}
-                      width={28}
-                      height={28}
-                      alt="userProfileImage"
-                      style={{ objectFit: "cover", borderRadius: "50%" }}
-                      onError={() => setProfileImageSrc("/menu_user.png")}
-                    />
-                  ) : (
-                    <UserIcon />
-                  )}
-                </IconButton>
-                {isUserMenuOpen && (
-                  <UserMenu
-                    onClose={() => handleCloseMenu()}
-                    onLogout={logout}
-                    onOpenProfile={handleOpenProfileCard}
-                    onOpenCommunityInfo={handleOpenCommunityCard}
-                  />
-                )}
-                {isProfileCardOpen && (
-                  <ProfileEditCard onClose={() => setProfileCardOpen(false)} />
-                )}
-                {isCommunityCardOpen && (
-                  <CommunityInfoCard
-                    onClose={() => setCommunityCardOpen(false)}
-                  />
-                )}
-              </ProfileWrapper>
-            </ButtonsWrapper>
-          ) : (
-            <AuthButtons
-              handleLogin={handleLogin}
-              handleRegister={handleRegister}
-            />
-          )}
-        </Actions>
-      </Container>
+                  <ProfileWrapper ref={menuRef}>
+                    <IconButton
+                        aria-label="프로필"
+                        onClick={handleProfile}
+                        $active={isUserMenuOpen}
+                    >
+                      {user?.profileImageUrl ? (
+                          <Image
+                              src={profileImageSrc}
+                              width={28}
+                              height={28}
+                              alt="userProfileImage"
+                              style={{objectFit: "cover", borderRadius: "50%"}}
+                              onError={() => setProfileImageSrc("/menu_user.png")}
+                          />
+                      ) : (
+                          <UserIcon/>
+                      )}
+                    </IconButton>
+                    {isUserMenuOpen && (
+                        <UserMenu
+                            onClose={() => handleCloseMenu()}
+                            onLogout={logout}
+                            onOpenProfile={handleOpenProfileCard}
+                            onOpenCommunityInfo={handleOpenCommunityCard}
+                            onOpenAdminSettings={handleOpenAdminSettings}
+                            isAdmin={isAdmin}
+                        />
+                    )}
+                    {isProfileCardOpen && (
+                        <ProfileEditCard onClose={() => setProfileCardOpen(false)}/>
+                    )}
+                    {isCommunityCardOpen && (
+                        <CommunityInfoCard
+                            onClose={() => setCommunityCardOpen(false)}
+                        />
+                    )}
+                  </ProfileWrapper>
+                </ButtonsWrapper>
+            ) : (
+                <AuthButtons
+                    handleLogin={handleLogin}
+                    handleRegister={handleRegister}
+                />
+            )}
+          </Actions>
+        </Container>
     );
 }
 
@@ -294,12 +330,13 @@ interface AuthButtonsInterface {
   handleLogin: () => void;
   handleRegister: () => void;
 }
-function AuthButtons({ handleLogin, handleRegister }: AuthButtonsInterface) {
+
+function AuthButtons({handleLogin, handleRegister}: AuthButtonsInterface) {
   return (
-    <>
-      <TransparentButton onClick={handleLogin}>로그인</TransparentButton>
-      <PrimaryButton onClick={handleRegister}>회원가입</PrimaryButton>
-    </>
+      <>
+        <TransparentButton onClick={handleLogin}>로그인</TransparentButton>
+        <PrimaryButton onClick={handleRegister}>회원가입</PrimaryButton>
+      </>
   );
 }
 
@@ -353,15 +390,15 @@ const IconButton = styled.button<{ $active?: boolean }>`
   height: 48px;
   border: none;
   border-radius: 100%;
-  background-color: ${({ $active }) =>
-    $active ? "rgba(63, 19, 255, 0.12)" : "#F4F6F8"};
+  background-color: ${({$active}) =>
+      $active ? "rgba(63, 19, 255, 0.12)" : "#F4F6F8"};
   margin-right: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: ${({ $active }) =>
-      $active ? "rgba(63, 19, 255, 0.18)" : "rgba(63, 19, 255, 0.1)"};
+    background-color: ${({$active}) =>
+        $active ? "rgba(63, 19, 255, 0.18)" : "rgba(63, 19, 255, 0.1)"};
   }
 
   &:focus {

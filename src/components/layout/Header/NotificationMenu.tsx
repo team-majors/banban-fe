@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import type { ReactElement } from "react";
 import styled from "styled-components";
 import type {
@@ -12,6 +12,7 @@ import { useInView } from "react-intersection-observer";
 import type { InfiniteData } from "@tanstack/react-query";
 import type { NotificationResponse } from "@/remote/notification";
 import { Avatar } from "@/components/common/Avatar";
+import { useToast } from "@/components/common/Toast/useToast";
 
 interface NotificationMenuProps {
   data?: InfiniteData<NotificationResponse>;
@@ -45,6 +46,8 @@ export default function NotificationMenu({
   onDeleteRead,
   onItemClick,
 }: NotificationMenuProps) {
+  const { showToast } = useToast();
+
   const { ref: scrollTriggerRef } = useInView({
     threshold: 0,
     onChange: (inView) => {
@@ -77,6 +80,21 @@ export default function NotificationMenu({
     if (isTimeout) return "지연됨";
     return STATUS_LABELS[connectionStatus] ?? "상태 미확인";
   }, [connectionStatus, isTimeout]);
+
+  const handleItemClick = useCallback(
+    (notification: Notification) => {
+      if (notification.isExpired) {
+        showToast({
+          type: "info",
+          message: "해당 주제의 기간이 종료되어 이동할 수 없습니다.",
+          duration: 2500,
+        });
+        return;
+      }
+      onItemClick(notification);
+    },
+    [onItemClick, showToast],
+  );
 
   return (
     <Menu role="menu" aria-label="알림 메뉴">
@@ -113,12 +131,14 @@ export default function NotificationMenu({
                   key={notification.id}
                   role="menuitem"
                   tabIndex={0}
-                  onClick={() => onItemClick(notification)}
+                  onClick={() => handleItemClick(notification)}
                   $unread={!notification.isRead}
                   $type={notification.type}
+                  $expired={notification.isExpired}
                   aria-label={`${notification.fromUser?.username}: ${notification.message}${
                     !notification.isRead ? " (읽지 않은 알림)" : " (읽은 알림)"
-                  }`}
+                  }${notification.isExpired ? " (기간 종료됨)" : ""}`}
+                  aria-disabled={notification.isExpired}
                 >
                   <AvatarWrapper $unread={!notification.isRead} $type={notification.type}>
                     <Avatar
@@ -138,6 +158,9 @@ export default function NotificationMenu({
                     <Message $unread={!notification.isRead}>
                       {formatNotificationMessage(notification.message)}
                     </Message>
+                    {notification.isExpired && (
+                      <ExpiredBadge>기간 종료됨</ExpiredBadge>
+                    )}
                   </NotificationContent>
                 </NotificationItem>
               ))}
@@ -204,7 +227,7 @@ const Menu = styled.div`
   position: absolute;
   top: 54px;
   right: 0;
-  width: 280px;
+  width: 308px;
   border-radius: 12px;
   background: #ffffff;
   box-shadow:
@@ -321,37 +344,48 @@ const NotificationList = styled.ul`
   padding: 0;
 `;
 
-const NotificationItem = styled.li<{ $unread: boolean; $type: NotificationType }>`
+const NotificationItem = styled.li<{ $unread: boolean; $type: NotificationType; $expired: boolean }>`
   display: flex;
   gap: 10px;
   padding: 12px 14px;
   border-bottom: 1px solid #f1f5f9;
-  border-left: ${({ $unread, $type }) =>
-    $unread
-      ? $type === "MENTION"
-        ? "2px solid #10b981"
-        : "2px solid #6366f1"
-      : "2px solid transparent"};
+  border-left: ${({ $unread, $type, $expired }) =>
+    $expired
+      ? "2px solid transparent"
+      : $unread
+        ? $type === "MENTION"
+          ? "2px solid #10b981"
+          : "2px solid #6366f1"
+        : "2px solid transparent"};
   padding-left: 12px;
-  cursor: pointer;
-  background: ${({ $unread, $type }) =>
-    $unread
-      ? $type === "MENTION"
-        ? "#ecfdf5"
-        : "#eef6ff"
-      : "transparent"};
+  cursor: ${({ $expired }) => ($expired ? "default" : "pointer")};
+  background: ${({ $unread, $type, $expired }) => {
+    if ($expired) {
+      return "rgba(226, 232, 240, 0.5)";
+    }
+    if ($unread) {
+      return $type === "MENTION" ? "#ecfdf5" : "#eef6ff";
+    }
+    return "transparent";
+  }};
+  filter: ${({ $expired }) => ($expired ? "grayscale(50%)" : "none")};
+  opacity: ${({ $expired }) => ($expired ? 0.5 : 1)};
   transition:
     background 0.2s ease,
     border-left-color 0.2s ease,
     transform 0.2s ease;
 
   &:hover {
-    background: ${({ $unread, $type }) =>
-      $unread
+    background: ${({ $unread, $type, $expired }) => {
+      if ($expired) {
+        return "rgba(226, 232, 240, 0.5)";
+      }
+      return $unread
         ? $type === "MENTION"
           ? "#d1fae5"
           : "#e0efff"
-        : "#eef2ff"};
+        : "#eef2ff";
+    }};
   }
 
   &:last-child {
@@ -363,7 +397,7 @@ const AvatarWrapper = styled.div<{ $unread: boolean; $type: NotificationType }>`
   position: relative;
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 `;
 
@@ -371,13 +405,13 @@ const NotificationContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 `;
 
 const UserInfo = styled.div`
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 10px;
   justify-content: space-between;
 `;
 
@@ -386,6 +420,10 @@ const Username = styled.span<{ $unread: boolean }>`
   font-size: 12px;
   color: ${({ $unread }) => ($unread ? "#0f172a" : "#475569")};
   transition: all 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
 `;
 
 const Message = styled.p<{ $unread: boolean }>`
@@ -395,6 +433,17 @@ const Message = styled.p<{ $unread: boolean }>`
   color: ${({ $unread }) => ($unread ? "#0f172a" : "#64748b")};
   font-weight: ${({ $unread }) => ($unread ? 500 : 400)};
   transition: all 0.2s ease;
+`;
+
+const ExpiredBadge = styled.span`
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: #f1f5f9;
+  color: #64748b;
 `;
 
 const Meta = styled.span`

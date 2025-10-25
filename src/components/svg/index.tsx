@@ -16,3 +16,4 @@ export { UserProfileIcon } from "./UserProfileIcon";
 export { UsersIcon } from "./UsersIcon";
 export { LogoutIcon } from "./LogoutIcon";
 export { QuestionMarks } from "./QuestionMarks";
+export { SettingsIcon } from "./SettingsIcon";

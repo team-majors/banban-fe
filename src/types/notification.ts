@@ -38,6 +38,7 @@ export interface Notification {
   fromUser?: FromUser;
   message: string;
   isRead: boolean;
+  isExpired: boolean;
   createdAt: string;
   readAt?: string | null;
 }
@@ -58,6 +59,7 @@ export interface WSNotificationMessage extends WSMessage {
   related_id?: number;
   message: string;
   is_read: boolean;
+  is_expired: boolean;
   created_at: string;
   read_at?: string | null;
 }

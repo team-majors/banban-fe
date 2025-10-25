@@ -22,6 +22,7 @@ function mapNotificationPayload(payload: WSNotificationMessage): Notification {
     relatedId: payload.related_id,
     message: payload.message,
     isRead: payload.is_read,
+    isExpired: payload.is_expired,
     createdAt: payload.created_at,
     readAt: payload.read_at,
   };

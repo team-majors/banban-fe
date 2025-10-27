@@ -124,3 +124,31 @@ export interface AdminHealthDetailed {
   environment?: string;
   version?: string;
 }
+
+// User Management
+export type UserRole = "USER" | "ADMIN";
+export type UserStatus = "ACTIVE" | "INACTIVE";
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  username: string;
+  role: UserRole;
+  status: UserStatus;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  usernameUpdatedAt: string | null;
+  deletedAt: string | null;
+}
+
+export interface AdminUsersData {
+  code: number;
+  status: "SUCCESS" | "FAILURE";
+  data: {
+    total: number;
+    limit: number;
+    offset: number;
+    users: AdminUser[];
+  };
+}

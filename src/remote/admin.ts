@@ -6,7 +6,10 @@ import type {
   AdminPollCachePurgeResult,
   AdminReportsData,
   AdminSystemData,
+  AdminUsersData,
   PollCachePatternStat,
+  UserRole,
+  UserStatus,
 } from "@/types/admin";
 import type { Poll } from "@/types/poll";
 import type {
@@ -549,4 +552,28 @@ export async function getActivityLogsByUser(
     page: d.page ?? page,
     size: d.size ?? size,
   };
+}
+
+// User Management
+export async function getAdminUsers(params: {
+  limit?: number;
+  offset?: number;
+  role?: UserRole;
+  status?: UserStatus;
+  search?: string;
+  include_deleted?: boolean;
+}): Promise<AdminUsersData> {
+  const q = new URLSearchParams();
+  if (params.limit !== undefined) q.set("limit", String(params.limit));
+  if (params.offset !== undefined) q.set("offset", String(params.offset));
+  if (params.role) q.set("role", params.role);
+  if (params.status) q.set("status", params.status);
+  if (params.search) q.set("search", params.search);
+  if (params.include_deleted !== undefined)
+    q.set("include_deleted", String(params.include_deleted));
+
+  const res = await apiFetch<AdminUsersData>(
+    `/admin/users?${q.toString()}`,
+  );
+  return res;
 }

@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/admin/polls", label: "투표 관리" },
   { href: "/admin/notifications", label: "알림 관리" },
   { href: "/admin/activity-logs", label: "활동 로그" },
+  { href: "/admin/users", label: "사용자 관리" },
 ];
 
 const linkBase =

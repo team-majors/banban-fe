@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { compressImage } from "@/utils/compress";
 import Image from "next/image";
 import styled from "styled-components";
-import { AddIcon } from "../svg";
 import { useToast } from "../common/Toast/useToast";
 import { useUploadProfileImage } from "@/hooks/useUploadProfileImage";
 import { useDeleteProfileImage } from "@/hooks/useDeleteProfileImage";
@@ -20,47 +19,41 @@ export default function ProfileImageContainer({
   imageUrl,
   setImageUrl,
   hasCustomImage,
+  pendingFile,
+  setPendingFile,
+  isDeleted,
+  setIsDeleted,
+  onEditClick,
 }: {
   imageUrl?: string | null;
   setImageUrl?: React.Dispatch<React.SetStateAction<RegisterRequestType>>;
   hasCustomImage?: boolean;
+  pendingFile?: File | null;
+  setPendingFile?: (file: File | null) => void;
+  isDeleted?: boolean;
+  setIsDeleted?: (deleted: boolean) => void;
+  onEditClick?: () => void;
 }) {
   const { showToast } = useToast();
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [newImage, setNewImage] = useState<string | undefined>(undefined);
   const [hasError, setHasError] = useState(false);
 
-  const displayImage =
-    !hasError && (imageUrl || newImage) ? imageUrl || newImage : "/no_img.png";
-
-  const uploadProfileImageMutation = useUploadProfileImage();
-  const deleteProfileImageMutation = useDeleteProfileImage();
-
   // 프로필 편집 모드인지 회원가입 모드인지 판단
-  const isProfileEditMode = !setImageUrl;
+  const isProfileEditMode = setPendingFile !== undefined;
 
-  const handleDeleteImage = () => {
-    if (!isProfileEditMode) return;
-    
-    deleteProfileImageMutation.mutate(undefined, {
-      onSuccess: () => {
-        setNewImage(undefined);
-        setHasError(false);
-        showToast({
-          type: "success",
-          message: "프로필 이미지가 삭제되었습니다.",
-          duration: 3000,
-        });
-      },
-      onError: (error) => {
-        console.error("프로필 이미지 삭제 실패:", error);
-        showToast({
-          type: "error",
-          message: "프로필 이미지 삭제에 실패했습니다.",
-          duration: 3000,
-        });
-      },
-    });
+  const displayImage = isDeleted
+    ? "/no_img.png"
+    : newImage
+    ? newImage
+    : !hasError && imageUrl
+    ? imageUrl
+    : "/no_img.png";
+
+  const handleImageClick = () => {
+    if (isProfileEditMode && onEditClick) {
+      onEditClick();
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +67,6 @@ export default function ProfileImageContainer({
       return null;
     };
 
-    // 파일 크기 검증 (5MB)
     if (inputFile.size > 5 * 1024 * 1024) {
       showToast({
         type: "error",
@@ -83,77 +75,61 @@ export default function ProfileImageContainer({
       return;
     }
 
-    if (inputFile) {
-      const ext = getFileExt(inputFile.name);
-      if (!ext) {
-        showToast({ type: "error", message: "이미지 파일이 아닙니다." });
-        return null;
+    const ext = getFileExt(inputFile.name);
+    if (!ext) {
+      showToast({ type: "error", message: "이미지 파일이 아닙니다." });
+      return;
+    }
+
+    try {
+      const convertedFile = await compressImage(inputFile);
+      if (!convertedFile) return;
+      const imageUrl = URL.createObjectURL(convertedFile);
+
+      setNewImage(imageUrl);
+      setHasError(false);
+
+      // 프로필 편집 모드: 미리보기만
+      if (isProfileEditMode && setPendingFile && setIsDeleted) {
+        setPendingFile(convertedFile);
+        setIsDeleted(false);
       }
-      let imageUrl: string | null = null;
-
-      try {
-        if (ext) {
-          const convertedFile = await compressImage(inputFile);
-          console.log(convertedFile);
-          if (!convertedFile) return;
-          imageUrl = URL.createObjectURL(convertedFile);
-
-          // 프로필 편집 모드일 때: 즉시 API 호출
-          if (isProfileEditMode) {
-            uploadProfileImageMutation.mutate(
-              { file: convertedFile },
-              {
-                onSuccess: () => {
-                  showToast({
-                    type: "success",
-                    message: "프로필 이미지가 업데이트되었습니다.",
-                    duration: 3000,
-                  });
-                },
-                onError: (error) => {
-                  console.error("프로필 이미지 업로드 실패:", error);
-                  showToast({
-                    type: "error",
-                    message: "프로필 이미지 업로드에 실패했습니다.",
-                    duration: 3000,
-                  });
-                  return;
-                },
-              },
-            );
-          }
-        } else {
-          imageUrl = URL.createObjectURL(inputFile);
-        }
-        setNewImage(imageUrl);
-
-        // 회원가입 모드일 때: 상태에 저장
-        if (setImageUrl) {
-          setImageUrl((prev) => ({
-            ...prev,
-            profileImageUrl: inputFile,
-          }));
-        }
-      } catch (error) {
-        console.error("Error processing file:", error);
-        showToast({ type: "error", message: "처리중 오류가 발생했습니다." });
+      // 회원가입 모드: 상태에 저장
+      else if (setImageUrl) {
+        setImageUrl((prev) => ({
+          ...prev,
+          profileImageUrl: convertedFile,
+        }));
       }
+    } catch (error) {
+      console.error("Error processing file:", error);
+      showToast({ type: "error", message: "처리중 오류가 발생했습니다." });
     }
   };
 
   useEffect(() => {
-    return () => {
-      if (newImage) {
-        URL.revokeObjectURL(newImage);
-      }
-    };
-  }, [newImage]);
+    if (!pendingFile) {
+      setNewImage(undefined);
+    } else if (pendingFile && isProfileEditMode) {
+      const url = URL.createObjectURL(pendingFile);
+      setNewImage(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [pendingFile, isProfileEditMode]);
 
-  const isLoading = uploadProfileImageMutation.isPending || deleteProfileImageMutation.isPending;
+  useEffect(() => {
+    if (isDeleted) {
+      setNewImage(undefined);
+    }
+  }, [isDeleted]);
+
+
+
+
 
   return (
     <Container>
-      <ProfileImageWrapper>
+      <ProfileImageWrapper onClick={handleImageClick}>
         <StyledProfileImage
           width={92}
           height={92}
@@ -163,46 +139,27 @@ export default function ProfileImageContainer({
             setHasError(true);
           }}
           unoptimized={true}
+
         />
+        {isProfileEditMode && (
+          <ImageOverlay>
+            <OverlayText>편집</OverlayText>
+          </ImageOverlay>
+        )}
       </ProfileImageWrapper>
-      <label
-        style={{
-          position: "absolute",
-          right: 0,
-          bottom: 0,
-          opacity: isLoading ? 0.5 : 1,
-          cursor: isLoading ? "not-allowed" : "pointer",
-        }}
-      >
-        <input
-          type="file"
-          accept="image/jpeg, image/jpg, image/bmp, image/webp, image/png, image/gif"
-          onChange={handleFileChange}
-          className="hidden"
-          disabled={isLoading}
-        />
-        <Wrapper>
-          {isLoading ? (
-            <span style={{ fontSize: "10px", color: "white" }}>...</span>
-          ) : (
-            <AddIcon width={15} height={15} color="white" />
-          )}
-        </Wrapper>
-      </label>
-      {isProfileEditMode && hasCustomImage && (
-        <DeleteButton
-          onClick={handleDeleteImage}
-          disabled={isLoading}
-          style={{ opacity: isLoading ? 0.5 : 1 }}
-        >
-          ✕
-        </DeleteButton>
-      )}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg, image/jpg, image/bmp, image/webp, image/png, image/gif"
+        onChange={handleFileChange}
+        style={{ display: "none" }}
+      />
     </Container>
   );
 }
 
 const ProfileImageWrapper = styled.div`
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -214,6 +171,7 @@ const ProfileImageWrapper = styled.div`
   border-radius: 50%;
   box-shadow: 0px 12px 16px -4px rgba(10, 13, 18, 0.08);
   overflow: hidden;
+  cursor: pointer;
 `;
 
 const StyledProfileImage = styled(Image)`
@@ -223,42 +181,32 @@ const StyledProfileImage = styled(Image)`
 
 const Container = styled.div`
   position: relative;
+  width: 100px;
+  height: 100px;
 `;
 
-const Wrapper = styled.div`
-  background-color: #d5d7da;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-  border-radius: 100%;
-  padding: 8px;
-  cursor: pointer;
-`;
 
-const DeleteButton = styled.button`
+const ImageOverlay = styled.div`
   position: absolute;
+  top: 0;
   left: 0;
-  bottom: 0;
-  background-color: #ff4444;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  cursor: pointer;
-  border: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  
+  ${ProfileImageWrapper}:hover & {
+    opacity: 1;
+  }
+`;
+
+const OverlayText = styled.span`
   color: white;
-  font-size: 12px;
-  width: 31px;
-  height: 31px;
-  
-  &:hover:not(:disabled) {
-    background-color: #cc0000;
-  }
-  
-  &:disabled {
-    cursor: not-allowed;
-  }
+  font-size: 14px;
+  font-weight: 600;
 `;

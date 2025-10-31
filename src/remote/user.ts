@@ -46,3 +46,10 @@ export const deleteProfileImage = async () => {
 
   return response;
 };
+
+export const getProfileImageUrl = async (userId: number): Promise<string> => {
+  const response: ApiResponse<{ profile_image_url: string }> = await apiFetch(
+    `/users/${userId}/profile-image-url`
+  );
+  return response.data.profile_image_url;
+};

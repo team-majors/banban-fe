@@ -1,78 +1,175 @@
 "use client";
 import styled from "styled-components";
 import { Input } from "../common/Input";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ProfileImageContainer from "./ProfileImageContainer";
 import useAuth from "@/hooks/useAuth";
 import { useUpdateUsername } from "@/hooks/useUpdateUsername";
+import { useUploadProfileImage } from "@/hooks/useUploadProfileImage";
+import { useDeleteProfileImage } from "@/hooks/useDeleteProfileImage";
 import { useToast } from "../common/Toast/useToast";
 import { DefaultButton } from "../common/Button";
+import { getProfileImageUrl } from "@/remote/user";
 
 export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
   const { showToast } = useToast();
-  const { mutate, isPending } = useUpdateUsername();
+  const { mutate: updateUsername, isPending: isUsernameUpdating } = useUpdateUsername();
+  const uploadProfileImageMutation = useUploadProfileImage();
+  const deleteProfileImageMutation = useDeleteProfileImage();
   const [newUsername, setNewUsername] = useState(user?.username);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [isImageEditMode, setIsImageEditMode] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSaveUsername = () => {
-    if (newUsername && newUsername !== user?.username) {
-      mutate(
-        { username: newUsername },
-        {
-          onSuccess: () => {
-            onClose();
-          },
-          onError: (err) => {
-            console.error(err);
-            showToast({
-              type: "error",
-              message: "프로필 수정 실패: " + (err as Error).message,
-              duration: 3000,
-            });
-          },
-        },
-      );
+  const handleSave = async () => {
+    const hasUsernameChange = newUsername && newUsername !== user?.username;
+    const hasImageChange = pendingFile || isDeleted;
+
+    if (!hasUsernameChange && !hasImageChange) {
+      onClose();
+      return;
     }
+
+    try {
+      if (hasImageChange) {
+        if (isDeleted) {
+          await deleteProfileImageMutation.mutateAsync();
+        } else if (pendingFile) {
+          await uploadProfileImageMutation.mutateAsync({ file: pendingFile });
+        }
+      }
+
+      if (hasUsernameChange) {
+        await new Promise((resolve, reject) => {
+          updateUsername(
+            { username: newUsername },
+            {
+              onSuccess: resolve,
+              onError: reject,
+            },
+          );
+        });
+      }
+
+      setPendingFile(null);
+      setIsDeleted(false);
+      setIsImageEditMode(false);
+      
+      showToast({
+        type: "success",
+        message: "프로필이 업데이트되었습니다.",
+        duration: 3000,
+      });
+      onClose();
+    } catch (err) {
+      console.error(err);
+      showToast({
+        type: "error",
+        message: "프로필 수정 실패: " + (err as Error).message,
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleDeleteImage = () => {
+    setIsDeleted(true);
+    setPendingFile(null);
+    setIsImageEditMode(false);
   };
 
   return (
     <Container>
       <ProfileHeader>
-        <ProfileTitle>프로필</ProfileTitle>
+        <ProfileTitle>{isImageEditMode ? "프로필 이미지 편집" : "프로필"}</ProfileTitle>
       </ProfileHeader>
 
       <ProfileContent>
         <ProfileImageContainer 
           imageUrl={user?.profileImageUrl} 
           hasCustomImage={user?.hasCustomProfileImage}
+          pendingFile={pendingFile}
+          setPendingFile={setPendingFile}
+          isDeleted={isDeleted}
+          setIsDeleted={setIsDeleted}
+          onEditClick={() => setIsImageEditMode(true)}
         />
         <ProfileUserName>@{user?.username}</ProfileUserName>
 
-        <NicknameSection>
-          <Input>
-            <StyledLabel>닉네임</StyledLabel>
-            <Input.Field
-              $isValidate={true}
-              value={newUsername}
-              onChange={(e) => setNewUsername(e.target.value)}
+        {isImageEditMode ? (
+          <ImageEditSection>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg, image/jpg, image/bmp, image/webp, image/png, image/gif"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setPendingFile(file);
+                  setIsDeleted(false);
+                  setIsImageEditMode(false);
+                }
+                e.target.value = '';
+              }}
             />
-          </Input>
-          <NicknameNotice>
-            <SmallText>
-              닉네임은 7일(168 시간)마다 한 번만 변경할 수 있어요.
-            </SmallText>
-            <MediumText>다음 변경 가능: 2025-06-22 11:22 KST</MediumText>
-          </NicknameNotice>
-        </NicknameSection>
+            <ImageEditButton onClick={(e) => {
+              e.stopPropagation();
+              fileInputRef.current?.click();
+            }}>
+              이미지 등록
+            </ImageEditButton>
+            <ImageEditButton onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteImage();
+            }}>
+              기본 이미지 사용하기
+            </ImageEditButton>
+          </ImageEditSection>
+        ) : (
+          <NicknameSection>
+            <Input>
+              <StyledLabel>닉네임</StyledLabel>
+              <Input.Field
+                $isValidate={true}
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+              />
+            </Input>
+            <NicknameNotice>
+              <SmallText>
+                닉네임은 7일(168 시간)마다 한 번만 변경할 수 있어요.
+              </SmallText>
+              <MediumText>다음 변경 가능: 2025-06-22 11:22 KST</MediumText>
+            </NicknameNotice>
+          </NicknameSection>
+        )}
         <ButtonWrapper>
-          <DefaultButton onClick={onClose}>취소</DefaultButton>
+          <DefaultButton onClick={() => {
+            if (isImageEditMode) {
+              setIsImageEditMode(false);
+            } else {
+              setPendingFile(null);
+              setIsDeleted(false);
+              setIsImageEditMode(false);
+              onClose();
+            }
+          }}>{isImageEditMode ? "뒤로" : "취소"}</DefaultButton>
           <DefaultButton
             disabled={
-              isPending || newUsername == user?.username || !newUsername
+              isUsernameUpdating ||
+              uploadProfileImageMutation.isPending ||
+              deleteProfileImageMutation.isPending ||
+              !newUsername
             }
-            onClick={handleSaveUsername}
+            onClick={handleSave}
           >
-            {isPending ? "저장 중" : "저장"}
+            {isUsernameUpdating ||
+            uploadProfileImageMutation.isPending ||
+            deleteProfileImageMutation.isPending
+              ? "저장 중"
+              : "저장"}
           </DefaultButton>
         </ButtonWrapper>
       </ProfileContent>
@@ -162,4 +259,30 @@ const ButtonWrapper = styled.div`
   gap: 12px;
   width: 100%;
   justify-content: end;
+`;
+
+const ImageEditSection = styled.section`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 16px 0;
+`;
+
+const ImageEditButton = styled.button`
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e9eaeb;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #f4f6f8;
+    border-color: #d5d7da;
+  }
 `;

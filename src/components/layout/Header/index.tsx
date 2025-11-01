@@ -20,7 +20,7 @@ import {
   markAllNotificationsAsRead,
   markNotificationsAsRead,
 } from "@/remote/notification";
-import { ProfileEditCard } from "@/components/profile/ProfileEditCard";
+import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
 import { logger } from "@/utils/logger";
 import { useToast } from "@/components/common/Toast/useToast";
@@ -308,9 +308,10 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
                     isAdmin={isAdmin}
                   />
                 )}
-                {isProfileCardOpen && (
-                  <ProfileEditCard onClose={() => setProfileCardOpen(false)} />
-                )}
+                <ProfileEditModal
+                  isOpen={isProfileCardOpen}
+                  onClose={() => setProfileCardOpen(false)}
+                />
                 {isCommunityCardOpen && (
                   <CommunityInfoCard
                     onClose={() => setCommunityCardOpen(false)}

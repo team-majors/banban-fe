@@ -11,6 +11,7 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   isCloseButton?: boolean;
+  width?: string;
 }
 
 type ModalActionVariant = "primary" | "secondary" | "danger";
@@ -25,6 +26,7 @@ const ModalBase = ({
   onClose,
   children,
   isCloseButton = true,
+  width,
 }: ModalProps) => {
   const [mounted, setMounted] = useState(false);
   const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
@@ -56,6 +58,7 @@ const ModalBase = ({
         aria-modal="true"
         aria-labelledby="modal-title"
         aria-describedby="modal-content"
+        $width={width}
       >
         {isCloseButton && (
           <CloseButton onClick={onClose} aria-label="모달 닫기">
@@ -79,12 +82,12 @@ const Dimmed = styled.div`
   z-index: 1000;
 `;
 
-const ModalBox = styled.div`
+const ModalBox = styled.div<{ $width?: string }>`
   position: relative;
   background: #fff;
   border-radius: 12px;
   padding: 24px;
-  width: 320px;
+  width: ${({ $width }) => $width || "320px"};
   max-width: calc(100vw - 32px);
   text-align: left;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);

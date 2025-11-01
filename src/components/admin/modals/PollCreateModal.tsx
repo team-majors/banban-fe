@@ -17,7 +17,6 @@ import type { Poll, PollOption } from "@/types/poll";
 interface PollCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated?: (poll: Poll) => void;
 }
 
 interface CreatePollForm {
@@ -126,15 +125,33 @@ const PrimaryButton = styled.button`
   }
 `;
 
-const AddOptionButton = styled(PrimaryButton)`
+const AddOptionButton = styled.button`
   width: 100%;
   margin-bottom: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 export const PollCreateModal = ({
   isOpen,
   onClose,
-  onCreated,
 }: PollCreateModalProps) => {
   const { showToast } = useToast();
   const [step, setStep] = useState<"form" | "edit">("form");
@@ -243,9 +260,6 @@ export const PollCreateModal = ({
   };
 
   const handleCreateComplete = () => {
-    if (createdPoll) {
-      onCreated?.(createdPoll);
-    }
     handleClose();
   };
 

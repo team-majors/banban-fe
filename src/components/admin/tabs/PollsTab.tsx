@@ -43,7 +43,15 @@ export const PollsTab = () => {
   const polls = data?.polls ?? [];
   const hasNext = data?.hasNext ?? false;
 
-  const handlePollCreated = (poll: Poll) => {
+  const handleCreateModalClose = () => {
+    setIsCreateModalOpen(false);
+    // 투표 생성 후 목록 갱신 (완료 여부와 관계없이)
+    qc.invalidateQueries({ queryKey: ["admin", "polls"] });
+  };
+
+  const handleEditModalClose = () => {
+    setEditingPoll(null);
+    // 투표 수정 후 목록 갱신
     qc.invalidateQueries({ queryKey: ["admin", "polls"] });
   };
 
@@ -173,14 +181,13 @@ export const PollsTab = () => {
 
       <PollCreateModal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreated={handlePollCreated}
+        onClose={handleCreateModalClose}
       />
 
       {editingPoll && (
         <PollEditModal
           isOpen={!!editingPoll}
-          onClose={() => setEditingPoll(null)}
+          onClose={handleEditModalClose}
           pollId={editingPoll.id}
           pollDate={editingPoll.pollDate}
         />

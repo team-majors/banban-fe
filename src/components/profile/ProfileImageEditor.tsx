@@ -8,6 +8,8 @@ interface ProfileImageEditorProps {
   imageUrl?: string | null;
   pendingFile?: File | null;
   isDeleted?: boolean;
+  hasCustomProfileImage?: boolean;
+  defaultImageUrl?: string | null;
   onFileSelect: (file: File) => void;
   onDelete: () => void;
 }
@@ -16,6 +18,8 @@ export const ProfileImageEditor = ({
   imageUrl,
   pendingFile,
   isDeleted,
+  hasCustomProfileImage,
+  defaultImageUrl,
   onFileSelect,
   onDelete,
 }: ProfileImageEditorProps) => {
@@ -25,22 +29,62 @@ export const ProfileImageEditor = ({
   const [showMenu, setShowMenu] = useState(false);
 
   const displayImage = isDeleted
-    ? null
+    ? defaultImageUrl || null
     : newImage
     ? newImage
     : !hasError && imageUrl
     ? imageUrl
     : null;
 
+  const compressImage = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement("img");
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxSize = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height && width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d")!;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name, {
+                  type: "image/jpeg",
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            "image/jpeg",
+            0.85
+          );
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // 파일 크기 체크
-    if (file.size > 5 * 1024 * 1024) {
-      console.error("파일 크기는 5MB를 초과할 수 없습니다.");
-      return;
-    }
 
     // 파일 타입 체크
     const validTypes = [
@@ -56,10 +100,13 @@ export const ProfileImageEditor = ({
       return;
     }
 
-    const url = URL.createObjectURL(file);
+    // 5MB 초과 시 압축
+    const processedFile = file.size > 5 * 1024 * 1024 ? await compressImage(file) : file;
+
+    const url = URL.createObjectURL(processedFile);
     setNewImage(url);
     setHasError(false);
-    onFileSelect(file);
+    onFileSelect(processedFile);
     setShowMenu(false);
   };
 
@@ -94,7 +141,7 @@ export const ProfileImageEditor = ({
         </HoverOverlay>
       </ImageWrapper>
 
-      {(imageUrl || pendingFile) && !isDeleted && (
+      {(hasCustomProfileImage || pendingFile) && !isDeleted && (
         <RemoveButton onClick={handleDeleteClick}>제거</RemoveButton>
       )}
 

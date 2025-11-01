@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { compressImage } from "@/utils/compress";
 import Image from "next/image";
 import styled from "styled-components";
@@ -24,6 +24,7 @@ export default function ProfileImageContainer({
   isDeleted,
   setIsDeleted,
   onEditClick,
+  defaultImageUrl,
 }: {
   imageUrl?: string | null;
   setImageUrl?: React.Dispatch<React.SetStateAction<RegisterRequestType>>;
@@ -33,6 +34,7 @@ export default function ProfileImageContainer({
   isDeleted?: boolean;
   setIsDeleted?: (deleted: boolean) => void;
   onEditClick?: () => void;
+  defaultImageUrl?: string | null;
 }) {
   const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,8 +44,13 @@ export default function ProfileImageContainer({
   // 프로필 편집 모드인지 회원가입 모드인지 판단
   const isProfileEditMode = setPendingFile !== undefined;
 
+  // 초기 상태의 기본 이미지 URL 저장 (커스텀이 아닐 때)
+  const defaultImage = useMemo(() => {
+    return hasCustomImage ? null : imageUrl;
+  }, [hasCustomImage, imageUrl]);
+
   const displayImage = isDeleted
-    ? "/no_img.png"
+    ? (defaultImageUrl || defaultImage || "/no_img.png")
     : newImage
     ? newImage
     : !hasError && imageUrl

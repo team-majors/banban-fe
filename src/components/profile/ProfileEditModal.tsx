@@ -1,10 +1,11 @@
 "use client";
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import useAuth from "@/hooks/useAuth";
 import { useUpdateUsername } from "@/hooks/useUpdateUsername";
 import { useUploadProfileImage } from "@/hooks/useUploadProfileImage";
 import { useDeleteProfileImage } from "@/hooks/useDeleteProfileImage";
+import { getDefaultProfileImagePreview } from "@/remote/user";
 import { useToast } from "../common/Toast/useToast";
 import { Modal } from "../common/Modal";
 import { ProfileImageEditor } from "./ProfileImageEditor";
@@ -26,6 +27,13 @@ export const ProfileEditModal = ({
   const [newUsername, setNewUsername] = useState(user?.username);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [defaultImagePreviewUrl, setDefaultImagePreviewUrl] = useState<string | null>(null);
+  const [isLoadingDefaultImage, setIsLoadingDefaultImage] = useState(false);
+
+  // 초기 상태의 기본 이미지 URL 저장 (커스텀이 아닐 때)
+  const defaultImageUrl = useMemo(() => {
+    return user?.hasCustomProfileImage ? null : user?.profileImageUrl;
+  }, [user?.hasCustomProfileImage, user?.profileImageUrl]);
 
   const handleSave = async () => {
     const hasUsernameChange = newUsername && newUsername !== user?.username;
@@ -59,6 +67,7 @@ export const ProfileEditModal = ({
 
       setPendingFile(null);
       setIsDeleted(false);
+      setDefaultImagePreviewUrl(null);
 
       showToast({
         type: "success",
@@ -94,13 +103,28 @@ export const ProfileEditModal = ({
               imageUrl={user?.profileImageUrl}
               pendingFile={pendingFile}
               isDeleted={isDeleted}
+              hasCustomProfileImage={user?.hasCustomProfileImage}
+              defaultImageUrl={defaultImagePreviewUrl || defaultImageUrl}
               onFileSelect={(file) => {
                 setPendingFile(file);
                 setIsDeleted(false);
               }}
-              onDelete={() => {
-                setIsDeleted(true);
-                setPendingFile(null);
+              onDelete={async () => {
+                try {
+                  setIsLoadingDefaultImage(true);
+                  const previewUrl = await getDefaultProfileImagePreview();
+                  setDefaultImagePreviewUrl(previewUrl);
+                  setIsDeleted(true);
+                  setPendingFile(null);
+                } catch (err) {
+                  showToast({
+                    type: "error",
+                    message: "기본 이미지 조회 실패",
+                    duration: 2000,
+                  });
+                } finally {
+                  setIsLoadingDefaultImage(false);
+                }
               }}
             />
           </LeftSection>
@@ -115,7 +139,15 @@ export const ProfileEditModal = ({
         </ContentWrapper>
 
         <Modal.Actions direction="row">
-          <Modal.Button $variant="secondary" onClick={onClose}>
+          <Modal.Button
+            $variant="secondary"
+            onClick={() => {
+              setPendingFile(null);
+              setIsDeleted(false);
+              setDefaultImagePreviewUrl(null);
+              onClose();
+            }}
+          >
             취소
           </Modal.Button>
           <Modal.Button

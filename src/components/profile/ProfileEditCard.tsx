@@ -7,6 +7,7 @@ import useAuth from "@/hooks/useAuth";
 import { useUpdateUsername } from "@/hooks/useUpdateUsername";
 import { useUploadProfileImage } from "@/hooks/useUploadProfileImage";
 import { useDeleteProfileImage } from "@/hooks/useDeleteProfileImage";
+import { getDefaultProfileImagePreview } from "@/remote/user";
 import { useToast } from "../common/Toast/useToast";
 import { DefaultButton } from "../common/Button";
 import { getProfileImageUrl } from "@/remote/user";
@@ -21,6 +22,8 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isImageEditMode, setIsImageEditMode] = useState(false);
+  const [defaultImagePreviewUrl, setDefaultImagePreviewUrl] = useState<string | null>(null);
+  const [isLoadingDefaultImage, setIsLoadingDefaultImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
@@ -56,7 +59,8 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
       setPendingFile(null);
       setIsDeleted(false);
       setIsImageEditMode(false);
-      
+      setDefaultImagePreviewUrl(null);
+
       showToast({
         type: "success",
         message: "프로필이 업데이트되었습니다.",
@@ -73,10 +77,23 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
     }
   };
 
-  const handleDeleteImage = () => {
-    setIsDeleted(true);
-    setPendingFile(null);
-    setIsImageEditMode(false);
+  const handleDeleteImage = async () => {
+    try {
+      setIsLoadingDefaultImage(true);
+      const previewUrl = await getDefaultProfileImagePreview();
+      setDefaultImagePreviewUrl(previewUrl);
+      setIsDeleted(true);
+      setPendingFile(null);
+      setIsImageEditMode(false);
+    } catch (err) {
+      showToast({
+        type: "error",
+        message: "기본 이미지 조회 실패",
+        duration: 2000,
+      });
+    } finally {
+      setIsLoadingDefaultImage(false);
+    }
   };
 
   return (
@@ -86,14 +103,15 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
       </ProfileHeader>
 
       <ProfileContent>
-        <ProfileImageContainer 
-          imageUrl={user?.profileImageUrl} 
+        <ProfileImageContainer
+          imageUrl={user?.profileImageUrl}
           hasCustomImage={user?.hasCustomProfileImage}
           pendingFile={pendingFile}
           setPendingFile={setPendingFile}
           isDeleted={isDeleted}
           setIsDeleted={setIsDeleted}
           onEditClick={() => setIsImageEditMode(true)}
+          defaultImageUrl={defaultImagePreviewUrl}
         />
         <ProfileUserName>@{user?.username}</ProfileUserName>
 

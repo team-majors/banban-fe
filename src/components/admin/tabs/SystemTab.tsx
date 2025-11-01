@@ -1,9 +1,7 @@
 "use client";
 
-import RequireAuth from "@/components/auth/RequireAuth";
+import styled from "styled-components";
 import {
-  AdminContainer,
-  AdminPageHeader,
   AdminCard,
   AdminCardTitle,
   SectionLabel,
@@ -39,7 +37,7 @@ const tableHeaderClass =
   "px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 const tableCellClass = "px-4 py-2 text-sm text-slate-700";
 
-export default function AdminSystemPage() {
+export const SystemTab = () => {
   const qc = useQueryClient();
   const { showToast } = useToast();
 
@@ -170,10 +168,8 @@ export default function AdminSystemPage() {
   };
 
   return (
-    <RequireAuth>
-      <AdminContainer>
-        <AdminPageHeader>관리자 · 시스템</AdminPageHeader>
-
+    <>
+      <Container>
         <AdminCard>
           <AdminCardTitle>시스템 상태</AdminCardTitle>
           {sysLoading && <p className="text-sm text-slate-500">로딩 중...</p>}
@@ -555,7 +551,14 @@ export default function AdminSystemPage() {
             </SmallButton>
           </Actions>
         </Modal>
-      </AdminContainer>
-    </RequireAuth>
+      </Container>
+    </>
   );
-}
+};
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0;
+`;

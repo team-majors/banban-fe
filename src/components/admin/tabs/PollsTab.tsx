@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import styled from "styled-components";
 import {
-  AdminContainer,
-  AdminPageHeader,
   AdminCard,
   AdminCardTitle,
   Actions,
@@ -14,6 +12,8 @@ import {
 } from "@/components/admin/AdminUI";
 import { getAdminPolls, type AdminPollListParams } from "@/remote/admin";
 import type { Poll } from "@/types/poll";
+import { PollCreateModal } from "../modals/PollCreateModal";
+import { PollEditModal } from "../modals/PollEditModal";
 
 const selectClass =
   "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200";
@@ -23,11 +23,17 @@ const tableCellClass = "px-4 py-2 text-sm text-slate-700";
 const linkButtonClass =
   "inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400";
 
-export default function AdminPollListPage() {
+export const PollsTab = () => {
+  const qc = useQueryClient();
   const [params, setParams] = useState<AdminPollListParams>({
     page: 1,
     size: 20,
   });
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [editingPoll, setEditingPoll] = useState<{
+    id: number;
+    pollDate: string;
+  } | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin", "polls", params],
@@ -37,10 +43,12 @@ export default function AdminPollListPage() {
   const polls = data?.polls ?? [];
   const hasNext = data?.hasNext ?? false;
 
-  return (
-    <AdminContainer>
-      <AdminPageHeader>관리자 · 투표 관리</AdminPageHeader>
+  const handlePollCreated = (poll: Poll) => {
+    qc.invalidateQueries({ queryKey: ["admin", "polls"] });
+  };
 
+  return (
+    <Container>
       <AdminCard>
         <AdminCardTitle>목록</AdminCardTitle>
         <div className="flex flex-wrap items-end gap-3">
@@ -66,9 +74,9 @@ export default function AdminPollListPage() {
             </select>
           </div>
           <div className="ml-auto">
-            <Link href="/admin/polls/new" className={linkButtonClass}>
+            <SmallButton onClick={() => setIsCreateModalOpen(true)}>
               ➕ 새 투표
-            </Link>
+            </SmallButton>
           </div>
         </div>
       </AdminCard>
@@ -118,12 +126,16 @@ export default function AdminPollListPage() {
                       </td>
                       <td className={tableCellClass}>
                         <Actions className="justify-start">
-                          <Link
-                            href={`/admin/polls/${p.id}?poll_date=${p.pollDate}`}
-                            className={linkButtonClass}
+                          <SmallButton
+                            onClick={() =>
+                              setEditingPoll({
+                                id: p.id,
+                                pollDate: p.pollDate,
+                              })
+                            }
                           >
                             수정
-                          </Link>
+                          </SmallButton>
                         </Actions>
                       </td>
                     </tr>
@@ -158,6 +170,27 @@ export default function AdminPollListPage() {
           </SmallButton>
         </div>
       </AdminCard>
-    </AdminContainer>
+
+      <PollCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={handlePollCreated}
+      />
+
+      {editingPoll && (
+        <PollEditModal
+          isOpen={!!editingPoll}
+          onClose={() => setEditingPoll(null)}
+          pollId={editingPoll.id}
+          pollDate={editingPoll.pollDate}
+        />
+      )}
+    </Container>
   );
-}
+};
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;

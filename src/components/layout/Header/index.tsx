@@ -21,6 +21,7 @@ import {
   markNotificationsAsRead,
 } from "@/remote/notification";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
+import { AdminSettingsModal } from "@/components/admin/AdminSettingsModal";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
 import { logger } from "@/utils/logger";
 import { useToast } from "@/components/common/Toast/useToast";
@@ -37,6 +38,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [isProfileCardOpen, setProfileCardOpen] = useState(false);
   const [isCommunityCardOpen, setCommunityCardOpen] = useState(false);
+  const [isAdminSettingsOpen, setAdminSettingsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const { isLoggedIn, user, logout, loading } = useAuth();
   const pathname = usePathname();
@@ -112,6 +114,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     setUserMenuOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(false);
+    setAdminSettingsOpen(false);
   };
 
   const handleLogin = () => router.push("/login");
@@ -223,7 +226,7 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
     setNotificationOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(false);
-    router.push("/admin");
+    setAdminSettingsOpen(true);
   };
 
   const handleLogoClick = () => {
@@ -311,6 +314,10 @@ export default function Header({ isNew, onRegister }: HeaderProps) {
                 <ProfileEditModal
                   isOpen={isProfileCardOpen}
                   onClose={() => setProfileCardOpen(false)}
+                />
+                <AdminSettingsModal
+                  isOpen={isAdminSettingsOpen}
+                  onClose={() => setAdminSettingsOpen(false)}
                 />
                 {isCommunityCardOpen && (
                   <CommunityInfoCard

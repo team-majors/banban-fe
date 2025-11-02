@@ -20,6 +20,7 @@ PROJECT_NAME="banban"
 DOCKER_COMPOSE_FILE="docker-compose.yml"
 LOG_FILE="deploy.log"
 BACKUP_DIR="./backups"
+DOCKER_COMPOSE_CMD=""
 
 # 함수: 로그 출력
 log() {
@@ -85,19 +86,24 @@ check_requirements() {
         exit 1
     fi
 
-    if ! command -v docker-compose &> /dev/null; then
-        error "Docker Compose가 설치되어 있지 않습니다"
+    # Docker Compose V1 또는 V2 확인
+    if command -v docker-compose &> /dev/null; then
+        DOCKER_COMPOSE_CMD="docker-compose"
+    elif docker compose version &> /dev/null; then
+        DOCKER_COMPOSE_CMD="docker compose"
+    else
+        error "Docker Compose가 설치되어 있지 않습니다 (V1 또는 V2)"
         exit 1
     fi
 
-    success "필수 파일 및 도구 확인 완료"
+    success "필수 파일 및 도구 확인 완료 (Docker Compose: $DOCKER_COMPOSE_CMD)"
 }
 
 # 함수: 컨테이너 시작
 deploy_up() {
     log "Docker 컨테이너를 시작합니다..."
 
-    if docker-compose up -d; then
+    if $DOCKER_COMPOSE_CMD up -d; then
         success "컨테이너 시작 완료"
         sleep 3
         deploy_status
@@ -111,7 +117,7 @@ deploy_up() {
 deploy_down() {
     log "Docker 컨테이너를 종료합니다..."
 
-    if docker-compose down; then
+    if $DOCKER_COMPOSE_CMD down; then
         success "컨테이너 종료 완료"
     else
         error "컨테이너 종료 실패"
@@ -123,7 +129,7 @@ deploy_down() {
 deploy_restart() {
     log "Docker 컨테이너를 재시작합니다..."
 
-    if docker-compose restart; then
+    if $DOCKER_COMPOSE_CMD restart; then
         success "컨테이너 재시작 완료"
         sleep 3
         deploy_status
@@ -137,7 +143,7 @@ deploy_restart() {
 deploy_rebuild() {
     log "Docker 이미지를 빌드합니다..."
 
-    if docker-compose up -d --build; then
+    if $DOCKER_COMPOSE_CMD up -d --build; then
         success "이미지 빌드 및 컨테이너 시작 완료"
         sleep 3
         deploy_status
@@ -150,7 +156,7 @@ deploy_rebuild() {
 # 함수: 컨테이너 상태 확인
 deploy_status() {
     log "컨테이너 상태 확인..."
-    docker-compose ps
+    $DOCKER_COMPOSE_CMD ps
 }
 
 # 함수: 컨테이너 ps 명령
@@ -162,7 +168,7 @@ deploy_ps() {
 # 함수: 로그 확인
 deploy_logs() {
     log "컨테이너 로그를 출력합니다... (Ctrl+C로 종료)"
-    docker-compose logs -f --tail=100
+    $DOCKER_COMPOSE_CMD logs -f --tail=100
 }
 
 # 함수: 헬스 체크

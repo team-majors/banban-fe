@@ -125,10 +125,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       let data: TokenRequestResponse | null = null;
-      const hasBody = res.headers.get("content-length") !== "0";
-      if (res.status !== 204 && hasBody) {
+      if (res.status !== 204) {
         try {
-          data = await res.json();
+          const bodyText = await res.text();
+          if (bodyText) {
+            data = JSON.parse(bodyText) as TokenRequestResponse;
+          }
         } catch (error) {
           logger.warn("토큰 갱신 응답 파싱 실패", error);
           return false;

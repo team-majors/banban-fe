@@ -22,10 +22,10 @@ export default function Home() {
   const [mobileActiveTab, setMobileActiveTab] = useState<"poll" | "feeds">(
     "poll",
   );
-  const swipeRef = useRef<HTMLDivElement>(null);
   const { isLoggedIn } = useAuthStore();
   const { data: pollData, isLoading: isPollLoading } = usePoll();
 
+  const swipeRef = useRef<HTMLDivElement | null>(null);
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
       if (mobileActiveTab === "poll") {
@@ -50,6 +50,14 @@ export default function Home() {
     [sectionStatus, targetFeed],
   );
 
+  const mergedRef = useMemo(
+    () => (node: HTMLDivElement | null) => {
+      swipeHandlers.ref(node); // 라이브러리에 DOM 전달
+      swipeRef.current = node; // 내가 DOM에 접근할 수 있게 저장
+    },
+    [swipeHandlers],
+  );
+
   // Poll 데이터가 없을 때 (로딩 완료 후)
   if (!isPollLoading && !pollData) {
     return (
@@ -65,7 +73,7 @@ export default function Home() {
   return (
     <SectionContext.Provider value={sectionContextValue}>
       <PageIndicator currentPage={mobileActiveTab} />
-      <ContentContainer {...swipeHandlers} ref={swipeRef}>
+      <ContentContainer {...swipeHandlers} ref={mergedRef}>
         <MainContentWrapper>
           {/* 모바일에서만 탭 기반 렌더링 */}
           <MobileOnly>
@@ -81,10 +89,7 @@ export default function Home() {
 
           {/* 메인 화면에서만 피드 작성 플러스 버튼 표시 (투표 완료 시에만) */}
           {isLoggedIn && pollData?.hasVoted && (
-            <FloatingButtonWithModal
-              sectionStatus="feeds"
-              targetFeed={null}
-            />
+            <FloatingButtonWithModal sectionStatus="feeds" targetFeed={null} />
           )}
         </MainContentWrapper>
       </ContentContainer>

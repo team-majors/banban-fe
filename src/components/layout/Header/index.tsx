@@ -368,6 +368,7 @@ const Container = styled.header`
   margin: 0 auto;
   z-index: 900;
   height: 60px;
+  background-color: #f4f6f8;
   display: flex;
   justify-content: center;
   align-items: center;

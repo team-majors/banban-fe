@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect, useCallback } from "react";
 
 interface SegmentedControlProps extends React.HTMLAttributes<HTMLDivElement> {
   itemLabels: string[];
@@ -16,22 +16,62 @@ export default function SegmentedControl({
 
   const [selectedIdx, setSelectedIdx] = useState(initialIdx ?? 0);
   const [indicatorLeft, setIndicatorLeft] = useState(0);
+  const selectedIdxRef = useRef(initialIdx ?? 0);
 
-  const calculateIndicatorLeft = (idx: number): number => {
-    let sum = 0;
+  const calculateIndicatorLeft = useCallback(
+    (idx: number): number => {
+      let sum = 0;
 
-    for (let i = 0; i < idx; i++) {
-      sum += itemRefs.current[i]?.clientWidth ?? 0;
-    }
+      for (let i = 0; i < idx; i++) {
+        sum += itemRefs.current[i]?.clientWidth ?? 0;
+      }
 
-    const currentWidth = itemRefs.current[idx]?.clientWidth ?? 0;
-    return sum + (currentWidth - 24) / 2;
-  };
+      const currentWidth = itemRefs.current[idx]?.clientWidth ?? 0;
+      return sum + (currentWidth - 24) / 2;
+    },
+    [],
+  );
+
+  const updateIndicator = useCallback(
+    (idx?: number) => {
+      const targetIdx = idx ?? selectedIdxRef.current;
+      const distance = calculateIndicatorLeft(targetIdx);
+      setIndicatorLeft(distance);
+    },
+    [calculateIndicatorLeft],
+  );
+
+  useEffect(() => {
+    selectedIdxRef.current = selectedIdx;
+  }, [selectedIdx]);
 
   useLayoutEffect(() => {
-    const distance = calculateIndicatorLeft(selectedIdx);
-    setIndicatorLeft(distance);
-  }, [selectedIdx]);
+    updateIndicator(selectedIdx);
+  }, [selectedIdx, updateIndicator]);
+
+  useEffect(() => {
+    if (typeof ResizeObserver === "undefined") {
+      const handleResize = () => updateIndicator();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateIndicator();
+    });
+
+    itemRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    const handleResize = () => updateIndicator();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [updateIndicator, itemLabels.length]);
 
   const handleItemClick = (idx: number) => {
     setSelectedIdx(idx);

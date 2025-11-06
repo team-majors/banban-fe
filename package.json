@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "NEXT_TELEMETRY_DISABLED=1 NEXT_PRIVATE_SKIP_TYPECHECK=1 next build",
+    "build": "next build",
     "type-check": "tsc --noEmit",
     "start": "next start",
     "lint": "next lint",

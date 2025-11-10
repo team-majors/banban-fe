@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import styled from "styled-components";
-import { useSwipeable } from "react-swipeable";
 import LeftSection from "@/components/layout/LeftSection/LeftSection";
 import RightSection from "@/components/layout/RightSection/RightSection";
-import PageIndicator from "@/components/layout/PageIndicator/PageIndicator";
+import BottomTabBar from "@/components/mobile/BottomTabBar";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 import type { Feed } from "@/types/feeds";
 import FloatingButtonWithModal from "@/components/common/FloatingButtonWithModal";
@@ -21,23 +20,8 @@ export default function MobileHome() {
   const [mobileActiveTab, setMobileActiveTab] = useState<"poll" | "feeds">(
     "poll",
   );
-  const swipeRef = useRef<HTMLDivElement>(null);
   const { isLoggedIn } = useAuthStore();
   const { data: pollData, isLoading: isPollLoading } = usePoll();
-
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => {
-      if (mobileActiveTab === "poll") {
-        setMobileActiveTab("feeds");
-      }
-    },
-    onSwipedRight: () => {
-      if (mobileActiveTab === "feeds") {
-        setMobileActiveTab("poll");
-      }
-    },
-    trackMouse: false,
-  });
 
   const sectionContextValue = useMemo(
     () => ({
@@ -63,8 +47,7 @@ export default function MobileHome() {
 
   return (
     <SectionContext.Provider value={sectionContextValue}>
-      <PageIndicator currentPage={mobileActiveTab} />
-      <ContentContainer {...swipeHandlers} ref={swipeRef}>
+      <ContentContainer>
         <MainContentWrapper>
           {mobileActiveTab === "poll" && <LeftSection />}
           {mobileActiveTab === "feeds" && <RightSection />}
@@ -78,6 +61,10 @@ export default function MobileHome() {
           )}
         </MainContentWrapper>
       </ContentContainer>
+      <BottomTabBar
+        activeTab={mobileActiveTab}
+        onTabChange={setMobileActiveTab}
+      />
     </SectionContext.Provider>
   );
 }
@@ -88,6 +75,7 @@ const ContentContainer = styled.div`
   width: 100%;
   margin: 0 auto;
   padding-top: 64px;
+  padding-bottom: 64px; /* 하단 탭바 공간 확보 */
   height: 100dvh;
   overflow: hidden;
 `;

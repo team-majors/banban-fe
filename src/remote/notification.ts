@@ -43,7 +43,7 @@ export const getNotifications = async ({
   const lastIdParam = lastId ? `last_id=${lastId}&` : "";
   const sizeParam = `size=${size}`;
 
-  const res = await apiFetch(`/notifications/?${lastIdParam}${sizeParam}`);
+  const res = await apiFetch(`/notifications?${lastIdParam}${sizeParam}`);
 
   return res as NotificationResponse;
 };
@@ -59,13 +59,14 @@ export const markNotificationsAsRead = async (
   return res as MarkNotificationsAsReadResponse;
 };
 
-export const markAllNotificationsAsRead = async (): Promise<MarkAllNotificationsAsReadResponse> => {
-  const res = await apiFetch("/notifications/read-all", {
-    method: "PUT",
-  });
+export const markAllNotificationsAsRead =
+  async (): Promise<MarkAllNotificationsAsReadResponse> => {
+    const res = await apiFetch("/notifications/read-all", {
+      method: "PUT",
+    });
 
-  return res as MarkAllNotificationsAsReadResponse;
-};
+    return res as MarkAllNotificationsAsReadResponse;
+  };
 
 export interface DeleteReadNotificationsResponse {
   code: number;
@@ -75,10 +76,11 @@ export interface DeleteReadNotificationsResponse {
   };
 }
 
-export const deleteReadNotifications = async (): Promise<DeleteReadNotificationsResponse> => {
-  const res = await apiFetch("/notifications/read", {
-    method: "DELETE",
-  });
+export const deleteReadNotifications =
+  async (): Promise<DeleteReadNotificationsResponse> => {
+    const res = await apiFetch("/notifications/read", {
+      method: "DELETE",
+    });
 
-  return res as DeleteReadNotificationsResponse;
-};
+    return res as DeleteReadNotificationsResponse;
+  };

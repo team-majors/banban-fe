@@ -14,8 +14,14 @@ import {
 export const getFeeds = async (
   params: FeedsRequest = {},
 ): Promise<FeedsResponse> => {
-  const { last_id, size = 20, sort_by, sort_order, filter_type, poll_id } =
-    params;
+  const {
+    last_id,
+    size = 20,
+    sort_by,
+    sort_order,
+    filter_type,
+    poll_id,
+  } = params;
 
   // 쿼리 파라미터 생성
   const queryParams = new URLSearchParams();
@@ -30,7 +36,7 @@ export const getFeeds = async (
   }
 
   const queryString = queryParams.toString();
-  const url = queryString ? `/feeds/?${queryString}` : "/feeds/";
+  const url = queryString ? `/feeds?${queryString}` : "/feeds/";
 
   return await apiFetch(url);
 };
@@ -53,7 +59,10 @@ export const getHotFeed = async (pollId?: number): Promise<HotFeedSnapshot> => {
  * @param content - 변경할 내용
  * @returns 수정된 피드
  */
-export const updateFeed = async (feedId: number, content: string): Promise<{ data: Feed }> => {
+export const updateFeed = async (
+  feedId: number,
+  content: string,
+): Promise<{ data: Feed }> => {
   return apiFetch(`/feeds/${feedId}`, {
     method: "PUT",
     body: JSON.stringify({ content }),

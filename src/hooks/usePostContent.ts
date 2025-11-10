@@ -26,7 +26,7 @@ const postContent = async ({
 }: PostContentParams) => {
   if (!content.trim()) throw new Error("내용이 비어있습니다.");
 
-  const endpoint = actionType === "댓글" ? "/comments/" : "/feeds/";
+  const endpoint = actionType === "댓글" ? "/comments" : "/feeds";
 
   let requestBody: CommentRequestBody | FeedRequestBody;
   if (actionType === "댓글") {

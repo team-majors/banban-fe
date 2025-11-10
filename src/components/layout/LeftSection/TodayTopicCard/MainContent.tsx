@@ -1,12 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import VoteResultCircle, { PieData } from "./chart/VoteResultCircle";
 import {
   selectOption,
   SelectOptionGroup,
 } from "@/components/common/SelectOptionGroup/SelectOptionGroup";
 import VoteResultPlaceHolder from "./VoteResultPlaceHolder/VoteResultPlaceHolder";
 import { PollOption } from "@/types/poll";
+import dynamic from "next/dynamic";
+import { PieData } from "@/types/pie";
+const VoteResultCircle = dynamic(
+  () =>
+    import(
+      "@/components/layout/LeftSection/TodayTopicCard/chart/VoteResultCircle"
+    ).then((mod) => mod.default),
+  { ssr: false },
+);
 
 function VoteResultDisplay({
   pieData,

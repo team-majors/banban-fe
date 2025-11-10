@@ -16,7 +16,7 @@ export const getUserProfileImage = async ({ url }: { url: string }) => {
 };
 
 export const updateUsername = async ({ username }: { username: string }) => {
-  const response = await apiFetch("/users/profile/username/", {
+  const response = await apiFetch("/users/profile/username", {
     method: "PUT",
     body: JSON.stringify({
       username,
@@ -49,14 +49,14 @@ export const deleteProfileImage = async () => {
 
 export const getProfileImageUrl = async (userId: number): Promise<string> => {
   const response: ApiResponse<{ profileImageUrl: string }> = await apiFetch(
-    `/users/${userId}/profile-image-url`
+    `/users/${userId}/profile-image-url`,
   );
   return response.data.profileImageUrl;
 };
 
 export const getDefaultProfileImagePreview = async (): Promise<string> => {
   const response: ApiResponse<{ profileImageUrl: string }> = await apiFetch(
-    "/users/profile/default-image-preview"
+    "/users/profile/default-image-preview",
   );
   return response.data.profileImageUrl;
 };

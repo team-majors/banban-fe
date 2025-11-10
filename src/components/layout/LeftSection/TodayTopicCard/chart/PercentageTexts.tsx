@@ -1,5 +1,5 @@
 import { TextPosition } from "@/lib/chart";
-import { PieData } from "./VoteResultCircle";
+import { PieData } from "@/types/pie";
 
 export const PercentageTexts = ({
   pieData,

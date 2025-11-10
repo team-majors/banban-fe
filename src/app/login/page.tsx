@@ -13,9 +13,9 @@ export default function page() {
 
 const Container = styled.div`
   display: flex;
-  height: 100dvh;
+  height: 100%;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  padding: 20px 0;
+  padding: 6px 8px;
 `;

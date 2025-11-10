@@ -5,7 +5,7 @@ import { LoginButton } from "./LoginButton";
 import { BanBanLogo } from "@/components/svg";
 import { Title } from "@/components/svg/Title";
 import { LoginButtons } from "@/constants/loginButtons";
-
+import { media } from "@/constants/breakpoints";
 
 export default function LoginPage() {
   const handleLogin = async (id: string) => {
@@ -13,8 +13,8 @@ export default function LoginPage() {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login/${id}`,
         {
-          credentials: 'include',
-        }
+          credentials: "include",
+        },
       );
       if (!res.ok) throw new Error("Login API Error");
 
@@ -82,9 +82,8 @@ export default function LoginPage() {
 }
 
 const Container = styled.div`
-  height: auto;
   min-height: 500px;
-  max-height: 90vh;
+  max-height: 95vh;
   width: 542px;
   display: flex;
   flex-direction: column;
@@ -95,7 +94,14 @@ const Container = styled.div`
   border-radius: 24px;
   border: 1px solid #e9eaeb;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
-  overflow-y: auto;
+
+  ${media.mobile} {
+    max-height: none;
+    height: 650px;
+    gap: 10px;
+    padding: 0;
+    padding-top: 16px;
+  }
 `;
 
 const LogoBox = styled.div`
@@ -118,6 +124,10 @@ const MainBox = styled.div`
   align-items: center;
   gap: 32px;
   width: 100%;
+
+  ${media.mobile} {
+    gap: 16px;
+  }
 `;
 
 const MessageBox = styled.div`
@@ -132,6 +142,12 @@ const TitleWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  ${media.mobile} {
+    svg {
+      width: 220px;
+    }
+  }
 `;
 
 const SubTitle = styled.span`

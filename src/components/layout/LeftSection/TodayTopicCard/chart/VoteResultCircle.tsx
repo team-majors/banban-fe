@@ -5,14 +5,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import PercentageTexts from "./PercentageTexts";
 import ChartGradients from "./ChartGradients";
 import { useId } from "react";
-
-export type PieData = {
-  option: string;
-  count: number;
-  userSelected: boolean;
-  percent: number;
-  optionOrder: number;
-};
+import { PieData } from "@/types/pie";
 
 type PieDataWithIndex = PieData & { originalIndex: number };
 

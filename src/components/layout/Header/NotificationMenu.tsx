@@ -83,7 +83,7 @@ export default function NotificationMenu({
 
   const handleItemClick = useCallback(
     (notification: Notification) => {
-      if (notification.isExpired) {
+      if (notification.isRead) {
         showToast({
           type: "info",
           message: "해당 주제의 기간이 종료되어 이동할 수 없습니다.",
@@ -114,7 +114,9 @@ export default function NotificationMenu({
           type="button"
           onClick={onDeleteRead}
           disabled={!hasRead}
-          title={hasRead ? "읽은 알림을 모두 삭제합니다" : "읽은 알림이 없습니다"}
+          title={
+            hasRead ? "읽은 알림을 모두 삭제합니다" : "읽은 알림이 없습니다"
+          }
         >
           삭제
         </DeleteButton>
@@ -134,19 +136,26 @@ export default function NotificationMenu({
                   onClick={() => handleItemClick(notification)}
                   $unread={!notification.isRead}
                   $type={notification.type}
-                  $expired={notification.isExpired}
-                  aria-label={`${notification.fromUser?.username}: ${notification.message}${
+                  $expired={notification.isRead}
+                  aria-label={`${notification.fromUser?.username}: ${
+                    notification.message
+                  }${
                     !notification.isRead ? " (읽지 않은 알림)" : " (읽은 알림)"
-                  }${notification.isExpired ? " (기간 종료됨)" : ""}`}
-                  aria-disabled={notification.isExpired}
+                  }${notification.isRead ? " (기간 종료됨)" : ""}`}
+                  aria-disabled={notification.isRead}
                 >
-                  <AvatarWrapper $unread={!notification.isRead} $type={notification.type}>
+                  <AvatarWrapper
+                    $unread={!notification.isRead}
+                    $type={notification.type}
+                  >
                     <Avatar
                       src={notification.fromUser?.profileImage || ""}
                       alt={notification.fromUser?.username || "사용자"}
                       size={32}
                     />
-                    {!notification.isRead && <UnreadIndicator $type={notification.type} />}
+                    {!notification.isRead && (
+                      <UnreadIndicator $type={notification.type} />
+                    )}
                   </AvatarWrapper>
                   <NotificationContent>
                     <UserInfo>
@@ -158,7 +167,7 @@ export default function NotificationMenu({
                     <Message $unread={!notification.isRead}>
                       {formatNotificationMessage(notification.message)}
                     </Message>
-                    {notification.isExpired && (
+                    {notification.isRead && (
                       <ExpiredBadge>기간 종료됨</ExpiredBadge>
                     )}
                   </NotificationContent>
@@ -230,8 +239,7 @@ const Menu = styled.div`
   width: 308px;
   border-radius: 12px;
   background: #ffffff;
-  box-shadow:
-    0 12px 24px rgba(15, 23, 42, 0.08),
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08),
     0 6px 12px rgba(15, 23, 42, 0.04);
   border: 1px solid #e2e8f0;
   overflow: hidden;
@@ -344,7 +352,11 @@ const NotificationList = styled.ul`
   padding: 0;
 `;
 
-const NotificationItem = styled.li<{ $unread: boolean; $type: NotificationType; $expired: boolean }>`
+const NotificationItem = styled.li<{
+  $unread: boolean;
+  $type: NotificationType;
+  $expired: boolean;
+}>`
   display: flex;
   gap: 10px;
   padding: 12px 14px;
@@ -353,10 +365,10 @@ const NotificationItem = styled.li<{ $unread: boolean; $type: NotificationType; 
     $expired
       ? "2px solid transparent"
       : $unread
-        ? $type === "MENTION"
-          ? "2px solid #10b981"
-          : "2px solid #6366f1"
-        : "2px solid transparent"};
+      ? $type === "MENTION"
+        ? "2px solid #10b981"
+        : "2px solid #6366f1"
+      : "2px solid transparent"};
   padding-left: 12px;
   cursor: ${({ $expired }) => ($expired ? "default" : "pointer")};
   background: ${({ $unread, $type, $expired }) => {
@@ -370,9 +382,7 @@ const NotificationItem = styled.li<{ $unread: boolean; $type: NotificationType; 
   }};
   filter: ${({ $expired }) => ($expired ? "grayscale(50%)" : "none")};
   opacity: ${({ $expired }) => ($expired ? 0.5 : 1)};
-  transition:
-    background 0.2s ease,
-    border-left-color 0.2s ease,
+  transition: background 0.2s ease, border-left-color 0.2s ease,
     transform 0.2s ease;
 
   &:hover {

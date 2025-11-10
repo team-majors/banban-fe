@@ -1,11 +1,10 @@
-"use client";
 import CallbackPage from "@/components/auth/CallbackPage";
-import { Spinner } from "@/components/svg/Spinner";
+import Fallback from "@/components/common/FallBack";
 import { Suspense } from "react";
 
 export default function Page() {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Fallback />}>
       <CallbackPage provider="naver" />
     </Suspense>
   );

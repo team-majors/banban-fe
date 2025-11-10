@@ -29,7 +29,7 @@ export default function ConfirmModal({
       <SubText>투표는 1번만 가능합니다. 이후에는 변경할 수 없습니다.</SubText>
       <ButtonGroup>
         <Button onClick={onClose}>취소</Button>
-        <Button $primary onClick={voteHandler}>
+        <Button $primary onClick={voteHandler} color={color}>
           투표하기
         </Button>
       </ButtonGroup>
@@ -71,7 +71,7 @@ const ButtonGroup = styled.div`
   gap: 12px;
 `;
 
-const Button = styled.button<{ $primary?: boolean }>`
+const Button = styled.button<{ $primary?: boolean; color?: string }>`
   flex: 1;
   padding: 12px 0;
   font-size: 16px;
@@ -79,14 +79,15 @@ const Button = styled.button<{ $primary?: boolean }>`
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  ${({ $primary }) =>
+
+  ${({ $primary, color }) =>
     $primary
       ? `
-    background-color: #3F13FF;
-    color: #fff;
-  `
+        background-color: ${color};
+        color: #fff;
+      `
       : `
-    background-color: #f5f5f5;
-    color: #333;
-  `}
+        background-color: #f5f5f5;
+        color: #333;
+      `};
 `;

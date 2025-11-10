@@ -1,13 +1,12 @@
 import type { Feed } from "@/types/feeds";
 import React, { useEffect, useRef, useState } from "react";
-import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
+import dynamic from "next/dynamic";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 import { Avatar } from "@/components/common/Avatar";
 import { FeedCommentButton, FeedHeartButton } from "@/components/common/Button";
-import { ReportModal } from "@/components/common/Report";
 import useReportMutation from "@/hooks/useReportMutation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
@@ -15,9 +14,37 @@ import styled from "styled-components";
 import { MoreIcon } from "@/components/svg/MoreIcon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateFeed, deleteFeed } from "@/remote/feed";
-import { ConfirmModal } from "@/components/common/ConfirmModal/ConfirmModal";
-import { FloatingInputModal } from "@/components/layout/FloatingInputModal";
 import { useToast } from "@/components/common/Toast/useToast";
+
+const OptionsDropdown = dynamic(
+  () =>
+    import("@/components/common/OptionsDropdown/OptionsDropdown").then(
+      (mod) => mod.OptionsDropdown,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+const ReportModal = dynamic(
+  () =>
+    import("@/components/common/Report").then((mod) => mod.ReportModal),
+  { ssr: false, loading: () => null },
+);
+
+const ConfirmModal = dynamic(
+  () =>
+    import("@/components/common/ConfirmModal/ConfirmModal").then(
+      (mod) => mod.ConfirmModal,
+    ),
+  { ssr: false, loading: () => null },
+);
+
+const FloatingInputModal = dynamic(
+  () =>
+    import("@/components/layout/FloatingInputModal").then(
+      (mod) => mod.FloatingInputModal,
+    ),
+  { ssr: false, loading: () => null },
+);
 
 export const FeedBlock = ({
   props,

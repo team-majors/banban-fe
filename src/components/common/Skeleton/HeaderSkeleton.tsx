@@ -1,18 +1,17 @@
 "use client";
 
+import { media } from "@/constants/breakpoints";
 import styled, { keyframes } from "styled-components";
 
 export default function HeaderSkeleton() {
   return (
     <Container data-testid="header-skeleton">
       <LogoArea>
-        <SkeletonRect width={100} height={32} />
+        <SkeletonRect width={128} height={46} />
       </LogoArea>
       <Actions>
-        <SkeletonCircle size={48} />
-        <SkeletonCircle size={48} />
-        <SkeletonRect width={86} height={44} />
-        <SkeletonRect width={86} height={44} />
+        <SkeletonRoundedRect width={60} height={46} />
+        <SkeletonRoundedRect width={60} height={46} />
       </Actions>
     </Container>
   );
@@ -31,14 +30,17 @@ const SkeletonBase = styled.div`
 `;
 
 const SkeletonRect = styled(SkeletonBase)<{ width: number; height: number }>`
-  width: ${(props) => props.width}px;
-  height: ${(props) => props.height}px;
+  width: ${({ width }) => width}px;
+  height: ${({ height }) => height}px;
+
+  ${media.mobile} {
+    width: ${({ width }) => Math.max(56, Math.round(width * 0.8))}px;
+    height: ${({ height }) => Math.max(32, Math.round(height * 0.85))}px;
+  }
 `;
 
-const SkeletonCircle = styled(SkeletonBase)<{ size: number }>`
-  width: ${(props) => props.size}px;
-  height: ${(props) => props.size}px;
-  border-radius: 50%;
+const SkeletonRoundedRect = styled(SkeletonRect)`
+  border-radius: 12px;
 `;
 
 const Container = styled.header`
@@ -51,13 +53,23 @@ const Container = styled.header`
   justify-content: center;
   align-items: center;
   padding: 0 32px;
-  background-color: #f9f8ff;
+  background-color: #f4f6f8;
+
+  ${media.mobile} {
+    padding: 0 12px;
+    justify-content: space-between;
+  }
 `;
 
 const LogoArea = styled.div`
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+
+  ${media.mobile} {
+    position: static;
+    transform: none;
+  }
 `;
 
 const Actions = styled.div`
@@ -65,4 +77,9 @@ const Actions = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+
+  ${media.mobile} {
+    margin-left: 0;
+    gap: 8px;
+  }
 `;

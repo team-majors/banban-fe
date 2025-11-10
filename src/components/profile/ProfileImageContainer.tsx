@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { compressImage } from "@/utils/compress";
 import Image from "next/image";
 import styled from "styled-components";
 import { useToast } from "../common/Toast/useToast";
@@ -87,6 +86,7 @@ export default function ProfileImageContainer({
     }
 
     try {
+      const { compressImage } = await import("@/utils/compress");
       const convertedFile = await compressImage(inputFile);
       if (!convertedFile) return;
       const imageUrl = URL.createObjectURL(convertedFile);

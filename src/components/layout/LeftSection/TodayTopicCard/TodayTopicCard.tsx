@@ -107,7 +107,7 @@ export default function TodayTopicCard() {
           onClose={() => setSelected("none")}
           onVote={() => handleVote(selected)}
           optionLabel={optionLabel}
-          color={selected === "firstOption" ? "#ff05ce" : "#1478FF"}
+          color={selected === "firstOption" ? "#FF474F" : "#0000FF"}
         />
       )}
     </Container>

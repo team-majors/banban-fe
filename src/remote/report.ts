@@ -29,7 +29,7 @@ export const postReport = async ({
     body.reason_detail = reasonDetail.trim();
   }
 
-  return apiFetch("/reports/", {
+  return apiFetch("/reports", {
     method: "POST",
     body: JSON.stringify(body),
   });

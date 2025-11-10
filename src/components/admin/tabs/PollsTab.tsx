@@ -3,6 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import styled from "styled-components";
+import dynamic from "next/dynamic";
 import {
   AdminCard,
   AdminCardTitle,
@@ -12,8 +13,17 @@ import {
 } from "@/components/admin/AdminUI";
 import { getAdminPolls, type AdminPollListParams } from "@/remote/admin";
 import type { Poll } from "@/types/poll";
-import { PollCreateModal } from "../modals/PollCreateModal";
-import { PollEditModal } from "../modals/PollEditModal";
+
+const PollCreateModal = dynamic(
+  () =>
+    import("../modals/PollCreateModal").then((mod) => mod.PollCreateModal),
+  { ssr: false, loading: () => null },
+);
+
+const PollEditModal = dynamic(
+  () => import("../modals/PollEditModal").then((mod) => mod.PollEditModal),
+  { ssr: false, loading: () => null },
+);
 
 const selectClass =
   "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200";

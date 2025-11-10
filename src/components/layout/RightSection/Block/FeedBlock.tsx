@@ -1,5 +1,5 @@
 import type { Feed } from "@/types/feeds";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import dynamic from "next/dynamic";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
@@ -15,6 +15,7 @@ import { MoreIcon } from "@/components/svg/MoreIcon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateFeed, deleteFeed } from "@/remote/feed";
 import { useToast } from "@/components/common/Toast/useToast";
+import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 
 const OptionsDropdown = dynamic(
   () =>
@@ -62,6 +63,9 @@ export const FeedBlock = ({
   const { showToast } = useToast();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
+
+  // 모바일 컨텍스트 확인
+  const { onMobileFeedClick } = useContext(SectionContext);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isReportModalOpen, setReportModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -235,7 +239,12 @@ export const FeedBlock = ({
           <FeedCommentButton
             commentCount={commentCount}
             onClick={() => {
-              router.push(`/feeds/${id}`);
+              // 모바일 핸들러가 있으면 사용 (바텀시트), 없으면 페이지 이동
+              if (onMobileFeedClick) {
+                onMobileFeedClick(id);
+              } else {
+                router.push(`/feeds/${id}`);
+              }
             }}
           />
         </StyledIconButtonContainer>

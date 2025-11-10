@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import HomeTab from "@/components/mobile/tabs/HomeTab";
 import FeedTab from "@/components/mobile/tabs/FeedTab";
 import BottomTabBar, { type TabType } from "@/components/mobile/BottomTabBar";
@@ -13,6 +13,10 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { usePoll } from "@/hooks/usePoll";
 import NoTopicState from "@/components/layout/LeftSection/TodayTopicCard/NoTopicState";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useFeeds } from "@/hooks/useFeeds";
+import { useFeedFilterStore } from "@/store/useFeedFilterStore";
+import { BottomSheet } from "@/components/common/BottomSheet/BottomSheet";
+import RightSection from "@/components/layout/RightSection/RightSection";
 
 export default function MobileHome() {
   const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">(
@@ -20,6 +24,10 @@ export default function MobileHome() {
   );
   const [targetFeed, setTargetFeed] = useState<Feed | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<TabType>("home");
+
+  // 바텀시트 상태 (피드 클릭용)
+  const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
+
   const { isLoggedIn } = useAuthStore();
   const { data: pollData, isLoading: isPollLoading } = usePoll();
 
@@ -27,14 +35,61 @@ export default function MobileHome() {
   const { data: notificationsData } = useNotifications({ enabled: isLoggedIn });
   const unreadCount = notificationsData?.pages[0]?.data.unreadCount ?? 0;
 
+  // 피드 목록 가져오기 (바텀시트에서 선택된 피드 찾기용)
+  const { sortBy, filterType } = useFeedFilterStore();
+  const { data: feedsData } = useFeeds({
+    sort_by: sortBy,
+    filter_type: filterType,
+  });
+
+  // 선택된 피드 찾기
+  const selectedFeed = useMemo(() => {
+    if (!selectedFeedId || !feedsData) return null;
+
+    let found: Feed | null = null;
+    feedsData.pages?.some((page) => {
+      const hit = page?.data?.content?.find(
+        (item: Feed) => item?.id === selectedFeedId,
+      );
+      if (hit) {
+        found = hit;
+        return true;
+      }
+      return false;
+    });
+
+    return found;
+  }, [selectedFeedId, feedsData]);
+
+  // 선택된 피드가 변경되면 targetFeed 업데이트
+  useMemo(() => {
+    if (selectedFeed) {
+      setTargetFeed(selectedFeed);
+      setSectionStatus("comments");
+    }
+  }, [selectedFeed]);
+
+  // 모바일 피드 클릭 핸들러 (바텀시트 열기)
+  const handleMobileFeedClick = useCallback((feedId: number) => {
+    setSelectedFeedId(feedId);
+  }, []);
+
+  // 바텀시트 닫기
+  const handleCloseBottomSheet = useCallback(() => {
+    setSelectedFeedId(null);
+    setTargetFeed(null);
+    setSectionStatus("feeds");
+  }, []);
+
   const sectionContextValue = useMemo(
     () => ({
       sectionStatus,
       setSectionStatus,
       targetFeed,
       setTargetFeed,
+      onMobileFeedClick: handleMobileFeedClick,
     }),
-    [sectionStatus, targetFeed],
+    [sectionStatus, targetFeed, handleMobileFeedClick],
   );
 
   // Poll 데이터가 없을 때 (로딩 완료 후)
@@ -72,6 +127,17 @@ export default function MobileHome() {
         onTabChange={setMobileActiveTab}
         hasUnreadNotifications={unreadCount > 0}
       />
+
+      {/* 바텀시트 - 피드 댓글 표시 */}
+      {selectedFeedId && selectedFeed && (
+        <BottomSheet
+          isOpen={true}
+          onClose={handleCloseBottomSheet}
+          maxHeight={95}
+        >
+          <RightSection />
+        </BottomSheet>
+      )}
     </SectionContext.Provider>
   );
 }

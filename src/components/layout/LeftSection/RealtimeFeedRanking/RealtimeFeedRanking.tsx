@@ -5,10 +5,11 @@ import styled from "styled-components";
 import { media } from "@/constants/breakpoints";
 import RankingItem from "./RankingItem";
 import useHotFeed from "@/hooks/useHotFeed";
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { HotFeed } from "@/types/feeds";
 import { useRouter } from "next/navigation";
 import { usePoll } from "@/hooks/usePoll";
+import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 
 export default function RealtimeFeedRanking() {
   const {
@@ -26,6 +27,9 @@ export default function RealtimeFeedRanking() {
     isError: isHotFeedError,
   } = useHotFeed(pollId, { enabled: hotFeedEnabled });
   const router = useRouter();
+
+  // 모바일 컨텍스트 확인
+  const { onMobileFeedClick } = useContext(SectionContext);
 
   const sortedFeeds = useMemo(
     () =>
@@ -72,7 +76,12 @@ export default function RealtimeFeedRanking() {
               {sortedFeeds.map((item: HotFeed) => {
                 const figure = item.rankChange ?? 0;
                 const handleSelect = () => {
-                  router.push(`/feeds/${item.feedId}`);
+                  // 모바일 핸들러가 있으면 사용 (바텀시트), 없으면 페이지 이동
+                  if (onMobileFeedClick) {
+                    onMobileFeedClick(item.feedId);
+                  } else {
+                    router.push(`/feeds/${item.feedId}`);
+                  }
                 };
 
                 return (

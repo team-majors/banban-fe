@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import HomeTab from "@/components/mobile/tabs/HomeTab";
 import FeedTab from "@/components/mobile/tabs/FeedTab";
 import BottomTabBar, { type TabType } from "@/components/mobile/BottomTabBar";
@@ -72,6 +72,8 @@ export default function MobileHome() {
   // 모바일 피드 클릭 핸들러 (바텀시트 열기)
   const handleMobileFeedClick = useCallback((feedId: number) => {
     setSelectedFeedId(feedId);
+    // 브라우저 히스토리에 상태 추가 (뒤로가기 처리용)
+    window.history.pushState({ bottomSheet: true }, "");
   }, []);
 
   // 바텀시트 닫기
@@ -80,6 +82,23 @@ export default function MobileHome() {
     setTargetFeed(null);
     setSectionStatus("feeds");
   }, []);
+
+  // 브라우저 뒤로가기 처리
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // 바텀시트가 열려있을 때 뒤로가기를 누르면 바텀시트만 닫기
+      if (selectedFeedId !== null) {
+        event.preventDefault();
+        handleCloseBottomSheet();
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [selectedFeedId, handleCloseBottomSheet]);
 
   const sectionContextValue = useMemo(
     () => ({

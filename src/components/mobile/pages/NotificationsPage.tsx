@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import type {
   Notification,
   NotificationConnectionStatus,
@@ -159,6 +159,8 @@ export default function NotificationsPage() {
     if (notification.targetType === "FEED" && notification.targetId) {
       setSelectedFeedId(notification.targetId);
       setSectionStatus("comments");
+      // 브라우저 히스토리에 상태 추가 (뒤로가기 처리용)
+      window.history.pushState({ bottomSheet: true }, "");
     } else if (
       notification.targetType === "COMMENT" &&
       notification.relatedId
@@ -166,13 +168,32 @@ export default function NotificationsPage() {
       // 댓글 알림의 경우 relatedId가 feedId
       setSelectedFeedId(notification.relatedId);
       setSectionStatus("comments");
+      // 브라우저 히스토리에 상태 추가 (뒤로가기 처리용)
+      window.history.pushState({ bottomSheet: true }, "");
     }
   };
 
-  const handleCloseBottomSheet = () => {
+  const handleCloseBottomSheet = useCallback(() => {
     setSelectedFeedId(null);
     setTargetFeed(null);
-  };
+  }, []);
+
+  // 브라우저 뒤로가기 처리
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // 바텀시트가 열려있을 때 뒤로가기를 누르면 바텀시트만 닫기
+      if (selectedFeedId !== null) {
+        event.preventDefault();
+        handleCloseBottomSheet();
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [selectedFeedId, handleCloseBottomSheet]);
 
   const formatTimeAgo = useCallback((createdAt: string): string => {
     const now = new Date();

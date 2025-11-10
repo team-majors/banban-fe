@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
 
@@ -20,6 +20,37 @@ export const BottomSheet = ({
   children,
   maxHeight = 90,
 }: BottomSheetProps) => {
+  // 키보드 높이 추적 (px 단위)
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  // Visual Viewport API로 키보드 높이 감지
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined" || !window.visualViewport) {
+      return;
+    }
+
+    const handleViewportResize = () => {
+      // 전체 화면 높이와 보이는 화면 높이의 차이 = 키보드 높이
+      const windowHeight = window.innerHeight;
+      const viewportHeight = window.visualViewport!.height;
+      const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
+
+      setKeyboardHeight(newKeyboardHeight);
+    };
+
+    // 초기값 설정
+    handleViewportResize();
+
+    // 리스너 등록
+    window.visualViewport.addEventListener("resize", handleViewportResize);
+    window.visualViewport.addEventListener("scroll", handleViewportResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", handleViewportResize);
+      window.visualViewport?.removeEventListener("scroll", handleViewportResize);
+    };
+  }, [isOpen]);
+
   const handleDragEnd = (
     event: MouseEvent | TouchEvent | PointerEvent,
     info: { velocity: { y: number }; offset: { y: number } },
@@ -53,6 +84,7 @@ export const BottomSheet = ({
           {/* Bottom Sheet */}
           <SheetContainer
             $maxHeight={maxHeight}
+            $keyboardHeight={keyboardHeight}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -87,12 +119,24 @@ const Backdrop = styled(motion.div)`
   z-index: 998;
 `;
 
-const SheetContainer = styled(motion.div)<{ $maxHeight?: number }>`
+const SheetContainer = styled(motion.div)<{
+  $maxHeight?: number;
+  $keyboardHeight?: number;
+}>`
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  max-height: ${props => props.$maxHeight ? `${props.$maxHeight}vh` : '90vh'};
+  max-height: ${props => {
+    const maxHeightVh = props.$maxHeight || 90;
+    const keyboardHeightPx = props.$keyboardHeight || 0;
+
+    // 키보드가 열려있으면 max-height를 조정
+    if (keyboardHeightPx > 0) {
+      return `calc(${maxHeightVh}vh - ${keyboardHeightPx}px)`;
+    }
+    return `${maxHeightVh}vh`;
+  }};
   background-color: white;
   border-radius: 12px 12px 0 0;
   z-index: 999;
@@ -101,6 +145,7 @@ const SheetContainer = styled(motion.div)<{ $maxHeight?: number }>`
   flex-direction: column;
   overflow: hidden;
   touch-action: none;
+  transition: max-height 0.2s ease;
 `;
 
 const DragHandle = styled.div`

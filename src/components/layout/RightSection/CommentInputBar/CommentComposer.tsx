@@ -51,6 +51,28 @@ export function CommentComposer({
     }
   }, [autoFocus, value.length]);
 
+  // 키보드 열릴 때 입력창이 보이도록 스크롤 처리
+  useEffect(() => {
+    if (!textareaRef.current) return;
+
+    const handleFocus = () => {
+      // 짧은 딜레이 후 스크롤 (키보드 애니메이션 고려)
+      setTimeout(() => {
+        textareaRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }, 300);
+    };
+
+    const textarea = textareaRef.current;
+    textarea.addEventListener("focus", handleFocus);
+
+    return () => {
+      textarea.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
       if (event.key === "Enter" && !event.shiftKey) {

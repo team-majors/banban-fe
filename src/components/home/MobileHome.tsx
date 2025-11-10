@@ -23,7 +23,18 @@ export default function MobileHome() {
     "feeds",
   );
   const [targetFeed, setTargetFeed] = useState<Feed | null>(null);
-  const [mobileActiveTab, setMobileActiveTab] = useState<TabType>("home");
+
+  // 탭 상태 복원 (sessionStorage에서)
+  const [mobileActiveTab, setMobileActiveTab] = useState<TabType>(() => {
+    // SSR 안전하게 처리
+    if (typeof window === "undefined") return "home";
+
+    const savedTab = sessionStorage.getItem("mobileActiveTab");
+    if (savedTab && ["home", "feeds", "notifications", "profile"].includes(savedTab)) {
+      return savedTab as TabType;
+    }
+    return "home";
+  });
 
   // 바텀시트 상태 (피드 클릭용)
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
@@ -99,6 +110,13 @@ export default function MobileHome() {
       window.removeEventListener("popstate", handlePopState);
     };
   }, [selectedFeedId, handleCloseBottomSheet]);
+
+  // 탭 변경 시 sessionStorage에 저장
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("mobileActiveTab", mobileActiveTab);
+    }
+  }, [mobileActiveTab]);
 
   const sectionContextValue = useMemo(
     () => ({

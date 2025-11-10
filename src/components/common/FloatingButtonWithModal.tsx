@@ -69,7 +69,7 @@ const FloatingButtonContainer = styled.div<{ $isHidden?: boolean }>`
   transition: opacity 0.2s ease;
 
   ${media.mobile} {
-    bottom: 32px;
+    bottom: 80px; /* 하단 탭바(64px) + 여유(16px) */
     right: 16px;
   }
 `;

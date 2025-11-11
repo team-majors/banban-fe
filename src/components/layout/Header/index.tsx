@@ -236,7 +236,12 @@ export default function Header({ isNew }: HeaderProps) {
     router.push("/");
   };
 
-  if (pathname === "/login") return null;
+  const shouldHideHeader =
+    pathname === "/login" ||
+    pathname?.startsWith("/auth/kakao") ||
+    pathname?.startsWith("/auth/naver");
+
+  if (shouldHideHeader) return null;
 
   if (loading) return <HeaderSkeleton />;
   else
@@ -358,7 +363,7 @@ const COLOR = {
 };
 
 const Z_INDEX = {
-  header: 900,
+  header: 1,
 };
 
 const Container = styled.header`
@@ -366,8 +371,8 @@ const Container = styled.header`
   left: 0;
   right: 0;
   margin: 0 auto;
-  z-index: 900;
   height: 60px;
+  background-color: #f8fafc;
   display: flex;
   justify-content: center;
   align-items: center;

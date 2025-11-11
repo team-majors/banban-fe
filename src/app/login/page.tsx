@@ -1,6 +1,5 @@
 "use client";
 import LoginPage from "@/components/auth/LoginPage/LoginPage";
-
 import styled from "styled-components";
 
 export default function page() {

@@ -17,7 +17,7 @@ export const getComments = async ({
   const sizeParam = `size=${size}`;
 
   const res = await apiFetch(
-    `/comments/${feedIdParam}${lastIdParam}${sizeParam}`,
+    `/comments?${feedIdParam}${lastIdParam}${sizeParam}`,
   );
 
   console.log(res);

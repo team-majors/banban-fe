@@ -36,7 +36,7 @@ export const getFeeds = async (
   }
 
   const queryString = queryParams.toString();
-  const url = queryString ? `/feeds/${queryString}` : "/feeds/";
+  const url = queryString ? `/feeds?${queryString}` : "/feeds/";
 
   return await apiFetch(url);
 };

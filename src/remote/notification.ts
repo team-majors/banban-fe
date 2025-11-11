@@ -43,7 +43,7 @@ export const getNotifications = async ({
   const lastIdParam = lastId ? `last_id=${lastId}&` : "";
   const sizeParam = `size=${size}`;
 
-  const res = await apiFetch(`/notifications/${lastIdParam}${sizeParam}`);
+  const res = await apiFetch(`/notifications?${lastIdParam}${sizeParam}`);
 
   return res as NotificationResponse;
 };

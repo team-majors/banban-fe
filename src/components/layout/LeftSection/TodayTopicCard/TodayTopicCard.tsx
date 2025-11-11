@@ -164,5 +164,10 @@ const SpinnerContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  min-height: 300px;
+  min-height: 480px;
+  flex: 1;
+
+  ${media.mobile} {
+    min-height: 320px;
+  }
 `;

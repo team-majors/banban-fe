@@ -15,7 +15,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useFeeds } from "@/hooks/useFeeds";
 import { useFeedFilterStore } from "@/store/useFeedFilterStore";
 import NeutralSkeleton from "@/components/common/Skeleton/NeutralSkeleton";
-import RightSection from "@/components/layout/RightSection/RightSection";
+import MainFeedAndComments from "../layout/RightSection/MainFeedAndComments";
 
 const TabPlaceholder = () => (
   <div className="flex flex-col gap-3 p-4">
@@ -205,7 +205,7 @@ export default function MobileHome() {
           onClose={handleCloseBottomSheet}
           maxHeight={95}
         >
-          <RightSection />
+          <MainFeedAndComments />
         </DynamicBottomSheet>
       )}
     </SectionContext.Provider>

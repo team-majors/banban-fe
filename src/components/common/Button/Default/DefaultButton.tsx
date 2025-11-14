@@ -37,7 +37,7 @@ const BackgroundStyle = styled.button.withConfig({
   border-radius: 8px;
   box-shadow: 0px 1px 2px rgba(10, 13, 18, 0.05);
 
-  padding: 8px 14px;
+  padding: 8px 12px;
 
   user-select: none;
 
@@ -55,7 +55,7 @@ const BackgroundStyle = styled.button.withConfig({
 
 const ContentStyle = styled.div`
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 20px;
 `;
 

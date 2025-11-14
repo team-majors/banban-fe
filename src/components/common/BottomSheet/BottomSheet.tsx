@@ -18,7 +18,7 @@ export const BottomSheet = ({
   isOpen,
   onClose,
   children,
-  maxHeight = 90,
+  maxHeight = 80,
 }: BottomSheetProps) => {
   // 키보드 높이 추적 (px 단위)
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -46,8 +46,14 @@ export const BottomSheet = ({
     window.visualViewport.addEventListener("scroll", handleViewportResize);
 
     return () => {
-      window.visualViewport?.removeEventListener("resize", handleViewportResize);
-      window.visualViewport?.removeEventListener("scroll", handleViewportResize);
+      window.visualViewport?.removeEventListener(
+        "resize",
+        handleViewportResize,
+      );
+      window.visualViewport?.removeEventListener(
+        "scroll",
+        handleViewportResize,
+      );
     };
   }, [isOpen]);
 
@@ -58,7 +64,10 @@ export const BottomSheet = ({
     const { velocity, offset } = info;
 
     // 빠르게 아래로 스와이프 또는 충분히 아래로 드래그 → 닫기
-    if (velocity.y > DRAG_VELOCITY_THRESHOLD || offset.y > DRAG_DISTANCE_THRESHOLD) {
+    if (
+      velocity.y > DRAG_VELOCITY_THRESHOLD ||
+      offset.y > DRAG_DISTANCE_THRESHOLD
+    ) {
       onClose();
       return;
     }
@@ -127,8 +136,8 @@ const SheetContainer = styled(motion.div)<{
   bottom: 0;
   left: 0;
   right: 0;
-  max-height: ${props => {
-    const maxHeightVh = props.$maxHeight || 90;
+  max-height: ${(props) => {
+    const maxHeightVh = props.$maxHeight || 70;
     const keyboardHeightPx = props.$keyboardHeight || 0;
 
     // 키보드가 열려있으면 max-height를 조정

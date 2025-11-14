@@ -29,7 +29,7 @@ export const createComment = async ({
   feedId,
   content,
 }: CreateCommentRequest): Promise<CreateCommentResponse> => {
-  const res = await apiFetch(`/comments/`, {
+  const res = await apiFetch(`/comments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

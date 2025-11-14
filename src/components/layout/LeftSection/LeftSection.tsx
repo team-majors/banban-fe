@@ -23,7 +23,7 @@ const StyledContainer = styled.div`
     width: 100%;
   }
 
-  ${media.tablet} {
+  ${media.desktop} {
     width: 100%;
     flex: 1;
   }

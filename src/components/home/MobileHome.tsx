@@ -1,11 +1,10 @@
 "use client";
 
 import { useMemo, useState, useCallback, useEffect } from "react";
+import dynamic from "next/dynamic";
 import HomeTab from "@/components/mobile/tabs/HomeTab";
 import FeedTab from "@/components/mobile/tabs/FeedTab";
 import BottomTabBar, { type TabType } from "@/components/mobile/BottomTabBar";
-import NotificationsPage from "@/components/mobile/pages/NotificationsPage";
-import ProfilePage from "@/components/mobile/pages/ProfilePage";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 import type { Feed } from "@/types/feeds";
 import FloatingButtonWithModal from "@/components/common/FloatingButtonWithModal";
@@ -15,8 +14,43 @@ import NoTopicState from "@/components/layout/LeftSection/TodayTopicCard/NoTopic
 import { useNotifications } from "@/hooks/useNotifications";
 import { useFeeds } from "@/hooks/useFeeds";
 import { useFeedFilterStore } from "@/store/useFeedFilterStore";
-import { BottomSheet } from "@/components/common/BottomSheet/BottomSheet";
+import NeutralSkeleton from "@/components/common/Skeleton/NeutralSkeleton";
 import RightSection from "@/components/layout/RightSection/RightSection";
+
+const TabPlaceholder = () => (
+  <div className="flex flex-col gap-3 p-4">
+    <NeutralSkeleton height="16px" />
+    <NeutralSkeleton height="16px" width="80%" />
+    <NeutralSkeleton height="200px" />
+  </div>
+);
+
+const NotificationsPage = dynamic(
+  () => import("@/components/mobile/pages/NotificationsPage"),
+  {
+    ssr: false,
+    loading: () => <TabPlaceholder />,
+  },
+);
+
+const ProfilePage = dynamic(
+  () => import("@/components/mobile/pages/ProfilePage"),
+  {
+    ssr: false,
+    loading: () => <TabPlaceholder />,
+  },
+);
+
+const DynamicBottomSheet = dynamic(
+  () =>
+    import("@/components/common/BottomSheet/BottomSheet").then(
+      (mod) => mod.BottomSheet,
+    ),
+  {
+    ssr: false,
+    loading: () => null,
+  },
+);
 
 export default function MobileHome() {
   const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">(
@@ -166,13 +200,13 @@ export default function MobileHome() {
 
       {/* 바텀시트 - 피드 댓글 표시 */}
       {selectedFeedId && selectedFeed && (
-        <BottomSheet
+        <DynamicBottomSheet
           isOpen={true}
           onClose={handleCloseBottomSheet}
           maxHeight={95}
         >
           <RightSection />
-        </BottomSheet>
+        </DynamicBottomSheet>
       )}
     </SectionContext.Provider>
   );

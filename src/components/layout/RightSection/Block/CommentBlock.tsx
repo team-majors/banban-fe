@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
 import { useClickOutside } from "@/hooks/useClickOutside";
-import { ReportModal } from "@/components/common/Report";
+import dynamic from "next/dynamic";
 
 import { useCommentLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
 import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
@@ -21,6 +21,11 @@ import { deleteComment, updateComment } from "@/remote/comment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CommentComposer } from "@/components/layout/RightSection/CommentInputBar/CommentComposer";
 import type { CommentUser } from "@/types/comments";
+
+const ReportModal = dynamic(
+  () => import("@/components/common/Report").then((mod) => mod.ReportModal),
+  { ssr: false, loading: () => null },
+);
 
 function formatCommentWithMentions(
   content: string,

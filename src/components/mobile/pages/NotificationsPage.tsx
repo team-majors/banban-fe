@@ -20,9 +20,17 @@ import { logger } from "@/utils/logger";
 import { useFeeds } from "@/hooks/useFeeds";
 import { useFeedFilterStore } from "@/store/useFeedFilterStore";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
-import { BottomSheet } from "@/components/common/BottomSheet/BottomSheet";
+import dynamic from "next/dynamic";
 import RightSection from "@/components/layout/RightSection/RightSection";
 import type { Feed } from "@/types/feeds";
+
+const DynamicBottomSheet = dynamic(
+  () =>
+    import("@/components/common/BottomSheet/BottomSheet").then(
+      (mod) => mod.BottomSheet,
+    ),
+  { ssr: false, loading: () => null },
+);
 
 const STATUS_LABELS: Record<NotificationConnectionStatus, string> = {
   idle: "대기",
@@ -301,13 +309,13 @@ export default function NotificationsPage() {
       {/* 바텀시트 - 댓글 표시 */}
       {selectedFeedId && selectedFeed && (
         <SectionContext.Provider value={sectionContextValue}>
-          <BottomSheet
+          <DynamicBottomSheet
             isOpen={true}
             onClose={handleCloseBottomSheet}
             maxHeight={95}
           >
             <RightSection />
-          </BottomSheet>
+          </DynamicBottomSheet>
         </SectionContext.Provider>
       )}
     </>

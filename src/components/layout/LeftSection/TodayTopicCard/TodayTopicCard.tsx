@@ -122,7 +122,6 @@ const Container = styled.section`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1rem;
   min-height: 470px;
   background-color: white;
   border-radius: 8px;
@@ -147,6 +146,7 @@ const TitleSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-bottom: 0.5rem;
 `;
 
 const TitleLabel = styled.div`
@@ -155,7 +155,7 @@ const TitleLabel = styled.div`
 
 const TopicTitle = styled.div`
   width: 100%;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 24px;
   padding: 4px;
   text-align: center;

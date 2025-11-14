@@ -74,9 +74,8 @@ export default function LoginPage() {
             ),
           )}
         </ButtonGroup>
+        <ContactLink href="/contact">문의하기</ContactLink>
       </LoginSection>
-
-      <ContactLink href="/contact">문의하기</ContactLink>
     </Container>
   );
 }
@@ -96,11 +95,15 @@ const Container = styled.div`
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
 
   ${media.mobile} {
+    justify-content: space-between;
     max-height: none;
     height: 650px;
     gap: 10px;
-    padding: 0;
-    padding-top: 16px;
+    padding: 16px 0;
+    padding-bottom: 32px;
+    box-shadow: none;
+    border: none;
+    background-color: #f8fafc;
   }
 `;
 
@@ -116,6 +119,9 @@ const Divider = styled.div`
   width: 100%;
   height: 1px;
   background-color: #e9eaeb;
+  ${media.mobile} {
+    display: none;
+  }
 `;
 
 const MainBox = styled.div`
@@ -161,6 +167,9 @@ const LoginSection = styled.div`
   gap: 20px;
   align-items: center;
   width: 100%;
+  ${media.mobile} {
+    gap: 12px;
+  }
 `;
 
 const ButtonGroup = styled.div`
@@ -168,6 +177,9 @@ const ButtonGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  ${media.mobile} {
+    width: 74%;
+  }
 `;
 
 const ContactLink = styled.a`
@@ -180,4 +192,5 @@ const ContactLink = styled.a`
 const QuickStartText = styled.span`
   color: #535862;
   font-size: 14px;
+  margin-bottom: 8px;
 `;

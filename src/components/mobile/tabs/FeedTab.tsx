@@ -3,7 +3,7 @@
 import { useContext } from "react";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 import FeedsPanel from "@/components/layout/RightSection/FeedsPanel";
-import { CommentsPanel } from "@/components/layout/RightSection/CommentsPanel";
+import CommentsPanel from "@/components/layout/RightSection/CommentsPanel";
 
 export default function FeedTab() {
   const { sectionStatus } = useContext(SectionContext);

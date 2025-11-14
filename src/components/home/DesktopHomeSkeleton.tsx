@@ -67,5 +67,5 @@ function SkeletonLine({ width, height }: { width: string; height: string }) {
 }
 
 function SkeletonPill() {
-  return <div className="shimmer h-[38px] rounded-md" />;
+  return <div className="shimmer h-[38px] rounded-md flex-1" />;
 }

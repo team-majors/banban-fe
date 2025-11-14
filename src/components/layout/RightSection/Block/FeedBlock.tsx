@@ -26,8 +26,7 @@ const OptionsDropdown = dynamic(
 );
 
 const ReportModal = dynamic(
-  () =>
-    import("@/components/common/Report").then((mod) => mod.ReportModal),
+  () => import("@/components/common/Report").then((mod) => mod.ReportModal),
   { ssr: false, loading: () => null },
 );
 
@@ -284,6 +283,7 @@ const StyledContainer = styled.div`
   gap: 10px;
   padding: 10px 16px;
   align-items: start;
+  margin-bottom: 8px;
 `;
 
 const StyledContentContainer = styled.div`

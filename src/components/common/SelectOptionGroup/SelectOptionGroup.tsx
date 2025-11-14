@@ -10,6 +10,13 @@ type StyledSelectOptionGroupProps = Pick<
 
 export type selectOption = "firstOption" | "secondOption" | "none";
 
+interface StyledGradientProps {
+  fromColor: string;
+  toColor: string;
+  isIdle: boolean;
+  isSelected: boolean;
+  disabled: boolean;
+}
 interface SelectOptionGroupProps extends StyledSelectOptionGroupProps {
   selected: "firstOption" | "secondOption" | "none";
   firstOptionString: string;
@@ -30,6 +37,7 @@ export const SelectOptionGroup = ({
     !isAuthenticated || (selected !== "firstOption" && selected !== "none");
   const isDisabled2 =
     !isAuthenticated || (selected !== "secondOption" && selected !== "none");
+
   return (
     <StyledSelectOptionGroup {...styleProps}>
       <StyledButton
@@ -63,14 +71,6 @@ export const SelectOptionGroup = ({
     </StyledSelectOptionGroup>
   );
 };
-
-interface StyledGradientProps {
-  fromColor: string;
-  toColor: string;
-  isIdle: boolean;
-  isSelected: boolean;
-  disabled: boolean;
-}
 
 const StyledButton = styled(DefaultButton).withConfig({
   shouldForwardProp: (prop) =>
@@ -190,7 +190,7 @@ const StyledSelectOptionGroup = styled.div.withConfig({
   shouldForwardProp: (prop) => !["rowGap"].includes(prop),
 })<StyledSelectOptionGroupProps>`
   width: ${({ width }) => width};
-  height: ${({ height }) => height};
+  height: 86px;
 
   display: flex;
   flex-direction: column;

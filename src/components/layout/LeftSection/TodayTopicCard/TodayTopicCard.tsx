@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useMemo, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import useAuth from "@/hooks/useAuth";
 import { usePoll } from "@/hooks/usePoll";
 import { media } from "@/constants/breakpoints";
@@ -14,6 +14,8 @@ import { makePieData } from "@/lib/chart";
 import { selectOption } from "@/components/common/SelectOptionGroup/SelectOptionGroup";
 
 import useVoteFlow from "@/hooks/useVoteFlow";
+import { useIdle } from "@/hooks/useIdle";
+import { PieData } from "@/types/pie";
 
 export default function TodayTopicCard() {
   const { isLoggedIn } = useAuth();
@@ -23,11 +25,13 @@ export default function TodayTopicCard() {
   const [openLoginModal, setOpenLoginModal] = useState(false);
   const [selected, setSelected] = useState<selectOption>("none");
   const [optionLabel, setOptionLabel] = useState<string>("");
+  const [pieData, setPieData] = useState<PieData[]>(() => []);
 
-  const pieData = useMemo(
-    () => makePieData(data?.options ?? [], data?.votedOptionId ?? null),
-    [data],
-  );
+  useIdle(() => {
+    if (!data?.options) return;
+    const computed = makePieData(data.options, data.votedOptionId ?? null);
+    setPieData(computed);
+  }, [data?.options, data?.votedOptionId]);
 
   const currentSelection =
     data?.hasVoted === false
@@ -119,7 +123,7 @@ const Container = styled.section`
   flex-direction: column;
   justify-content: center;
   gap: 1rem;
-  min-height: 480px;
+  min-height: 470px;
   background-color: white;
   border-radius: 8px;
   padding: 20px;
@@ -163,7 +167,7 @@ const SpinnerContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  min-height: 480px;
+  min-height: 470px;
   flex: 1;
 
   ${media.mobile} {

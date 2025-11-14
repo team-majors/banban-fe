@@ -1,13 +1,26 @@
-import RealtimeFeedRanking from "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking";
 import TodayTopicCard from "@/components/layout/LeftSection/TodayTopicCard/TodayTopicCard";
 import { media } from "@/constants/breakpoints";
+import { useIdle } from "@/hooks/useIdle";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import styled from "styled-components";
 
+const RealtimeFeedRankingLazy = dynamic(
+  () =>
+    import(
+      "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking"
+    ),
+  { ssr: false },
+);
+
 export default function LeftSection() {
+  const [showRanking, setShowRanking] = useState(false);
+
+  useIdle(() => setShowRanking(true), []);
   return (
     <StyledContainer>
       <TodayTopicCard />
-      <RealtimeFeedRanking />
+      {showRanking && <RealtimeFeedRankingLazy />}
     </StyledContainer>
   );
 }

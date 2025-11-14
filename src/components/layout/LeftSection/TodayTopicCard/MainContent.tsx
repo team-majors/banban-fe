@@ -1,5 +1,5 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useEffect, useState, useMemo } from "react";
+import styled, { keyframes } from "styled-components";
 import {
   selectOption,
   SelectOptionGroup,
@@ -8,21 +8,43 @@ import VoteResultPlaceHolder from "./VoteResultPlaceHolder/VoteResultPlaceHolder
 import { PollOption } from "@/types/poll";
 import dynamic from "next/dynamic";
 import { PieData } from "@/types/pie";
-const VoteResultCircle = dynamic(
+
+/* ------------------------------
+   ✔️ 1. 개선된 폴리필
+   - 더 현실적인 유휴 시간 감지
+-------------------------------- */
+function requestIdleCallbackPolyfill(callback: IdleRequestCallback): number {
+  const start = Date.now();
+  return window.setTimeout(() => {
+    callback({
+      didTimeout: false,
+      timeRemaining: () => Math.max(0, 50 - (Date.now() - start)),
+    } as IdleDeadline);
+  }, 1) as unknown as number;
+}
+
+function cancelIdleCallbackPolyfill(id: number) {
+  clearTimeout(id);
+}
+
+const LazyVoteResultCircle = dynamic(
   () =>
     import(
       "@/components/layout/LeftSection/TodayTopicCard/chart/VoteResultCircle"
-    ).then((mod) => mod.default),
+    ),
   {
     ssr: false,
     loading: () => (
-      <div className="flex max-h-[280px] w-full items-center justify-center">
-        <div className="h-[232px] w-[232px] animate-pulse rounded-full bg-[#f2f3f5]" />
+      <div className="flex h-[264px] w-full items-center justify-center">
+        <div className="w-[232px] h-[232px] rounded-full bg-[#f2f3f5] animate-pulse" />
       </div>
     ),
   },
 );
 
+/* ------------------------------
+   ✔️ 2. VoteResultDisplay - 불필요한 상태 초기화 방지
+-------------------------------- */
 function VoteResultDisplay({
   pieData,
   votedOptionId,
@@ -30,13 +52,33 @@ function VoteResultDisplay({
   pieData: PieData[];
   votedOptionId: number | null | undefined;
 }) {
-  if (votedOptionId == null) {
-    return <VoteResultPlaceHolder />;
-  }
-  return pieData.length > 0 ? <VoteResultCircle pieData={pieData} /> : null;
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || ready) return;
+
+    const idle = window.requestIdleCallback ?? requestIdleCallbackPolyfill;
+    const cancelIdle = window.cancelIdleCallback ?? cancelIdleCallbackPolyfill;
+
+    const idleId = idle(() => {
+      setReady(true);
+    });
+
+    return () => cancelIdle(idleId);
+  }, []); // 한 번만 실행
+
+  if (!votedOptionId) return <VoteResultPlaceHolder />;
+
+  if (!pieData.length) return null;
+
+  return ready ? (
+    <LazyVoteResultCircle pieData={pieData} />
+  ) : (
+    <VoteResultPlaceHolder />
+  );
 }
 
-export default function MainContent({
+function MainContent({
   pieData,
   votedOptionId,
   options,
@@ -51,23 +93,27 @@ export default function MainContent({
   handleVote: (selection: selectOption) => void;
   isLoggedIn: boolean;
 }) {
-  const firstOptionString = options?.find(
-    (option) => option.optionOrder === 1,
-  )?.content;
-  const secondOptionString = options?.find(
-    (option) => option.optionOrder === 2,
-  )?.content;
+  // options 배열이 변경될 때만 재계산
+  const { firstOptionString, secondOptionString } = useMemo(() => {
+    return {
+      firstOptionString:
+        options?.find((o) => o.optionOrder === 1)?.content || "",
+      secondOptionString:
+        options?.find((o) => o.optionOrder === 2)?.content || "",
+    };
+  }, [options]);
 
   return (
     <>
       <VoteResultCircleContainer>
         <VoteResultDisplay pieData={pieData} votedOptionId={votedOptionId} />
       </VoteResultCircleContainer>
+
       <SelectOptionGroup
         selected={displayedSelection}
         rowGap="10px"
-        firstOptionString={firstOptionString || ""}
-        secondOptionString={secondOptionString || ""}
+        firstOptionString={firstOptionString}
+        secondOptionString={secondOptionString}
         onClick={handleVote}
         isAuthenticated={isLoggedIn}
       />
@@ -75,9 +121,21 @@ export default function MainContent({
   );
 }
 
-const VoteResultCircleContainer = styled.div`
+export default MainContent;
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+export const VoteResultCircleContainer = styled.div`
   display: flex;
   justify-content: center;
-  max-height: 300px;
-  min-height: 280px;
+  animation: ${fadeIn} 0.3s ease-out forwards;
 `;

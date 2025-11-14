@@ -6,9 +6,9 @@ export default function DesktopHomeSkeleton() {
       <div className="flex gap-6 w-full max-w-[1000px] px-6">
         {/* Left Column */}
         <div className="flex flex-col gap-4 basis-[430px] shrink-0">
-          <div className="bg-white rounded-2xl p-5 flex flex-col gap-4 min-h-[480px] justify-between shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+          <div className="bg-white rounded-2xl p-5 flex flex-col gap-4 min-h-[470px] justify-between shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
             {/* Chart Info */}
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2">
               <SkeletonLine width="40%" height="24px" />
               <SkeletonLine width="90%" height="40px" />
             </div>

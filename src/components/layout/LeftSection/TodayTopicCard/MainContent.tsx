@@ -13,7 +13,14 @@ const VoteResultCircle = dynamic(
     import(
       "@/components/layout/LeftSection/TodayTopicCard/chart/VoteResultCircle"
     ).then((mod) => mod.default),
-  { ssr: false },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex max-h-[280px] w-full items-center justify-center">
+        <div className="h-[232px] w-[232px] animate-pulse rounded-full bg-[#f2f3f5]" />
+      </div>
+    ),
+  },
 );
 
 function VoteResultDisplay({

@@ -126,12 +126,11 @@ const Container = styled.section`
 
   ${media.mobile} {
     width: 100%;
-    min-height: auto;
     padding: 16px 12px;
     border-radius: 0;
   }
 
-  ${media.tablet} {
+  ${media.desktop} {
     width: 100%;
   }
 

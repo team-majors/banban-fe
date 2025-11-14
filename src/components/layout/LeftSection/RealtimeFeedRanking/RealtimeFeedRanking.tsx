@@ -32,8 +32,7 @@ export default function RealtimeFeedRanking() {
   const { onMobileFeedClick } = useContext(SectionContext);
 
   const sortedFeeds = useMemo(
-    () =>
-      data?.feeds ? [...data.feeds].sort((a, b) => a.rank - b.rank) : [],
+    () => (data?.feeds ? [...data.feeds].sort((a, b) => a.rank - b.rank) : []),
     [data],
   );
 
@@ -134,7 +133,7 @@ const Container = styled.section`
     border-radius: 0;
   }
 
-  ${media.tablet} {
+  ${media.desktop} {
     width: 100%;
   }
 

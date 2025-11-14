@@ -12,6 +12,6 @@ export const BREAKPOINTS = {
 
 export const media = {
   mobile: `@media (max-width: ${BREAKPOINTS.mobile - 1}px)`,
-  tablet: `@media (min-width: ${BREAKPOINTS.mobile}px) and (max-width: ${BREAKPOINTS.tablet - 1}px)`,
+  // tablet: `@media (min-width: ${BREAKPOINTS.mobile}px) and (max-width: ${BREAKPOINTS.tablet - 1}px)`,
   desktop: `@media (min-width: ${BREAKPOINTS.tablet}px)`,
 };

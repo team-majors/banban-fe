@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { DefaultButton } from "@/components/common/Button";
-import { BanBanLogo, BellIcon, DotIcon, UserIcon } from "@/components/svg";
+import { BanBanLogo, UserIcon } from "@/components/svg";
 import styled from "styled-components";
 import { media } from "@/constants/breakpoints";
 import useAuth from "@/hooks/useAuth";
@@ -12,22 +11,21 @@ import { UserMenu } from "@/components/common/UserMenu/UserMenu";
 import Image from "next/image";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import HeaderSkeleton from "@/components/common/Skeleton/HeaderSkeleton";
-import NotificationMenu from "./NotificationMenu";
-import { useNotificationStore } from "@/store/useNotificationStore";
-import { useNotifications } from "@/hooks/useNotifications";
-import type { Notification } from "@/types/notification";
-import {
-  deleteReadNotifications,
-  markAllNotificationsAsRead,
-  markNotificationsAsRead,
-} from "@/remote/notification";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { AdminSettingsModal } from "@/components/admin/AdminSettingsModal";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
 import { logger } from "@/utils/logger";
-import { useToast } from "@/components/common/Toast/useToast";
 import { isAdmin as checkIsAdmin } from "@/utils/jwt";
 import STORAGE_KEYS from "@/constants/storageKeys";
+import dynamic from "next/dynamic";
+
+const DynamicNotificationControls = dynamic(
+  () => import("./NotificationControls"),
+  {
+    ssr: false,
+    loading: () => <NotificationButtonGhost />,
+  },
+);
 
 interface HeaderProps {
   isNew?: boolean;
@@ -35,7 +33,6 @@ interface HeaderProps {
 
 export default function Header({ isNew }: HeaderProps) {
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
-  const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [isProfileCardOpen, setProfileCardOpen] = useState(false);
   const [isCommunityCardOpen, setCommunityCardOpen] = useState(false);
   const [isAdminSettingsOpen, setAdminSettingsOpen] = useState(false);
@@ -43,10 +40,7 @@ export default function Header({ isNew }: HeaderProps) {
   const { isLoggedIn, user, logout, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const toast = useToast();
   const menuRef = useRef<HTMLDivElement>(null);
-  const notificationRef = useRef<HTMLDivElement>(null);
   useClickOutside(
     menuRef,
     () => {
@@ -55,26 +49,6 @@ export default function Header({ isNew }: HeaderProps) {
       setCommunityCardOpen(false);
     },
     "click",
-  );
-  useClickOutside(notificationRef, () => setNotificationOpen(false), "click");
-
-  const connectionStatus = useNotificationStore(
-    (state) => state.connectionStatus,
-  );
-  const isTimeout = useNotificationStore((state) => state.isTimeout);
-  const markAsRead = useNotificationStore((state) => state.markAsRead);
-  const markAllRead = useNotificationStore((state) => state.markAllAsRead);
-
-  const {
-    data: notificationsData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useNotifications({ enabled: isLoggedIn });
-
-  const unreadCount = useMemo(
-    () => notificationsData?.pages[0]?.data.unreadCount ?? 0,
-    [notificationsData],
   );
 
   const profileImageSrcState = user?.profileImageUrl || "/user.png";
@@ -104,7 +78,6 @@ export default function Header({ isNew }: HeaderProps) {
   }, [isLoggedIn]);
 
   const handleToggleMenu = () => {
-    setNotificationOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(false);
     setUserMenuOpen((prev) => !prev);
@@ -118,111 +91,22 @@ export default function Header({ isNew }: HeaderProps) {
   };
 
   const handleLogin = () => router.push("/login");
-  const handleNotificationToggle = () => {
-    setUserMenuOpen(false);
-    setProfileCardOpen(false);
-    setCommunityCardOpen(false);
-    setNotificationOpen((prev) => {
-      // 알림 메뉴를 열 때 최신 데이터 요청
-      if (!prev) {
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      }
-      return !prev;
-    });
-  };
   const handleProfile = () => handleToggleMenu();
-
-  useEffect(() => {
-    if (!isNotificationOpen) return;
-    const allNotifications =
-      notificationsData?.pages?.flatMap((page) => page.data.notifications) ??
-      [];
-    const unreadIds = allNotifications
-      .filter((notification) => !notification.isRead)
-      .map((notification) => notification.id);
-    if (unreadIds.length > 0) {
-      markAsRead(unreadIds);
-    }
-  }, [isNotificationOpen, notificationsData, markAsRead]);
-
-  const handleNotificationItemClick = async (notification: Notification) => {
-    // 안읽은 알림이면 서버에 읽음 처리
-    if (!notification.isRead) {
-      try {
-        await markNotificationsAsRead([notification.id]);
-        // 로컬 상태 업데이트
-        markAsRead([notification.id]);
-        // 캐시 무효화하여 최신 데이터 반영
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      } catch (error) {
-        logger.error("알림 읽음 처리 실패", error);
-        // 에러 발생해도 UI는 계속 진행
-      }
-    }
-    setNotificationOpen(false);
-
-    // 피드 관련 알림이면 해당 피드로 이동
-    if (notification.targetType === "FEED" && notification.targetId) {
-      router.push(`/feeds/${notification.targetId}`);
-    } else if (
-      notification.targetType === "COMMENT" &&
-      notification.relatedId
-    ) {
-      // 댓글 관련 알림이면 해당 피드로 이동 (relatedId는 feedId)
-      router.push(`/feeds/${notification.relatedId}`);
-    }
-  };
-
-  const handleMarkAllRead = async () => {
-    try {
-      await markAllNotificationsAsRead();
-      // 로컬 상태 업데이트
-      markAllRead();
-      // React Query 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    } catch (error) {
-      logger.error("전체 알림 읽음 처리 실패", error);
-    }
-  };
-
-  const handleDeleteRead = async () => {
-    try {
-      await deleteReadNotifications();
-      // React Query 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      logger.info("읽은 알림 삭제 완료");
-    } catch (error) {
-      logger.error("읽은 알림 삭제 실패", error);
-      toast.showToast({
-        type: "error",
-        message: "알림 삭제에 실패했습니다.",
-        duration: 3000,
-      });
-    }
-  };
-
-  const hasUnreadIndicator = useMemo(() => {
-    if (typeof isNew === "boolean") return isNew;
-    return unreadCount > 0;
-  }, [isNew, unreadCount]);
 
   const handleOpenProfileCard = () => {
     setUserMenuOpen(false);
-    setNotificationOpen(false);
     setCommunityCardOpen(false);
     setProfileCardOpen(true);
   };
 
   const handleOpenCommunityCard = () => {
     setUserMenuOpen(false);
-    setNotificationOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(true);
   };
 
   const handleOpenAdminSettings = () => {
     setUserMenuOpen(false);
-    setNotificationOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(false);
     setAdminSettingsOpen(true);
@@ -230,7 +114,6 @@ export default function Header({ isNew }: HeaderProps) {
 
   const handleLogoClick = () => {
     setUserMenuOpen(false);
-    setNotificationOpen(false);
     setProfileCardOpen(false);
     setCommunityCardOpen(false);
     router.push("/");
@@ -260,31 +143,7 @@ export default function Header({ isNew }: HeaderProps) {
         <Actions>
           {isLoggedIn ? (
             <ButtonsWrapper>
-              <NotificationWrapper ref={notificationRef}>
-                <IconButton
-                  aria-label="알림"
-                  onClick={handleNotificationToggle}
-                  $active={isNotificationOpen}
-                >
-                  <BellIcon />
-                  {hasUnreadIndicator && (
-                    <NotificationDot data-testid="notification-dot" />
-                  )}
-                </IconButton>
-                {isNotificationOpen && (
-                  <NotificationMenu
-                    data={notificationsData}
-                    fetchNextPage={fetchNextPage}
-                    hasNextPage={hasNextPage}
-                    isFetchingNextPage={isFetchingNextPage}
-                    connectionStatus={connectionStatus}
-                    isTimeout={isTimeout}
-                    onMarkAllRead={handleMarkAllRead}
-                    onDeleteRead={handleDeleteRead}
-                    onItemClick={handleNotificationItemClick}
-                  />
-                )}
-              </NotificationWrapper>
+              <DynamicNotificationControls isNew={isNew} />
 
               <ProfileWrapper ref={menuRef}>
                 <IconButton
@@ -483,18 +342,6 @@ const PrimaryButton = styled(ButtonBase)`
   color: ${COLOR.white};
 `;
 
-const NotificationDot = styled(DotIcon)`
-  position: absolute;
-  right: 13px;
-  top: 9px;
-
-  ${media.mobile} {
-    /* 버튼 크기 44px에 맞춰 조정 */
-    right: 11px;
-    top: 7px;
-  }
-`;
-
 const ButtonsWrapper = styled.div`
   position: relative;
   display: flex;
@@ -502,10 +349,15 @@ const ButtonsWrapper = styled.div`
   gap: 6px;
 `;
 
-const NotificationWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
+const NotificationButtonGhost = styled.div`
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: rgba(63, 19, 255, 0.12);
+  ${media.mobile} {
+    display: none;
+  }
 `;
 
 const ProfileWrapper = styled.div`

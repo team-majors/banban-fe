@@ -10,4 +10,14 @@ export const pretendardSans = localFont({
   ],
   variable: "--font-pretendard",
   display: "swap",
+  preload: false,
+  fallback: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "Roboto",
+    "Helvetica Neue",
+    "Arial",
+    "sans-serif",
+  ],
 });

@@ -20,3 +20,4 @@ export { UsersIcon } from "./UsersIcon";
 export { LogoutIcon } from "./LogoutIcon";
 export { QuestionMarks } from "./QuestionMarks";
 export { SettingsIcon } from "./SettingsIcon";
+export { DiscussionDoubleIcon } from "./DiscussionDoubleIcon";

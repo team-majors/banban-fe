@@ -1,4 +1,9 @@
-import { HomeIcon, FeedIcon, BellIcon, UserIcon } from "@/components/svg";
+import {
+  HomeIcon,
+  BellIcon,
+  UserIcon,
+  DiscussionDoubleIcon,
+} from "@/components/svg";
 
 export type TabType = "home" | "feeds" | "notifications" | "profile";
 
@@ -41,7 +46,7 @@ export default function BottomTabBar({
         aria-label="피드"
         className="flex flex-col items-center justify-center gap-1 flex-1 border-none bg-transparent cursor-pointer p-2 transition-transform active:scale-95"
       >
-        <FeedIcon
+        <DiscussionDoubleIcon
           width={24}
           height={24}
           color={activeTab === "feeds" ? "#3f13ff" : "#535862"}

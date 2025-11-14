@@ -2,15 +2,44 @@
 
 import { useMemo, useState } from "react";
 import styled from "styled-components";
+import dynamic from "next/dynamic";
 import LeftSection from "@/components/layout/LeftSection/LeftSection";
-import RightSection from "@/components/layout/RightSection/RightSection";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 import { media } from "@/constants/breakpoints";
 import type { Feed } from "@/types/feeds";
-import FloatingButtonWithModal from "@/components/common/FloatingButtonWithModal";
 import { useAuthStore } from "@/store/useAuthStore";
 import { usePoll } from "@/hooks/usePoll";
 import NoTopicState from "@/components/layout/LeftSection/TodayTopicCard/NoTopicState";
+import RightSectionSkeleton from "../common/Skeleton/RightSectionSkeleton";
+
+const RightSection = dynamic(
+  () => import("@/components/layout/RightSection/RightSection"),
+  {
+    ssr: false,
+    loading: () => <RightSectionSkeleton />,
+  },
+);
+
+const FloatingButtonWithModal = dynamic(
+  () => import("@/components/common/FloatingButtonWithModal"),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="
+    fixed
+    bottom-[28px]
+    right-[28px]
+    w-[68px]
+    h-[68px]
+    rounded-full
+    bg-[rgba(63,19,255,0.12)]
+    shadow-[0_2px_8px_rgba(0,0,0,0.1)]
+  "
+      ></div>
+    ),
+  },
+);
 
 export default function DesktopHome() {
   const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">(
@@ -51,10 +80,7 @@ export default function DesktopHome() {
 
           {/* 메인 화면에서만 피드 작성 플러스 버튼 표시 (투표 완료 시에만) */}
           {isLoggedIn && pollData?.hasVoted && (
-            <FloatingButtonWithModal
-              sectionStatus="feeds"
-              targetFeed={null}
-            />
+            <FloatingButtonWithModal sectionStatus="feeds" targetFeed={null} />
           )}
         </MainContentWrapper>
       </ContentContainer>
@@ -69,7 +95,7 @@ const ContentContainer = styled.div`
   margin: 0 auto;
   padding-top: 60px;
 
-  ${media.tablet} {
+  ${media.desktop} {
     height: 100dvh;
     gap: 16px;
     padding: 60px 24px 0 24px;
@@ -88,7 +114,7 @@ const MainContentWrapper = styled.div`
   width: fit-content;
   height: fit-content;
 
-  ${media.tablet} {
+  ${media.desktop} {
     display: flex;
     gap: 16px;
     width: 100%;

@@ -23,11 +23,16 @@ export default function RightSection() {
   );
 }
 
-const StyledContainer = styled.div<{ $calculatedHeight?: number; $inBottomSheet?: boolean }>`
+const StyledContainer = styled.div<{
+  $calculatedHeight?: number;
+  $inBottomSheet?: boolean;
+}>`
   flex: ${(props) => (props.$inBottomSheet ? "1" : "initial")};
   height: ${(props) => {
     if (props.$inBottomSheet) return "unset";
-    return props.$calculatedHeight !== 0 ? `${props.$calculatedHeight}px` : "100%";
+    return props.$calculatedHeight !== 0
+      ? `${props.$calculatedHeight}px`
+      : "100%";
   }};
   min-height: ${(props) => (props.$inBottomSheet ? "0" : "auto")};
 
@@ -50,7 +55,7 @@ const StyledContainer = styled.div<{ $calculatedHeight?: number; $inBottomSheet?
     width: 100%;
   }
 
-  ${media.tablet} {
+  ${media.desktop} {
     width: 100%;
     flex: 1;
   }

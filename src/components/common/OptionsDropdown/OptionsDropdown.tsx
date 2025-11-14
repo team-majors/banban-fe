@@ -49,7 +49,7 @@ const Container = styled.div.attrs(() => ({ role: "menu" }))`
   position: absolute;
   right: 0;
   top: 12px;
-  width: 300px;
+  width: 168px;
   background-color: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
@@ -58,7 +58,10 @@ const Container = styled.div.attrs(() => ({ role: "menu" }))`
   overflow: hidden;
 `;
 
-const OptionButton = styled.button<{ $isReport?: boolean; $isDelete?: boolean }>`
+const OptionButton = styled.button<{
+  $isReport?: boolean;
+  $isDelete?: boolean;
+}>`
   width: 100%;
   padding: 16px;
   font-size: 14px;

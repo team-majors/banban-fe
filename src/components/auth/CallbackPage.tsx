@@ -1,68 +1,64 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/common/Toast/useToast";
 import styled, { keyframes } from "styled-components";
 import useAuth from "@/hooks/useAuth";
 
-export default function CallbackPage({
-  provider,
-}: {
+interface CallbackPageProps {
   provider: "kakao" | "naver";
-}) {
+}
+
+export default function CallbackPage({ provider }: CallbackPageProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { showToast } = useToast();
   const { login } = useAuth();
-  const searchParams = useSearchParams();
-  const [authCode, setAuthCode] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const isMounted = useRef(true);
+
+  // ✅ URL에서 code & state 값 한번만 읽어서 캐싱
+  const { code, state } = useMemo(() => {
+    return {
+      code: searchParams?.get("code") ?? null,
+      state: searchParams?.get("state") ?? undefined,
+    };
+  }, [searchParams]);
 
   useEffect(() => {
-    const code = searchParams?.get("code");
+    // 컴포넌트 언마운트 시 비동기 처리 중단
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
+  useEffect(() => {
     if (!code) {
       setError("URL에서 인증 코드를 찾을 수 없습니다.");
       return;
     }
 
-    setAuthCode(code);
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (!authCode) return;
-
-    let isActive = true;
-
-    const performLogin = async () => {
-      const state = searchParams?.get("state") || undefined;
+    const doLogin = async () => {
       try {
-        await login({
-          code: authCode,
-          provider,
-          state,
-        });
+        await login({ code, provider, state });
+        if (!isMounted.current) return;
+        router.replace("/");
       } catch (err) {
+        if (!isMounted.current) return;
         console.error("로그인 실패:", err);
-        if (!isActive) return;
         setError("로그인 요청에 실패했습니다.");
+
         showToast({
           type: "error",
-          message: "로그인 처리 실패: " + (err as Error).message,
-          duration: 1000,
+          message: `로그인 실패: ${(err as Error).message}`,
+          duration: 1500,
         });
-      } finally {
-        if (!isActive) return;
-        router.replace("/");
       }
     };
 
-    void performLogin();
-
-    return () => {
-      isActive = false;
-    };
-  }, [authCode, login, provider, router, searchParams, showToast]);
+    void doLogin();
+  }, [code, provider, state, login, router, showToast]);
 
   if (error) {
     return (
@@ -99,6 +95,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   padding: 24px;
+  z-index: 999;
 `;
 
 const StatusCard = styled.div`
@@ -106,6 +103,7 @@ const StatusCard = styled.div`
   width: 100%;
   border-radius: 16px;
   padding: 28px 24px;
+
   background: #270cb0a2;
   backdrop-filter: blur(12px);
   box-shadow: 0 18px 40px rgba(63, 19, 255, 0.25);

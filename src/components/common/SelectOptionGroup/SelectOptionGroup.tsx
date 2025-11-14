@@ -191,7 +191,6 @@ const StyledSelectOptionGroup = styled.div.withConfig({
 })<StyledSelectOptionGroupProps>`
   width: ${({ width }) => width};
   height: 86px;
-
   display: flex;
   flex-direction: column;
   row-gap: ${({ rowGap }) => rowGap};

@@ -19,6 +19,18 @@ import { isAdmin as checkIsAdmin } from "@/utils/jwt";
 import STORAGE_KEYS from "@/constants/storageKeys";
 import dynamic from "next/dynamic";
 
+const NotificationButtonGhost = styled.div`
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: rgba(63, 19, 255, 0.12);
+
+  ${media.mobile} {
+    display: none;
+  }
+`;
+
 const DynamicNotificationControls = dynamic(
   () => import("./NotificationControls"),
   {
@@ -321,7 +333,6 @@ const ButtonBase = styled(DefaultButton)`
   border: none;
   width: 86px;
   height: 44px;
-  padding: 10px 18px;
   font-size: 16px;
 
   ${media.mobile} {
@@ -347,17 +358,6 @@ const ButtonsWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-`;
-
-const NotificationButtonGhost = styled.div`
-  width: 36px;
-  height: 36px;
-  margin-right: 8px;
-  border-radius: 50%;
-  background-color: rgba(63, 19, 255, 0.12);
-  ${media.mobile} {
-    display: none;
-  }
 `;
 
 const ProfileWrapper = styled.div`

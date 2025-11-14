@@ -341,7 +341,7 @@ export const ReportsTab = () => {
                         </span>
                         {r.targetType === "FEED" ? (
                           <Link
-                            href={`/feedId=${r.targetId}&tab=comments`}
+                            href={`/feeds/${r.targetId}?tab=comments`}
                             className="text-xs font-semibold text-slate-600 underline underline-offset-4"
                             title="피드로 이동"
                           >

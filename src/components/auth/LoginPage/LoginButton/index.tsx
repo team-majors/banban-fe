@@ -1,4 +1,5 @@
 "use client";
+import { media } from "@/constants/breakpoints";
 import React from "react";
 import styled from "styled-components";
 
@@ -56,6 +57,10 @@ const StyledButton = styled.button<StyledButtonProps>`
   font-weight: 500;
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
   border-radius: 8px;
+
+  ${media.mobile} {
+    min-width: 160px;
+  }
 
   ${({ disabled }) =>
     disabled &&

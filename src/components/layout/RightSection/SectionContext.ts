@@ -10,6 +10,7 @@ export const SectionContext = createContext<{
   setTargetFeed: Dispatch<SetStateAction<Feed | null>>;
 
   inBottomSheet?: boolean;
+  disableFeedsPanel?: boolean;
 
   // 모바일 전용: 피드 클릭 핸들러 (바텀시트 사용)
   onMobileFeedClick?: (feedId: number) => void;
@@ -21,5 +22,6 @@ export const SectionContext = createContext<{
   setTargetFeed: () => {},
 
   inBottomSheet: false,
+  disableFeedsPanel: false,
   onMobileFeedClick: undefined,
 });

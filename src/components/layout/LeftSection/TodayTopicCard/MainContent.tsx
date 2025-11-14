@@ -137,5 +137,6 @@ const fadeIn = keyframes`
 export const VoteResultCircleContainer = styled.div`
   display: flex;
   justify-content: center;
+  margin-bottom: 1rem;
   animation: ${fadeIn} 0.3s ease-out forwards;
 `;

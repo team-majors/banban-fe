@@ -14,7 +14,11 @@ const CommentsPanel = () => {
   const { isLoggedIn } = useAuthStore();
 
   if (targetFeed === null) {
-    return <Container $inBottomSheet={inBottomSheet}>오류! 댓글이 없습니다!</Container>;
+    return (
+      <Container $inBottomSheet={inBottomSheet}>
+        오류! 댓글이 없습니다!
+      </Container>
+    );
   }
 
   return (
@@ -107,4 +111,4 @@ const StyledLoginNotice = styled.p`
   text-align: center;
 `;
 
-export { CommentsPanel };
+export default CommentsPanel;

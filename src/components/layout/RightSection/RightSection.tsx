@@ -1,10 +1,19 @@
 import styled from "styled-components";
 import { media } from "@/constants/breakpoints";
-import FeedsPanel from "./FeedsPanel";
 import { useRef, useContext } from "react";
 import { useCalculatedHeight } from "./hooks/useCalculateHeight";
-import { CommentsPanel } from "./CommentsPanel";
 import { SectionContext } from "./SectionContext";
+import dynamic from "next/dynamic";
+
+const FeedsPanel = dynamic(() => import("./FeedsPanel"), {
+  ssr: false,
+  loading: () => <FeedsPanel />,
+});
+
+const CommentsPanel = dynamic(() => import("./CommentsPanel"), {
+  ssr: false,
+  loading: () => <CommentsPanel />,
+});
 
 export default function RightSection() {
   const { sectionStatus, inBottomSheet } = useContext(SectionContext);
@@ -53,11 +62,6 @@ const StyledContainer = styled.div<{
 
   ${media.mobile} {
     width: 100%;
-  }
-
-  ${media.desktop} {
-    width: 100%;
-    flex: 1;
   }
 
   ${media.desktop} {

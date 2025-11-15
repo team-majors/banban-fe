@@ -1,11 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/hooks/auth/useAuth";
 import { Avatar } from "@/components/common/Avatar";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
-import { LogoutIcon, UserProfileIcon, UsersIcon, SettingsIcon } from "@/components/svg";
+import {
+  LogoutIcon,
+  UserProfileIcon,
+  UsersIcon,
+  SettingsIcon,
+} from "@/components/svg";
 import { isAdmin as checkIsAdmin } from "@/utils/jwt";
 import STORAGE_KEYS from "@/constants/storageKeys";
 import { logger } from "@/utils/logger";
@@ -115,9 +120,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#f4f6f8]">
             <LogoutIcon width={20} height={20} color="#535862" />
           </div>
-          <span className="text-base text-[#181d27] font-medium">
-            로그아웃
-          </span>
+          <span className="text-base text-[#181d27] font-medium">로그아웃</span>
         </button>
       </div>
 

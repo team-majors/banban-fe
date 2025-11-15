@@ -1,10 +1,10 @@
 "use client";
 import styled from "styled-components";
 import { useState, useMemo } from "react";
-import useAuth from "@/hooks/useAuth";
-import { useUpdateUsername } from "@/hooks/useUpdateUsername";
-import { useUploadProfileImage } from "@/hooks/useUploadProfileImage";
-import { useDeleteProfileImage } from "@/hooks/useDeleteProfileImage";
+import useAuth from "@/hooks/auth/useAuth";
+import { useUpdateUsername } from "@/hooks/api/user/useUpdateUsername";
+import { useUploadProfileImage } from "@/hooks/api/user/useUploadProfileImage";
+import { useDeleteProfileImage } from "@/hooks/api/user/useDeleteProfileImage";
 import { getDefaultProfileImagePreview } from "@/remote/user";
 import { useToast } from "../common/Toast/useToast";
 import { Modal } from "../common/Modal";
@@ -27,7 +27,9 @@ export const ProfileEditModal = ({
   const [newUsername, setNewUsername] = useState(user?.username);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isDeleted, setIsDeleted] = useState(false);
-  const [defaultImagePreviewUrl, setDefaultImagePreviewUrl] = useState<string | null>(null);
+  const [defaultImagePreviewUrl, setDefaultImagePreviewUrl] = useState<
+    string | null
+  >(null);
 
   // 초기 상태의 기본 이미지 URL 저장 (커스텀이 아닐 때)
   const defaultImageUrl = useMemo(() => {
@@ -59,7 +61,7 @@ export const ProfileEditModal = ({
             {
               onSuccess: resolve,
               onError: reject,
-            }
+            },
           );
         });
       }
@@ -104,7 +106,12 @@ export const ProfileEditModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} isCloseButton={true} width="400px">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      isCloseButton={true}
+      width="400px"
+    >
       <Modal.Layout>
         <ModalHeader>
           <ModalTitle>프로필 편집</ModalTitle>

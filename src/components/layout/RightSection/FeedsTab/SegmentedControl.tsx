@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useState, useRef } from "react";
-import { useSegmentedIndicator } from "@/hooks/useSegmentedIndicator";
+import { useSegmentedIndicator } from "@/hooks/ui/feed/useSegmentedIndicator";
 
 interface SegmentedControlProps extends React.HTMLAttributes<HTMLDivElement> {
   itemLabels: string[];

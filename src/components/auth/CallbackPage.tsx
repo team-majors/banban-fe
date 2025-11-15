@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/common/Toast/useToast";
 import styled, { keyframes } from "styled-components";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/hooks/auth/useAuth";
 
 interface CallbackPageProps {
   provider: "kakao" | "naver";

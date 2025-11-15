@@ -7,14 +7,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BellIcon, DotIcon } from "@/components/svg";
 import NotificationMenu from "./NotificationMenu";
 import { useNotificationStore } from "@/store/useNotificationStore";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications } from "@/hooks/api/notification/useNotifications";
 import {
   deleteReadNotifications,
   markAllNotificationsAsRead,
   markNotificationsAsRead,
 } from "@/remote/notification";
 import type { Notification } from "@/types/notification";
-import { useClickOutside } from "@/hooks/useClickOutside";
+import { useClickOutside } from "@/hooks/common/useClickOutside";
 
 interface Props {
   isNew?: boolean;

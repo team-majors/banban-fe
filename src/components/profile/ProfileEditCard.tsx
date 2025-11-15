@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { Input } from "../common/Input";
 import { useRef, useState } from "react";
 import ProfileImageContainer from "./ProfileImageContainer";
-import useAuth from "@/hooks/useAuth";
-import { useUpdateUsername } from "@/hooks/useUpdateUsername";
-import { useUploadProfileImage } from "@/hooks/useUploadProfileImage";
-import { useDeleteProfileImage } from "@/hooks/useDeleteProfileImage";
+import useAuth from "@/hooks/auth/useAuth";
+import { useUpdateUsername } from "@/hooks/api/user/useUpdateUsername";
+import { useUploadProfileImage } from "@/hooks/api/user/useUploadProfileImage";
+import { useDeleteProfileImage } from "@/hooks/api/user/useDeleteProfileImage";
 import { getDefaultProfileImagePreview } from "@/remote/user";
 import { useToast } from "../common/Toast/useToast";
 import { DefaultButton } from "../common/Button";
@@ -14,14 +14,17 @@ import { DefaultButton } from "../common/Button";
 export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
   const { user } = useAuth();
   const { showToast } = useToast();
-  const { mutate: updateUsername, isPending: isUsernameUpdating } = useUpdateUsername();
+  const { mutate: updateUsername, isPending: isUsernameUpdating } =
+    useUpdateUsername();
   const uploadProfileImageMutation = useUploadProfileImage();
   const deleteProfileImageMutation = useDeleteProfileImage();
   const [newUsername, setNewUsername] = useState(user?.username);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isImageEditMode, setIsImageEditMode] = useState(false);
-  const [defaultImagePreviewUrl, setDefaultImagePreviewUrl] = useState<string | null>(null);
+  const [defaultImagePreviewUrl, setDefaultImagePreviewUrl] = useState<
+    string | null
+  >(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
@@ -94,7 +97,9 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
   return (
     <Container>
       <ProfileHeader>
-        <ProfileTitle>{isImageEditMode ? "프로필 이미지 편집" : "프로필"}</ProfileTitle>
+        <ProfileTitle>
+          {isImageEditMode ? "프로필 이미지 편집" : "프로필"}
+        </ProfileTitle>
       </ProfileHeader>
 
       <ProfileContent>
@@ -116,7 +121,7 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
               ref={fileInputRef}
               type="file"
               accept="image/jpeg, image/jpg, image/bmp, image/webp, image/png, image/gif"
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
@@ -124,19 +129,23 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
                   setIsDeleted(false);
                   setIsImageEditMode(false);
                 }
-                e.target.value = '';
+                e.target.value = "";
               }}
             />
-            <ImageEditButton onClick={(e) => {
-              e.stopPropagation();
-              fileInputRef.current?.click();
-            }}>
+            <ImageEditButton
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+            >
               이미지 등록
             </ImageEditButton>
-            <ImageEditButton onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteImage();
-            }}>
+            <ImageEditButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteImage();
+              }}
+            >
               기본 이미지 사용하기
             </ImageEditButton>
           </ImageEditSection>
@@ -159,16 +168,20 @@ export const ProfileEditCard = ({ onClose }: { onClose: () => void }) => {
           </NicknameSection>
         )}
         <ButtonWrapper>
-          <DefaultButton onClick={() => {
-            if (isImageEditMode) {
-              setIsImageEditMode(false);
-            } else {
-              setPendingFile(null);
-              setIsDeleted(false);
-              setIsImageEditMode(false);
-              onClose();
-            }
-          }}>{isImageEditMode ? "뒤로" : "취소"}</DefaultButton>
+          <DefaultButton
+            onClick={() => {
+              if (isImageEditMode) {
+                setIsImageEditMode(false);
+              } else {
+                setPendingFile(null);
+                setIsDeleted(false);
+                setIsImageEditMode(false);
+                onClose();
+              }
+            }}
+          >
+            {isImageEditMode ? "뒤로" : "취소"}
+          </DefaultButton>
           <DefaultButton
             disabled={
               isUsernameUpdating ||

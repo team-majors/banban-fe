@@ -1,7 +1,7 @@
 "use client";
 
 import FeedsTab from "./FeedsTab/FeedsTab";
-import FeedStream from "./FeedStream";
+import FeedStream from "../../feed/list/FeedStream";
 import styled from "styled-components";
 
 const StyledDivider = styled.div`

@@ -1,6 +1,6 @@
 import TodayTopicCard from "@/components/layout/LeftSection/TodayTopicCard/TodayTopicCard";
 import { media } from "@/constants/breakpoints";
-import { useIdle } from "@/hooks/useIdle";
+import { useIdle } from "@/hooks/common/useIdle";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import styled from "styled-components";

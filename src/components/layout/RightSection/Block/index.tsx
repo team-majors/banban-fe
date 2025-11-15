@@ -1,8 +1,8 @@
 import type { Feed } from "@/types/feeds";
 import { AdBlock } from "./AdBlock";
 import { FeedBlock } from "./FeedBlock";
-import { CommentHeadBlock } from "./CommentHeadBlock";
-import { CommentBlock } from "./CommentBlock";
+import { CommentHeadBlock } from "../../../feed/comments/CommentHeadBlock";
+import { CommentBlock } from "../../../feed/comments/CommentBlock";
 import { CommentContent } from "@/types/comments";
 import { Poll } from "@/types/poll";
 

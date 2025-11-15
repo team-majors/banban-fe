@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useState, useCallback } from "react";
-import useAuth from "@/hooks/useAuth";
-import { usePoll } from "@/hooks/usePoll";
+import useAuth from "@/hooks/auth/useAuth";
+import { usePoll } from "@/hooks/api/poll/usePoll";
 import { media } from "@/constants/breakpoints";
 
 import MainContent from "./MainContent";
@@ -13,8 +13,8 @@ import ConfirmModal from "./ConfirmModal";
 import { makePieData } from "@/lib/chart";
 import { selectOption } from "@/components/common/SelectOptionGroup/SelectOptionGroup";
 
-import useVoteFlow from "@/hooks/useVoteFlow";
-import { useIdle } from "@/hooks/useIdle";
+import useVoteFlow from "@/hooks/ui/poll/useVoteFlow";
+import { useIdle } from "@/hooks/common/useIdle";
 import { PieData } from "@/types/pie";
 
 export default function TodayTopicCard() {

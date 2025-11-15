@@ -2,14 +2,17 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { useSafeMediaQuery } from "@/hooks/useMediaQuery";
-import MobileHomeSkeleton from "@/components/home/MobileHomeSkeleton";
-import DesktopHomeSkeleton from "@/components/home/DesktopHomeSkeleton";
+import { useSafeMediaQuery } from "@/hooks/common/useMediaQuery";
+import MobileHomeSkeleton from "@/components/common/Skeleton/MobileHomeSkeleton";
+import DesktopHomeSkeleton from "@/components/common/Skeleton/DesktopHomeSkeleton";
 
-const MobileHome = dynamic(() => import("@/components/home/MobileHome"), {
-  ssr: false,
-  loading: () => <MobileHomeSkeleton />,
-});
+const MobileHome = dynamic(
+  () => import("@/components/mobile/pages/MobileHome"),
+  {
+    ssr: false,
+    loading: () => <MobileHomeSkeleton />,
+  },
+);
 
 const DesktopHome = dynamic(() => import("@/components/home/DesktopHome"), {
   ssr: false,

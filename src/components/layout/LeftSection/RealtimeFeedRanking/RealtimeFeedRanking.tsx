@@ -4,11 +4,11 @@ import ZapIcon from "@/components/svg/ZapIcon";
 import styled from "styled-components";
 import { media } from "@/constants/breakpoints";
 import RankingItem from "./RankingItem";
-import useHotFeed from "@/hooks/useHotFeed";
+import useHotFeed from "@/hooks/api/feed/useHotFeed";
 import { useMemo, useContext } from "react";
 import { HotFeed } from "@/types/feeds";
 import { useRouter } from "next/navigation";
-import { usePoll } from "@/hooks/usePoll";
+import { usePoll } from "@/hooks/api/poll/usePoll";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 
 export default function RealtimeFeedRanking() {

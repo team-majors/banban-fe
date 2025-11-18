@@ -39,7 +39,8 @@ export default function FeedStream() {
   });
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const { scrollPosition, setScrollPosition } = useScrollPositionStore();
+  const { getPosition, setPosition } = useScrollPositionStore();
+  const scrollKey = `feeds:${sortBy}:${filterType}`;
 
   // 무한 스크롤 디바운스 (빠른 스크롤 시 불필요한 fetch 방지)
   useEffect(() => {
@@ -52,13 +53,19 @@ export default function FeedStream() {
     return () => clearTimeout(timeoutId);
   }, [isInView, hasNextPage, feedsEnabled, fetchNextPage]);
 
+  // 스크롤 위치 복원
   useEffect(() => {
     const container = scrollRef.current;
     if (!container) return;
+    const stored = getPosition(scrollKey);
+    if (stored <= 0) return;
+    container.scrollTo(0, stored);
+  }, [getPosition, scrollKey, data?.pages?.length]);
 
-    if (scrollPosition > 0) {
-      container.scrollTo(0, scrollPosition);
-    }
+  // 현재 스크롤 위치 저장
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
 
     let timeoutId: number | undefined;
 
@@ -67,8 +74,8 @@ export default function FeedStream() {
         window.clearTimeout(timeoutId);
       }
       timeoutId = window.setTimeout(() => {
-        setScrollPosition(container.scrollTop || 0);
-      }, 100); // 100ms 디바운스 (성능 개선)
+        setPosition(scrollKey, container.scrollTop || 0);
+      }, 100);
     };
 
     container.addEventListener("scroll", handleScroll);
@@ -77,9 +84,11 @@ export default function FeedStream() {
       if (timeoutId) {
         window.clearTimeout(timeoutId);
       }
+      // 언마운트 시점의 위치도 저장해 둔다
+      setPosition(scrollKey, container.scrollTop || 0);
       container.removeEventListener("scroll", handleScroll);
     };
-  }, [scrollPosition, setScrollPosition]);
+  }, [scrollKey, setPosition]);
 
   const isLoading = isPollLoading || (feedsEnabled && isFeedsLoading);
   const hasData =

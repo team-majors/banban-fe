@@ -53,8 +53,18 @@ export default function FeedsTab() {
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: row;
+  overflow-x: scroll;
+  overflow-y: hidden;
   align-items: center;
   justify-content: center;
   gap: 12px;
   padding: 12px 8px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+
+  -ms-overflow-style: none;
 `;

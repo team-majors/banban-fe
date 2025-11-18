@@ -51,7 +51,7 @@ export default function SegmentedControl({
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: column;
-
+  flex: none;
   position: relative;
 `;
 

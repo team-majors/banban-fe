@@ -2,13 +2,13 @@ import FeedsTab from "../../layout/RightSection/FeedsTab/FeedsTab";
 import FeedStream from "./FeedStream";
 import styled from "styled-components";
 
-export default function FeedsTread() {
+export default function FeedListSection() {
   return (
-    <>
+    <div>
       <FeedsTab />
       <StyledDivider />
       <FeedStream />
-    </>
+    </div>
   );
 }
 

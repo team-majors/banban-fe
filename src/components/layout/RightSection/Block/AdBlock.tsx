@@ -4,9 +4,9 @@ import { MoreIcon } from "@/components/svg/MoreIcon";
 import type { Feed } from "@/types/feeds";
 import { useRef, useState } from "react";
 import { OptionsDropdown } from "@/components/common/OptionsDropdown/OptionsDropdown";
-import { useClickOutside } from "@/hooks/useClickOutside";
+import { useClickOutside } from "@/hooks/common/useClickOutside";
 import dynamic from "next/dynamic";
-import useReportMutation from "@/hooks/useReportMutation";
+import useReportMutation from "@/hooks/api/report/useReportMutation";
 
 const ReportModal = dynamic(
   () => import("@/components/common/Report").then((mod) => mod.ReportModal),

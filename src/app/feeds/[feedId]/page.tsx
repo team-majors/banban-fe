@@ -1,9 +1,9 @@
 "use client";
 
-import DesktopFeedPage from "@/components/layout/FeedDetail/DesktopFeedPage";
-import MobileFeedPage from "@/components/layout/FeedDetail/MobileFeedPage";
+import DesktopFeedDetailPage from "@/components/layout/FeedDetail/DesktopFeedDetailPage";
+import MobileFeedDetailPage from "@/components/mobile/pages/MobileFeedDetailPage";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
-import { useFeedDetailPageState } from "@/hooks/useFeedDetailPageState";
+import { useFeedDetailPageState } from "@/hooks/ui/feedDetail/useFeedDetailPageState";
 
 export default function FeedPage() {
   const { contextValue, isMobile } = useFeedDetailPageState();
@@ -11,14 +11,14 @@ export default function FeedPage() {
   if (isMobile) {
     return (
       <SectionContext.Provider value={contextValue}>
-        <MobileFeedPage />
+        <MobileFeedDetailPage />
       </SectionContext.Provider>
     );
   }
 
   return (
     <SectionContext.Provider value={contextValue}>
-      <DesktopFeedPage />
+      <DesktopFeedDetailPage />
     </SectionContext.Provider>
   );
 }

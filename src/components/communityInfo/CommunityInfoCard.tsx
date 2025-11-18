@@ -106,7 +106,7 @@ const ContentContainer = styled.div`
 
 const Content = styled.div`
   font-size: 12px;
-  font-weight: 300;
+  font-weight: 400;
   color: #000;
   line-height: 20px;
 `;

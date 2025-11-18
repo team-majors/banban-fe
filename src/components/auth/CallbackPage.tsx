@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/common/Toast/useToast";
 import styled, { keyframes } from "styled-components";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/hooks/auth/useAuth";
 
 interface CallbackPageProps {
   provider: "kakao" | "naver";
@@ -18,7 +18,6 @@ export default function CallbackPage({ provider }: CallbackPageProps) {
   const [error, setError] = useState<string | null>(null);
   const isMounted = useRef(true);
 
-  // ✅ URL에서 code & state 값 한번만 읽어서 캐싱
   const { code, state } = useMemo(() => {
     return {
       code: searchParams?.get("code") ?? null,
@@ -104,9 +103,9 @@ const StatusCard = styled.div`
   border-radius: 16px;
   padding: 28px 24px;
 
-  background: #270cb0a2;
+  background: #3a21b7a0;
   backdrop-filter: blur(12px);
-  box-shadow: 0 18px 40px rgba(63, 19, 255, 0.25);
+  box-shadow: 0 18px 40px rgba(15, 4, 60, 0.25);
   text-align: center;
   color: #ffffff;
 `;

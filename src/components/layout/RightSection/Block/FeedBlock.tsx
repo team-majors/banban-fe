@@ -1,13 +1,13 @@
 import type { Feed } from "@/types/feeds";
 import React, { useEffect, useRef, useState, useContext } from "react";
 import dynamic from "next/dynamic";
-import { useClickOutside } from "@/hooks/useClickOutside";
-import { useFeedLikeOptimisticUpdate } from "@/hooks/useLikeOptimisticUpdate";
-import { useVoteOptionColor } from "@/hooks/useVoteOptionColor";
+import { useClickOutside } from "@/hooks/common/useClickOutside";
+import { useFeedLikeOptimisticUpdate } from "@/hooks/api/feed/useLikeOptimisticUpdate";
+import { useVoteOptionColor } from "@/hooks/ui/poll/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 import { Avatar } from "@/components/common/Avatar";
 import { FeedCommentButton, FeedHeartButton } from "@/components/common/Button";
-import useReportMutation from "@/hooks/useReportMutation";
+import useReportMutation from "@/hooks/api/report/useReportMutation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import styled from "styled-components";
@@ -40,7 +40,7 @@ const ConfirmModal = dynamic(
 
 const FloatingInputModal = dynamic(
   () =>
-    import("@/components/layout/FloatingInputModal").then(
+    import("@/components/common/FloatingInputModal").then(
       (mod) => mod.FloatingInputModal,
     ),
   { ssr: false, loading: () => null },

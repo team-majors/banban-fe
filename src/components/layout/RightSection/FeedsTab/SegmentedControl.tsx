@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { useState, useRef } from "react";
-import { useSegmentedIndicator } from "@/hooks/useSegmentedIndicator";
+import { useState, useRef, useEffect } from "react";
+import { useSegmentedIndicator } from "@/hooks/ui/feed/useSegmentedIndicator";
 
 interface SegmentedControlProps extends React.HTMLAttributes<HTMLDivElement> {
   itemLabels: string[];
@@ -16,13 +16,20 @@ export default function SegmentedControl({
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const [selectedIdx, setSelectedIdx] = useState(initialIdx ?? 0);
-  const { indicatorLeft } = useSegmentedIndicator({
+  const { indicatorLeft, indicatorWidth } = useSegmentedIndicator({
     itemRefs,
     selectedIdx,
     dependencyKey: itemLabels.length,
   });
 
+  useEffect(() => {
+    if (typeof initialIdx === "number") {
+      setSelectedIdx(initialIdx);
+    }
+  }, [initialIdx]);
+
   const handleItemClick = (idx: number) => {
+    if (idx === selectedIdx) return;
     setSelectedIdx(idx);
     onItemClick?.(idx);
   };
@@ -42,8 +49,8 @@ export default function SegmentedControl({
             {label}
           </StyledItem>
         ))}
+        <SegmentedControlItem $left={indicatorLeft} $width={indicatorWidth} />
       </StyledItemWrapper>
-      <SegmentedControlItem $left={indicatorLeft} />
     </StyledContainer>
   );
 }
@@ -51,13 +58,15 @@ export default function SegmentedControl({
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: column;
-
+  flex: none;
   position: relative;
 `;
 
 const StyledItemWrapper = styled.div`
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
+  position: relative;
+  width: fit-content;
 `;
 
 const StyledItem = styled.button<{ $isSelected: boolean }>`
@@ -69,18 +78,15 @@ const StyledItem = styled.button<{ $isSelected: boolean }>`
   cursor: pointer;
 `;
 
-const SegmentedControlItem = styled.div<{ $left: number }>`
+const SegmentedControlItem = styled.div<{ $left: number; $width: number }>`
   position: absolute;
-
   bottom: -4px;
-
-  left: ${({ $left }) => `${$left}px`};
-
-  width: 24px;
   height: 4px;
-
+  width: ${({ $width }) => `${$width}px`};
+  max-width: 100%;
   background-color: #3f13ff;
   border-radius: 10px;
-
-  transition: all 0.3s ease-in-out;
+  pointer-events: none;
+  transform: translateX(${({ $left }) => $left}px);
+  transition: transform 0.2s ease, width 0.2s ease;
 `;

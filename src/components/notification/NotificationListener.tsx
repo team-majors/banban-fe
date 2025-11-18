@@ -2,14 +2,14 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import useAuth from "@/hooks/useAuth";
-import { useNotificationWebSocket } from "@/hooks/useNotificationWebSocket";
+import useAuth from "@/hooks/auth/useAuth";
 import { useNotificationStore } from "@/store/useNotificationStore";
 import type { Notification } from "@/types/notification";
 import type { WSNotificationMessage } from "@/types/notification";
 import { useRouter } from "next/navigation";
 import { logger } from "@/utils/logger";
 import { useToast } from "@/components/common/Toast/useToast";
+import { useNotificationWebSocket } from "@/hooks/ui/notification/useNotificationWebSocket";
 
 const TIMEOUT_THRESHOLD_MS = 70_000;
 
@@ -34,7 +34,9 @@ export default function NotificationListener() {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const addNotification = useNotificationStore((state) => state.addNotification);
+  const addNotification = useNotificationStore(
+    (state) => state.addNotification,
+  );
   const setConnectionStatus = useNotificationStore(
     (state) => state.setConnectionStatus,
   );
@@ -49,11 +51,7 @@ export default function NotificationListener() {
     (state) => state.resetConnectionState,
   );
 
-  const {
-    status,
-    lastActivity,
-    reconnectAttempts,
-  } = useNotificationWebSocket({
+  const { status, lastActivity, reconnectAttempts } = useNotificationWebSocket({
     enabled: isLoggedIn,
     onNotification: (payload) => {
       const notification = mapNotificationPayload(payload);

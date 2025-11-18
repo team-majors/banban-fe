@@ -1,6 +1,11 @@
 import React, { forwardRef } from "react";
 import styled from "styled-components";
-import { HelpCircleIcon, LogoutIcon, UserProfileIcon, SettingsIcon } from "@/components/svg";
+import {
+  HelpCircleIcon,
+  LogoutIcon,
+  UserProfileIcon,
+  SettingsIcon,
+} from "@/components/svg";
 
 interface MenuProps {
   onClose: () => void;
@@ -17,7 +22,17 @@ interface MenuItem {
 }
 
 export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
-  ({ onClose, onLogout, onOpenProfile, onOpenCommunityInfo, onOpenAdminSettings, isAdmin }, ref) => {
+  (
+    {
+      onClose,
+      onLogout,
+      onOpenProfile,
+      onOpenCommunityInfo,
+      onOpenAdminSettings,
+      isAdmin,
+    },
+    ref,
+  ) => {
     const menuItems: MenuItem[] = [
       {
         label: "프로필",
@@ -47,14 +62,7 @@ export const UserMenuComponent = forwardRef<HTMLDivElement, MenuProps>(
           onOpenCommunityInfo?.();
         },
       },
-      // {
-      //   label: "팀 정보",
-      //   icon: <UsersIcon />,
-      //   onClick: () => {
-      //     console.log("팀 정보");
-      //     onClose();
-      //   },
-      // },
+
       {
         label: "로그아웃",
         icon: <LogoutIcon />,

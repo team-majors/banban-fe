@@ -5,8 +5,8 @@ import type { SortBy } from "@/types/feeds";
 import styled from "styled-components";
 import SegmentedControl from "./SegmentedControl";
 import FilterChip from "./FilterChip";
-import useAuth from "@/hooks/useAuth";
-import { usePoll } from "@/hooks/usePoll";
+import useAuth from "@/hooks/auth/useAuth";
+import { usePoll } from "@/hooks/api/poll/usePoll";
 
 const SORT_OPTIONS: { label: string; value: SortBy }[] = [
   { label: "최신순", value: "created" },
@@ -53,10 +53,18 @@ export default function FeedsTab() {
 const StyledContainer = styled.div`
   display: flex;
   flex-direction: row;
+  overflow-x: scroll;
+  overflow-y: hidden;
   align-items: center;
   justify-content: center;
   gap: 12px;
   padding: 12px 8px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  scrollbar-width: none;
+
+  -ms-overflow-style: none;
 `;
-
-

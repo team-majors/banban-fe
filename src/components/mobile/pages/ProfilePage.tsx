@@ -1,15 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/hooks/auth/useAuth";
 import { Avatar } from "@/components/common/Avatar";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { CommunityInfoCard } from "@/components/communityInfo/CommunityInfoCard";
-import { LogoutIcon, UserProfileIcon, UsersIcon, SettingsIcon } from "@/components/svg";
+import {
+  LogoutIcon,
+  UserProfileIcon,
+  UsersIcon,
+  SettingsIcon,
+} from "@/components/svg";
 import { isAdmin as checkIsAdmin } from "@/utils/jwt";
 import STORAGE_KEYS from "@/constants/storageKeys";
 import { logger } from "@/utils/logger";
 import { AdminSettingsModal } from "@/components/admin/AdminSettingsModal";
+import dynamic from "next/dynamic";
+
+const ConfirmModal = dynamic(
+  () =>
+    import("@/components/common/ConfirmModal/ConfirmModal").then(
+      (mod) => mod.ConfirmModal,
+    ),
+  { ssr: false },
+);
 
 export default function ProfilePage() {
   const { user, logout, isLoggedIn } = useAuth();
@@ -17,6 +31,7 @@ export default function ProfilePage() {
   const [isCommunityInfoOpen, setCommunityInfoOpen] = useState(false);
   const [isAdminSettingsOpen, setAdminSettingsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLogoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -36,6 +51,14 @@ export default function ProfilePage() {
       setIsAdmin(false);
     }
   }, [isLoggedIn]);
+
+  const handleOpenLogoutConfirm = () => {
+    setLogoutConfirmOpen(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    await logout();
+  };
 
   if (!isLoggedIn || !user) {
     return (
@@ -109,15 +132,13 @@ export default function ProfilePage() {
         )}
 
         <button
-          onClick={logout}
+          onClick={handleOpenLogoutConfirm}
           className="flex items-center gap-3 w-full px-4 py-4 border-none bg-white cursor-pointer transition-colors hover:bg-[#f4f6f8] active:bg-[#e9eaeb]"
         >
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#f4f6f8]">
             <LogoutIcon width={20} height={20} color="#535862" />
           </div>
-          <span className="text-base text-[#181d27] font-medium">
-            로그아웃
-          </span>
+          <span className="text-base text-[#181d27] font-medium">로그아웃</span>
         </button>
       </div>
 
@@ -133,6 +154,16 @@ export default function ProfilePage() {
       <AdminSettingsModal
         isOpen={isAdminSettingsOpen}
         onClose={() => setAdminSettingsOpen(false)}
+      />
+      <ConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setLogoutConfirmOpen(false)}
+        onConfirm={handleConfirmLogout}
+        title="로그아웃하시겠어요?"
+        message="로그아웃하시겠어요? 다음 사용 시 재로그인이 필요해요."
+        confirmText="로그아웃"
+        cancelText="취소"
+        isDanger
       />
     </div>
   );

@@ -1,20 +1,9 @@
-"use client";
 import LoginPage from "@/components/auth/LoginPage/LoginPage";
-import styled from "styled-components";
 
 export default function page() {
   return (
-    <Container>
+    <div className="flex h-full justify-center items-center my-0 mx-auto py-[6px] px-2">
       <LoginPage />
-    </Container>
+    </div>
   );
 }
-
-const Container = styled.div`
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto;
-  padding: 6px 8px;
-`;

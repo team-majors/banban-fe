@@ -8,7 +8,7 @@ import type {
 import { useInView } from "react-intersection-observer";
 import { Avatar } from "@/components/common/Avatar";
 import { useToast } from "@/components/common/Toast/useToast";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications } from "@/hooks/api/notification/useNotifications";
 import { useNotificationStore } from "@/store/useNotificationStore";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -17,7 +17,7 @@ import {
   markNotificationsAsRead,
 } from "@/remote/notification";
 import { logger } from "@/utils/logger";
-import { useFeeds } from "@/hooks/useFeeds";
+import { useFeeds } from "@/hooks/api/feed/useFeeds";
 import { useFeedFilterStore } from "@/store/useFeedFilterStore";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
 import dynamic from "next/dynamic";
@@ -65,7 +65,9 @@ export default function NotificationsPage() {
 
   // 바텀시트 상태
   const [selectedFeedId, setSelectedFeedId] = useState<number | null>(null);
-  const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">("comments");
+  const [sectionStatus, setSectionStatus] = useState<"feeds" | "comments">(
+    "comments",
+  );
   const [targetFeed, setTargetFeed] = useState<Feed | null>(null);
 
   const connectionStatus = useNotificationStore(
@@ -75,12 +77,8 @@ export default function NotificationsPage() {
   const markAsRead = useNotificationStore((state) => state.markAsRead);
   const markAllRead = useNotificationStore((state) => state.markAllAsRead);
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useNotifications({ enabled: true });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useNotifications({ enabled: true });
 
   const allNotifications =
     data?.pages?.flatMap((page) => page.data.notifications) ?? [];
@@ -291,7 +289,10 @@ export default function NotificationsPage() {
                 </div>
               ))}
               {hasNextPage && (
-                <div ref={loadMoreRef} className="p-4 text-center text-sm text-[#858d9d]">
+                <div
+                  ref={loadMoreRef}
+                  className="p-4 text-center text-sm text-[#858d9d]"
+                >
                   {isFetchingNextPage ? "로딩 중..." : ""}
                 </div>
               )}

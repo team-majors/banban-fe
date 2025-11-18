@@ -8,7 +8,7 @@ import { SectionContext } from "@/components/layout/RightSection/SectionContext"
 import { media } from "@/constants/breakpoints";
 import type { Feed } from "@/types/feeds";
 import { useAuthStore } from "@/store/useAuthStore";
-import { usePoll } from "@/hooks/usePoll";
+import { usePoll } from "@/hooks/api/poll/usePoll";
 import NoTopicState from "@/components/layout/LeftSection/TodayTopicCard/NoTopicState";
 import RightSectionSkeleton from "../common/Skeleton/RightSectionSkeleton";
 
@@ -20,8 +20,8 @@ const RightSection = dynamic(
   },
 );
 
-const FloatingButtonWithModal = dynamic(
-  () => import("@/components/common/FloatingButtonWithModal"),
+const FeedComposerFloatingButton = dynamic(
+  () => import("@/components/common/FeedComposerFloatingButton"),
   {
     ssr: false,
     loading: () => (
@@ -80,7 +80,10 @@ export default function DesktopHome() {
 
           {/* 메인 화면에서만 피드 작성 플러스 버튼 표시 (투표 완료 시에만) */}
           {isLoggedIn && pollData?.hasVoted && (
-            <FloatingButtonWithModal sectionStatus="feeds" targetFeed={null} />
+            <FeedComposerFloatingButton
+              sectionStatus="feeds"
+              targetFeed={null}
+            />
           )}
         </MainContentWrapper>
       </ContentContainer>

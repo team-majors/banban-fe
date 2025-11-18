@@ -5,11 +5,11 @@ import { DefaultButton } from "@/components/common/Button";
 import { BanBanLogo, UserIcon } from "@/components/svg";
 import styled from "styled-components";
 import { media } from "@/constants/breakpoints";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "@/hooks/auth/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import { UserMenu } from "@/components/common/UserMenu/UserMenu";
 import Image from "next/image";
-import { useClickOutside } from "@/hooks/useClickOutside";
+import { useClickOutside } from "@/hooks/common/useClickOutside";
 import HeaderSkeleton from "@/components/common/Skeleton/HeaderSkeleton";
 import { ProfileEditModal } from "@/components/profile/ProfileEditModal";
 import { AdminSettingsModal } from "@/components/admin/AdminSettingsModal";
@@ -19,17 +19,13 @@ import { isAdmin as checkIsAdmin } from "@/utils/jwt";
 import STORAGE_KEYS from "@/constants/storageKeys";
 import dynamic from "next/dynamic";
 
-const NotificationButtonGhost = styled.div`
-  width: 36px;
-  height: 36px;
-  margin-right: 8px;
-  border-radius: 50%;
-  background-color: rgba(63, 19, 255, 0.12);
-
-  ${media.mobile} {
-    display: none;
-  }
-`;
+const ConfirmModal = dynamic(
+  () =>
+    import("@/components/common/ConfirmModal/ConfirmModal").then(
+      (mod) => mod.ConfirmModal,
+    ),
+  { ssr: false },
+);
 
 const DynamicNotificationControls = dynamic(
   () => import("./NotificationControls"),
@@ -48,11 +44,13 @@ export default function Header({ isNew }: HeaderProps) {
   const [isProfileCardOpen, setProfileCardOpen] = useState(false);
   const [isCommunityCardOpen, setCommunityCardOpen] = useState(false);
   const [isAdminSettingsOpen, setAdminSettingsOpen] = useState(false);
+  const [isLogoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const { isLoggedIn, user, logout, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
+
   useClickOutside(
     menuRef,
     () => {
@@ -104,6 +102,14 @@ export default function Header({ isNew }: HeaderProps) {
 
   const handleLogin = () => router.push("/login");
   const handleProfile = () => handleToggleMenu();
+  const handleOpenLogoutConfirm = () => {
+    setUserMenuOpen(false);
+    setLogoutConfirmOpen(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    await logout();
+  };
 
   const handleOpenProfileCard = () => {
     setUserMenuOpen(false);
@@ -179,7 +185,7 @@ export default function Header({ isNew }: HeaderProps) {
                 {isUserMenuOpen && (
                   <UserMenu
                     onClose={() => handleCloseMenu()}
-                    onLogout={logout}
+                    onLogout={handleOpenLogoutConfirm}
                     onOpenProfile={handleOpenProfileCard}
                     onOpenCommunityInfo={handleOpenCommunityCard}
                     onOpenAdminSettings={handleOpenAdminSettings}
@@ -199,6 +205,16 @@ export default function Header({ isNew }: HeaderProps) {
                     onClose={() => setCommunityCardOpen(false)}
                   />
                 )}
+                <ConfirmModal
+                  isOpen={isLogoutConfirmOpen}
+                  onClose={() => setLogoutConfirmOpen(false)}
+                  onConfirm={handleConfirmLogout}
+                  title="로그아웃하시겠어요?"
+                  message="로그아웃하시겠어요? 다음 사용 시 재로그인이 필요해요."
+                  confirmText="로그아웃"
+                  cancelText="취소"
+                  isDanger
+                />
               </ProfileWrapper>
             </ButtonsWrapper>
           ) : (
@@ -236,6 +252,18 @@ const COLOR = {
 const Z_INDEX = {
   header: 1,
 };
+
+const NotificationButtonGhost = styled.div`
+  width: 36px;
+  height: 36px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: rgba(63, 19, 255, 0.12);
+
+  ${media.mobile} {
+    display: none;
+  }
+`;
 
 const Container = styled.header`
   position: fixed;
@@ -336,7 +364,7 @@ const ButtonBase = styled(DefaultButton)`
   font-size: 16px;
 
   ${media.mobile} {
-    width: 70px;
+    width: 72px;
     height: 44px; /* 터치 영역 유지 (44px) */
     padding: 8px 10px;
     font-size: 14px;

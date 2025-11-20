@@ -2,20 +2,19 @@ import type { Feed } from "@/types/feeds";
 import React, { useEffect, useRef, useState, useContext } from "react";
 import dynamic from "next/dynamic";
 import { useClickOutside } from "@/hooks/common/useClickOutside";
-import { useFeedLikeOptimisticUpdate } from "@/hooks/api/feed/useLikeOptimisticUpdate";
-import { useVoteOptionColor } from "@/hooks/ui/poll/useVoteOptionColor";
 import { Poll } from "@/types/poll";
 import { Avatar } from "@/components/common/Avatar";
 import { FeedCommentButton, FeedHeartButton } from "@/components/common/Button";
-import useReportMutation from "@/hooks/api/report/useReportMutation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import { MoreIcon } from "@/components/svg/MoreIcon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateFeed, deleteFeed } from "@/remote/feed";
 import { useToast } from "@/components/common/Toast/useToast";
 import { SectionContext } from "@/components/layout/RightSection/SectionContext";
+import useReportMutation from "@/hooks/api/report/useReportMutation";
+import { useFeedLikeOptimisticUpdate } from "@/hooks/api/feed/useLikeOptimisticUpdate";
+import { useVoteOptionColor } from "@/hooks/ui/poll/useVoteOptionColor";
 
 const OptionsDropdown = dynamic(
   () =>
@@ -55,16 +54,16 @@ export const FeedBlock = ({
 }) => {
   const { user, createdAt, commentCount, content, likeCount, id, isLiked } =
     props;
-  const { isLoggedIn, user: me } = useAuthStore();
+  const me = useAuthStore((s) => s.user);
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
 
-  const router = useRouter();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const formattedCreatedAt = new Date(createdAt).toLocaleDateString();
 
   // 모바일 컨텍스트 확인
-  const { onMobileFeedClick } = useContext(SectionContext);
+  const { onMobileFeedClick, onDesktopFeedClick } = useContext(SectionContext);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isReportModalOpen, setReportModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -241,8 +240,8 @@ export const FeedBlock = ({
               // 모바일 핸들러가 있으면 사용 (바텀시트), 없으면 페이지 이동
               if (onMobileFeedClick) {
                 onMobileFeedClick(id);
-              } else {
-                router.push(`/feeds/${id}`);
+              } else if (onDesktopFeedClick) {
+                onDesktopFeedClick(id);
               }
             }}
           />

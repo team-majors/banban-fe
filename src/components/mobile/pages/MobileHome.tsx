@@ -204,7 +204,7 @@ export default function MobileHome() {
         <DynamicBottomSheet
           isOpen={true}
           onClose={handleCloseBottomSheet}
-          maxHeight={95}
+          maxHeight={90}
         >
           <CommentThread />
         </DynamicBottomSheet>

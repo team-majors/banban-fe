@@ -14,6 +14,7 @@ export const SectionContext = createContext<{
 
   // 모바일 전용: 피드 클릭 핸들러 (바텀시트 사용)
   onMobileFeedClick?: (feedId: number) => void;
+  onDesktopFeedClick?: (feedId: number) => void;
 }>({
   sectionStatus: "feeds",
   setSectionStatus: () => {},
@@ -24,4 +25,5 @@ export const SectionContext = createContext<{
   inBottomSheet: false,
   disableFeedsPanel: false,
   onMobileFeedClick: undefined,
+  onDesktopFeedClick: undefined,
 });

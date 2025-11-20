@@ -313,7 +313,7 @@ export default function NotificationsPage() {
           <DynamicBottomSheet
             isOpen={true}
             onClose={handleCloseBottomSheet}
-            maxHeight={95}
+            maxHeight={90}
           >
             <RightSection />
           </DynamicBottomSheet>

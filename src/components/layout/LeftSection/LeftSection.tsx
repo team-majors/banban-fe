@@ -1,3 +1,4 @@
+import RealtimeFeedRankingSkeleton from "@/components/common/Skeleton/RealtimeFeedRankingSkeleton";
 import TodayTopicCard from "@/components/layout/LeftSection/TodayTopicCard/TodayTopicCard";
 import { media } from "@/constants/breakpoints";
 import { useIdle } from "@/hooks/common/useIdle";
@@ -5,12 +6,12 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import styled from "styled-components";
 
-const RealtimeFeedRankingLazy = dynamic(
+const RealtimeFeedRanking = dynamic(
   () =>
     import(
       "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking"
     ),
-  { ssr: false },
+  { ssr: false, loading: () => <RealtimeFeedRankingSkeleton /> },
 );
 
 export default function LeftSection() {
@@ -21,7 +22,7 @@ export default function LeftSection() {
   return (
     <StyledContainer>
       <TodayTopicCard />
-      {showRanking && <RealtimeFeedRankingLazy />}
+      {showRanking && <RealtimeFeedRanking />}
     </StyledContainer>
   );
 }

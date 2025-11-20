@@ -1,7 +1,16 @@
 "use client";
 
+import RealtimeFeedRankingSkeleton from "@/components/common/Skeleton/RealtimeFeedRankingSkeleton";
 import TodayTopicCard from "@/components/layout/LeftSection/TodayTopicCard/TodayTopicCard";
-import RealtimeFeedRanking from "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking";
+import dynamic from "next/dynamic";
+
+const RealtimeFeedRanking = dynamic(
+  () =>
+    import(
+      "@/components/layout/LeftSection/RealtimeFeedRanking/RealtimeFeedRanking"
+    ),
+  { ssr: false, loading: () => <RealtimeFeedRankingSkeleton /> },
+);
 
 export default function HomeTab() {
   return (

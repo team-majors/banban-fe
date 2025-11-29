@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: defaultTitle,
     description: defaultDescription,
-    images: [`${siteUrl}/banban_logo.png`],
+    images: [`${siteUrl}/banban_og.jpg`],
   },
   alternates: {
     canonical: "/",

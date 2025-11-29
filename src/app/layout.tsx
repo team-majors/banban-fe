@@ -10,7 +10,7 @@ import NotificationListener from "@/components/notification/NotificationListener
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-  "https://banban.today";
+  "https://www.banban.today";
 
 const defaultTitle = "ban:ban";
 const defaultDescription =

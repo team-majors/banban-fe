@@ -152,3 +152,52 @@ export interface AdminUsersData {
     users: AdminUser[];
   };
 }
+
+// AI Bot Management
+export interface AdminAIBot {
+  id: number;
+  userId: number;
+  name: string;
+  username: string;
+  email: string;
+  personaPrompt: string;
+  isActive: boolean;
+  feedIntervalMinutes: number;
+  commentIntervalMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminAIBotsData {
+  bots: AdminAIBot[];
+  total: number;
+}
+
+export interface CreateAIBotPayload {
+  name: string;
+  personaPrompt: string;
+  feedIntervalMinutes?: number;
+  commentIntervalMinutes?: number;
+}
+
+export interface UpdateAIBotPayload {
+  name?: string;
+  personaPrompt?: string;
+  feedIntervalMinutes?: number;
+  commentIntervalMinutes?: number;
+  isActive?: boolean;
+}
+
+export interface AIBotActivityLogItem {
+  id: number;
+  botId: number;
+  activityType: string; // e.g., "FEED_CREATED", "COMMENT_CREATED"
+  description: string;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface AIBotActivityLogsData {
+  logs: AIBotActivityLogItem[];
+  total: number;
+}

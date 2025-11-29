@@ -7,6 +7,11 @@ import type {
   AdminReportsData,
   AdminSystemData,
   AdminUsersData,
+  AdminAIBot,
+  AdminAIBotsData,
+  CreateAIBotPayload,
+  UpdateAIBotPayload,
+  AIBotActivityLogsData,
   PollCachePatternStat,
   UserRole,
   UserStatus,
@@ -576,4 +581,135 @@ export async function getAdminUsers(params: {
     `/admin/users?${q.toString()}`,
   );
   return res;
+}
+
+// AI Bot Management
+export async function getAdminAIBots(params?: {
+  limit?: number;
+  offset?: number;
+  isActive?: boolean;
+}): Promise<AdminAIBotsData> {
+  const q = new URLSearchParams();
+  if (params?.limit) q.set("limit", String(params.limit));
+  if (params?.offset) q.set("offset", String(params.offset));
+  if (params?.isActive !== undefined) q.set("is_active", String(params.isActive));
+
+  const res = await apiFetch<AdminApiResponse<AdminAIBotsData>>(
+    `/admin/ai-bots${q.toString() ? `?${q.toString()}` : ""}`,
+  );
+  const data = res.data as Partial<AdminAIBotsData>;
+  return {
+    bots: data.bots ?? [],
+    total: data.total ?? 0,
+  };
+}
+
+export async function getAdminAIBot(botId: number): Promise<AdminAIBot> {
+  const res = await apiFetch<AdminApiResponse<AdminAIBot>>(
+    `/admin/ai-bots/${botId}`,
+  );
+  return res.data;
+}
+
+export async function createAdminAIBot(
+  payload: CreateAIBotPayload,
+): Promise<AdminAIBot> {
+  const body = {
+    name: payload.name,
+    persona_prompt: payload.personaPrompt,
+    feed_interval_minutes: payload.feedIntervalMinutes ?? 15,
+    comment_interval_minutes: payload.commentIntervalMinutes ?? 10,
+  };
+  const res = await apiFetch<AdminApiResponse<AdminAIBot>>("/admin/ai-bots", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return res.data;
+}
+
+export async function updateAdminAIBot(
+  botId: number,
+  payload: UpdateAIBotPayload,
+): Promise<AdminAIBot> {
+  const body: Record<string, unknown> = {};
+  if (payload.name !== undefined) body.name = payload.name;
+  if (payload.personaPrompt !== undefined)
+    body.persona_prompt = payload.personaPrompt;
+  if (payload.feedIntervalMinutes !== undefined)
+    body.feed_interval_minutes = payload.feedIntervalMinutes;
+  if (payload.commentIntervalMinutes !== undefined)
+    body.comment_interval_minutes = payload.commentIntervalMinutes;
+  if (payload.isActive !== undefined) body.is_active = payload.isActive;
+
+  const res = await apiFetch<AdminApiResponse<AdminAIBot>>(
+    `/admin/ai-bots/${botId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(body),
+    },
+  );
+  return res.data;
+}
+
+export async function deleteAdminAIBot(
+  botId: number,
+): Promise<{ message: string }> {
+  const res = await apiFetch<AdminApiResponse<{ message: string }>>(
+    `/admin/ai-bots/${botId}`,
+    { method: "DELETE" },
+  );
+  return res.data;
+}
+
+export async function toggleAdminAIBotActivation(
+  botId: number,
+  isActive: boolean,
+): Promise<AdminAIBot> {
+  const res = await apiFetch<AdminApiResponse<AdminAIBot>>(
+    `/admin/ai-bots/${botId}/activate`,
+    {
+      method: "POST",
+      body: JSON.stringify({ is_active: isActive }),
+    },
+  );
+  return res.data;
+}
+
+export async function testAdminAIBotFeed(
+  botId: number,
+): Promise<{ message: string; feedId?: number }> {
+  const res = await apiFetch<
+    AdminApiResponse<{ message: string; feedId?: number }>
+  >(`/admin/ai-bots/${botId}/test-feed`, { method: "POST" });
+  return res.data;
+}
+
+export async function testAdminAIBotComment(
+  botId: number,
+): Promise<{ message: string; commentId?: number }> {
+  const res = await apiFetch<
+    AdminApiResponse<{ message: string; commentId?: number }>
+  >(`/admin/ai-bots/${botId}/test-comment`, { method: "POST" });
+  return res.data;
+}
+
+export async function getAdminAIBotActivityLog(
+  botId: number,
+  params?: {
+    limit?: number;
+    offset?: number;
+  },
+): Promise<AIBotActivityLogsData> {
+  const q = new URLSearchParams();
+  if (params?.limit) q.set("limit", String(params.limit));
+  if (params?.offset) q.set("offset", String(params.offset));
+
+  const res = await apiFetch<AdminApiResponse<AIBotActivityLogsData>>(
+    `/admin/ai-bots/${botId}/activity-log${q.toString() ? `?${q.toString()}` : ""}`,
+  );
+  const data = res.data as Partial<AIBotActivityLogsData>;
+  return {
+    logs: data.logs ?? [],
+    total: data.total ?? 0,
+  };
 }

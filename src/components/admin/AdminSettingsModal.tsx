@@ -9,6 +9,7 @@ import { PollsTab } from "./tabs/PollsTab";
 import { NotificationsTab } from "./tabs/NotificationsTab";
 import { ActivityLogsTab } from "./tabs/ActivityLogsTab";
 import { UsersTab } from "./tabs/UsersTab";
+import { AIBotsTab } from "./tabs/AIBotsTab";
 
 interface AdminTab {
   id: string;
@@ -42,6 +43,11 @@ export const AdminSettingsModal = ({
       id: "polls",
       label: "투표 관리",
       component: <PollsTab />,
+    },
+    {
+      id: "ai-bots",
+      label: "AI 봇 관리",
+      component: <AIBotsTab />,
     },
     {
       id: "notifications",

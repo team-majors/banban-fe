@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-  "https://banban.today";
+  "https://www.banban.today";
 
 // ✅ Sitemap에 포함할 공개용 정적 페이지만 명시
 const staticRoutes: MetadataRoute.Sitemap = [

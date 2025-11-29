@@ -40,9 +40,9 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     images: [
       {
-        url: "/banban_logo.png",
-        width: 800,
-        height: 800,
+        url: `${siteUrl}/banban_logo.png`,
+        width: 400,
+        height: 400,
         alt: "ban:ban - 오늘의 밸런스 게임",
       },
     ],
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: defaultTitle,
     description: defaultDescription,
-    images: ["/banban_logo.png"],
+    images: [`${siteUrl}/banban_logo.png`],
   },
   alternates: {
     canonical: "/",

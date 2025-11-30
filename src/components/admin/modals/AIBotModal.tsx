@@ -1,5 +1,6 @@
 "use client";
 
+import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Modal } from "@/components/common/Modal";
@@ -8,8 +9,14 @@ import { useToast } from "@/components/common/Toast/useToast";
 import {
   createAdminAIBot,
   updateAdminAIBot,
+  generateAdminAIBotPersona,
 } from "@/remote/admin";
-import type { AdminAIBot, CreateAIBotPayload, UpdateAIBotPayload } from "@/types/admin";
+import type {
+  AdminAIBot,
+  CreateAIBotPayload,
+  UpdateAIBotPayload,
+  GeneratePersonaResponse,
+} from "@/types/admin";
 
 interface AIBotModalProps {
   bot?: AdminAIBot;
@@ -24,6 +31,36 @@ interface AIBotForm {
   commentIntervalMinutes: number;
 }
 
+const PersonaLabelContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const GenerateButton = styled.button`
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #d5d7da;
+  background-color: #ffffff;
+  color: #111827;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background-color: #f3f4f6;
+  }
+
+  &:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+`;
+
 export const AIBotModal = ({
   bot,
   onClose,
@@ -36,6 +73,8 @@ export const AIBotModal = ({
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
   } = useForm<AIBotForm>({
     defaultValues: {
       name: bot?.name ?? "",
@@ -45,6 +84,8 @@ export const AIBotModal = ({
     },
     mode: "onBlur",
   });
+
+  const botName = watch("name");
 
   const createMutation = useMutation({
     mutationFn: (payload: CreateAIBotPayload) =>
@@ -74,7 +115,31 @@ export const AIBotModal = ({
     },
   });
 
-  const isLoading = createMutation.isPending || updateMutation.isPending;
+  const generatePersonaMutation = useMutation({
+    mutationFn: async (name: string) => {
+      if (!name.trim()) {
+        throw new Error("봇 이름을 입력해주세요.");
+      }
+      return generateAdminAIBotPersona(name);
+    },
+    onSuccess: (data: GeneratePersonaResponse) => {
+      setValue("personaPrompt", data.personaPrompt);
+      showToast({
+        type: "success",
+        message: "페르소나 프롬프트가 생성되었습니다.",
+      });
+    },
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : "페르소나 생성 실패";
+      showToast({ type: "error", message });
+    },
+  });
+
+  const isLoading =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    generatePersonaMutation.isPending;
 
   const onSubmit = (data: AIBotForm) => {
     if (bot) {
@@ -134,7 +199,26 @@ export const AIBotModal = ({
           </Input>
 
           <Input $width="100%">
-            <Input.Label>페르소나 프롬프트 *</Input.Label>
+            <PersonaLabelContainer>
+              <Input.Label>페르소나 프롬프트 *</Input.Label>
+              <GenerateButton
+                type="button"
+                onClick={() => {
+                  if (botName.trim()) {
+                    generatePersonaMutation.mutate(botName);
+                  }
+                }}
+                disabled={
+                  !botName.trim() ||
+                  generatePersonaMutation.isPending ||
+                  isLoading
+                }
+              >
+                {generatePersonaMutation.isPending
+                  ? "생성 중..."
+                  : "페르소나 생성"}
+              </GenerateButton>
+            </PersonaLabelContainer>
             <textarea
               placeholder="AI 봇의 성격과 스타일을 정의하는 프롬프트"
               {...register("personaPrompt", {

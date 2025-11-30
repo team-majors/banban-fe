@@ -201,3 +201,12 @@ export interface AIBotActivityLogsData {
   logs: AIBotActivityLogItem[];
   total: number;
 }
+
+// AI Bot Persona Generation
+export interface GeneratePersonaRequest {
+  botName: string;
+}
+
+export interface GeneratePersonaResponse {
+  personaPrompt: string;
+}

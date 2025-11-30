@@ -12,6 +12,7 @@ import type {
   CreateAIBotPayload,
   UpdateAIBotPayload,
   AIBotActivityLogsData,
+  GeneratePersonaResponse,
   PollCachePatternStat,
   UserRole,
   UserStatus,
@@ -597,10 +598,10 @@ export async function getAdminAIBots(params?: {
   const res = await apiFetch<AdminApiResponse<AdminAIBotsData>>(
     `/admin/ai-bots${q.toString() ? `?${q.toString()}` : ""}`,
   );
-  const data = res.data as Partial<AdminAIBotsData>;
+  const responseData = res.data as any;
   return {
-    bots: data.bots ?? [],
-    total: data.total ?? 0,
+    bots: responseData.agents ?? [],
+    total: responseData.total ?? 0,
   };
 }
 
@@ -712,4 +713,20 @@ export async function getAdminAIBotActivityLog(
     logs: data.logs ?? [],
     total: data.total ?? 0,
   };
+}
+
+export async function generateAdminAIBotPersona(
+  botName: string,
+): Promise<GeneratePersonaResponse> {
+  const body = {
+    bot_name: botName,
+  };
+  const res = await apiFetch<AdminApiResponse<GeneratePersonaResponse>>(
+    "/admin/ai-bots/generate-persona",
+    {
+      method: "POST",
+      body: JSON.stringify(body),
+    },
+  );
+  return res.data;
 }

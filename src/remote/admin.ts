@@ -436,11 +436,11 @@ export async function resetAdminPollCache(): Promise<AdminPollCachePurgeResult> 
   const rawPatterns = (data.deleted_patterns ??
     data.patterns ??
     []) as Array<{
-    pattern?: string;
-    keyPattern?: string;
-    deleted?: number;
-    deletedCount?: number;
-  }>;
+      pattern?: string;
+      keyPattern?: string;
+      deleted?: number;
+      deletedCount?: number;
+    }>;
 
   const patterns: PollCachePatternStat[] = rawPatterns.map((p) => ({
     pattern: p.pattern ?? p.keyPattern ?? "(unknown)",
@@ -618,8 +618,10 @@ export async function createAdminAIBot(
   const body = {
     name: payload.name,
     persona_prompt: payload.personaPrompt,
-    feed_interval_minutes: payload.feedIntervalMinutes ?? 15,
-    comment_interval_minutes: payload.commentIntervalMinutes ?? 10,
+    daily_feed_count: payload.dailyFeedCount ?? 5,
+    daily_comment_count: payload.dailyCommentCount ?? 10,
+    feed_schedule: payload.feedSchedule ?? null,
+    comment_schedule: payload.commentSchedule ?? null,
   };
   const res = await apiFetch<AdminApiResponse<AdminAIBot>>("/admin/ai-bots", {
     method: "POST",
@@ -636,10 +638,14 @@ export async function updateAdminAIBot(
   if (payload.name !== undefined) body.name = payload.name;
   if (payload.personaPrompt !== undefined)
     body.persona_prompt = payload.personaPrompt;
-  if (payload.feedIntervalMinutes !== undefined)
-    body.feed_interval_minutes = payload.feedIntervalMinutes;
-  if (payload.commentIntervalMinutes !== undefined)
-    body.comment_interval_minutes = payload.commentIntervalMinutes;
+  if (payload.dailyFeedCount !== undefined)
+    body.daily_feed_count = payload.dailyFeedCount;
+  if (payload.dailyCommentCount !== undefined)
+    body.daily_comment_count = payload.dailyCommentCount;
+  if (payload.feedSchedule !== undefined)
+    body.feed_schedule = payload.feedSchedule;
+  if (payload.commentSchedule !== undefined)
+    body.comment_schedule = payload.commentSchedule;
   if (payload.isActive !== undefined) body.is_active = payload.isActive;
 
   const res = await apiFetch<AdminApiResponse<AdminAIBot>>(

@@ -235,39 +235,117 @@ export const AIBotsTab = () => {
                       className="h-4 w-4 rounded border-slate-300"
                     />
                   </th>
-                  <th className={`${tableHeaderClass} w-20`}>ID</th>
-                  <th className={tableHeaderClass}>이름</th>
-                  <th className={tableHeaderClass}>Username</th>
+
+                  <th className={tableHeaderClass}>봇 정보</th>
                   <th className={tableHeaderClass}>상태</th>
+                  <th className={tableHeaderClass}>활동 설정</th>
+                  <th className={tableHeaderClass}>스케줄</th>
                   <th className={`${tableHeaderClass} w-48`}>생성일</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white/95">
                 {bots.map((bot) => (
-                  <tr key={bot.id} className="hover:bg-slate-50/70">
+                  <tr key={bot.id} className="group hover:bg-slate-50/80 transition-colors">
                     <td className={tableCellClass}>
                       <input
                         type="checkbox"
                         checked={selectedBots.has(bot.id)}
                         onChange={() => toggleSelectBot(bot.id)}
-                        className="h-4 w-4 rounded border-slate-300"
+                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                       />
                     </td>
-                    <td className={tableCellClass}>{bot.id}</td>
-                    <td className={tableCellClass} title={bot.name}>
-                      <div className="max-w-xs truncate">{bot.name}</div>
+
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-slate-900 text-base" title={bot.name}>
+                          {bot.name}
+                        </span>
+                        <span className="text-xs text-slate-500 font-mono mt-0.5">
+                          @{bot.username}
+                        </span>
+                      </div>
                     </td>
-                    <td className={tableCellClass}>{bot.username}</td>
-                    <td className={tableCellClass}>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        bot.isActive 
-                          ? "bg-green-100 text-green-800" 
-                          : "bg-slate-100 text-slate-800"
-                      }`}>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${bot.isActive
+                          ? "bg-green-50 text-green-700 border-green-200"
+                          : "bg-slate-50 text-slate-600 border-slate-200"
+                          }`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${bot.isActive ? "bg-green-500" : "bg-slate-400"}`} />
                         {bot.isActive ? "활성" : "비활성"}
                       </span>
                     </td>
-                    <td className={tableCellClass}>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                          <span className="w-8 text-xs font-medium text-slate-500 uppercase tracking-wider">Feed</span>
+                          <span className="font-semibold">{bot.dailyFeedCount}</span>
+                          <span className="text-slate-400 text-xs">/일</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-slate-700">
+                          <span className="w-8 text-xs font-medium text-slate-500 uppercase tracking-wider">Cmt</span>
+                          <span className="font-semibold">{bot.dailyCommentCount}</span>
+                          <span className="text-slate-400 text-xs">/일</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-1.5">
+                        {bot.todayFeedSchedule && bot.todayFeedSchedule.length > 0 ? (
+                          <div className="flex items-center gap-2 group/schedule relative">
+                            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">F</span>
+                            <span className="text-xs text-slate-600 font-mono">
+                              {bot.todayFeedSchedule[0]}
+                              {bot.todayFeedSchedule.length > 1 && (
+                                <span className="text-slate-400 ml-1">+{bot.todayFeedSchedule.length - 1}</span>
+                              )}
+                            </span>
+                            {/* Simple Tooltip on Hover */}
+                            <div className="absolute left-0 bottom-full mb-2 hidden w-48 rounded-lg bg-slate-800 p-2 text-xs text-white shadow-lg group-hover/schedule:block z-10">
+                              <div className="font-semibold mb-1 border-b border-slate-700 pb-1">오늘의 피드 스케줄</div>
+                              <div className="flex flex-wrap gap-1">
+                                {bot.todayFeedSchedule.map((t, i) => (
+                                  <span key={`${t}-${i}`} className="bg-slate-700 px-1 rounded">{t}</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 opacity-50">
+                            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">F</span>
+                            <span className="text-xs text-slate-400">-</span>
+                          </div>
+                        )}
+
+                        {bot.todayCommentSchedule && bot.todayCommentSchedule.length > 0 ? (
+                          <div className="flex items-center gap-2 group/schedule relative">
+                            <span className="text-xs font-medium text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded">C</span>
+                            <span className="text-xs text-slate-600 font-mono">
+                              {bot.todayCommentSchedule[0]}
+                              {bot.todayCommentSchedule.length > 1 && (
+                                <span className="text-slate-400 ml-1">+{bot.todayCommentSchedule.length - 1}</span>
+                              )}
+                            </span>
+                            {/* Simple Tooltip on Hover */}
+                            <div className="absolute left-0 bottom-full mb-2 hidden w-48 rounded-lg bg-slate-800 p-2 text-xs text-white shadow-lg group-hover/schedule:block z-10">
+                              <div className="font-semibold mb-1 border-b border-slate-700 pb-1">오늘의 댓글 스케줄</div>
+                              <div className="flex flex-wrap gap-1">
+                                {bot.todayCommentSchedule.map((t, i) => (
+                                  <span key={`${t}-${i}`} className="bg-slate-700 px-1 rounded">{t}</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 opacity-50">
+                            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">C</span>
+                            <span className="text-xs text-slate-400">-</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-500">
                       {formatDate(bot.createdAt)}
                     </td>
                   </tr>

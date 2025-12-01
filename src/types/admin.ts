@@ -162,8 +162,13 @@ export interface AdminAIBot {
   email: string;
   personaPrompt: string;
   isActive: boolean;
-  feedIntervalMinutes: number;
-  commentIntervalMinutes: number;
+  dailyFeedCount: number;
+  dailyCommentCount: number;
+  feedSchedule?: string[];
+  commentSchedule?: string[];
+  todayFeedSchedule?: string[];
+  todayCommentSchedule?: string[];
+  scheduleDate?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -176,15 +181,19 @@ export interface AdminAIBotsData {
 export interface CreateAIBotPayload {
   name: string;
   personaPrompt: string;
-  feedIntervalMinutes?: number;
-  commentIntervalMinutes?: number;
+  dailyFeedCount?: number;
+  dailyCommentCount?: number;
+  feedSchedule?: string[];
+  commentSchedule?: string[];
 }
 
 export interface UpdateAIBotPayload {
   name?: string;
   personaPrompt?: string;
-  feedIntervalMinutes?: number;
-  commentIntervalMinutes?: number;
+  dailyFeedCount?: number;
+  dailyCommentCount?: number;
+  feedSchedule?: string[];
+  commentSchedule?: string[];
   isActive?: boolean;
 }
 

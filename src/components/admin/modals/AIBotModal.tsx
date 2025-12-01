@@ -27,8 +27,8 @@ interface AIBotModalProps {
 interface AIBotForm {
   name: string;
   personaPrompt: string;
-  feedIntervalMinutes: number;
-  commentIntervalMinutes: number;
+  dailyFeedCount: number;
+  dailyCommentCount: number;
 }
 
 const PersonaLabelContainer = styled.div`
@@ -79,8 +79,8 @@ export const AIBotModal = ({
     defaultValues: {
       name: bot?.name ?? "",
       personaPrompt: bot?.personaPrompt ?? "",
-      feedIntervalMinutes: bot?.feedIntervalMinutes ?? 15,
-      commentIntervalMinutes: bot?.commentIntervalMinutes ?? 10,
+      dailyFeedCount: bot?.dailyFeedCount ?? 5,
+      dailyCommentCount: bot?.dailyCommentCount ?? 10,
     },
     mode: "onBlur",
   });
@@ -146,15 +146,15 @@ export const AIBotModal = ({
       updateMutation.mutate({
         name: data.name,
         personaPrompt: data.personaPrompt,
-        feedIntervalMinutes: data.feedIntervalMinutes,
-        commentIntervalMinutes: data.commentIntervalMinutes,
+        dailyFeedCount: data.dailyFeedCount,
+        dailyCommentCount: data.dailyCommentCount,
       });
     } else {
       createMutation.mutate({
         name: data.name,
         personaPrompt: data.personaPrompt,
-        feedIntervalMinutes: data.feedIntervalMinutes,
-        commentIntervalMinutes: data.commentIntervalMinutes,
+        dailyFeedCount: data.dailyFeedCount,
+        dailyCommentCount: data.dailyCommentCount,
       });
     }
   };
@@ -246,55 +246,55 @@ export const AIBotModal = ({
           </Input>
 
           <Input $width="100%">
-            <Input.Label>피드 생성 주기 (분) *</Input.Label>
+            <Input.Label>하루 피드 생성 횟수 (1~20) *</Input.Label>
             <Input.Field
-              $isValidate={!errors.feedIntervalMinutes}
+              $isValidate={!errors.dailyFeedCount}
               type="number"
-              placeholder="15"
+              placeholder="5"
               min="1"
-              max="1440"
-              {...register("feedIntervalMinutes", {
-                required: "피드 생성 주기는 필수입니다.",
+              max="20"
+              {...register("dailyFeedCount", {
+                required: "피드 생성 횟수는 필수입니다.",
                 min: {
                   value: 1,
-                  message: "최소 1분 이상이어야 합니다.",
+                  message: "최소 1회 이상이어야 합니다.",
                 },
                 max: {
-                  value: 1440,
-                  message: "최대 1440분(24시간) 이하여야 합니다.",
+                  value: 20,
+                  message: "최대 20회 이하여야 합니다.",
                 },
               })}
             />
-            {errors.feedIntervalMinutes && (
+            {errors.dailyFeedCount && (
               <Input.ErrorMessage>
-                {errors.feedIntervalMinutes.message}
+                {errors.dailyFeedCount.message}
               </Input.ErrorMessage>
             )}
           </Input>
 
           <Input $width="100%">
-            <Input.Label>댓글 생성 주기 (분) *</Input.Label>
+            <Input.Label>하루 댓글 생성 횟수 (1~50) *</Input.Label>
             <Input.Field
-              $isValidate={!errors.commentIntervalMinutes}
+              $isValidate={!errors.dailyCommentCount}
               type="number"
               placeholder="10"
               min="1"
-              max="1440"
-              {...register("commentIntervalMinutes", {
-                required: "댓글 생성 주기는 필수입니다.",
+              max="50"
+              {...register("dailyCommentCount", {
+                required: "댓글 생성 횟수는 필수입니다.",
                 min: {
                   value: 1,
-                  message: "최소 1분 이상이어야 합니다.",
+                  message: "최소 1회 이상이어야 합니다.",
                 },
                 max: {
-                  value: 1440,
-                  message: "최대 1440분(24시간) 이하여야 합니다.",
+                  value: 50,
+                  message: "최대 50회 이하여야 합니다.",
                 },
               })}
             />
-            {errors.commentIntervalMinutes && (
+            {errors.dailyCommentCount && (
               <Input.ErrorMessage>
-                {errors.commentIntervalMinutes.message}
+                {errors.dailyCommentCount.message}
               </Input.ErrorMessage>
             )}
           </Input>

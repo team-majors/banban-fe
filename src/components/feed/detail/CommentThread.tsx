@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { CommentTab } from "./CommentTab";
 import { Block } from "../../layout/RightSection/Block";
 import { useContext } from "react";
 import { SectionContext } from "../../layout/RightSection/SectionContext";
@@ -25,7 +24,6 @@ const CommentThread = () => {
     <Container $inBottomSheet={inBottomSheet}>
       {/* 고정 헤더: 피드 내용 */}
       <Header>
-        <CommentTab />
         {pollData && (
           <>
             <Block
@@ -94,6 +92,10 @@ const ScrollableContent = styled.div`
 `;
 
 const Footer = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   flex-shrink: 0;
   border-top: 1px solid #f3f3f3;
   background-color: white;

@@ -1,26 +1,9 @@
 import styled from "styled-components";
-import { ChevronLeftIcon } from "@/components/svg/ChevronLeftIcon";
-import { useRouter } from "next/navigation";
-import { useContext } from "react";
-import { SectionContext } from "../../layout/RightSection/SectionContext";
 
 const CommentTab = () => {
-  const router = useRouter();
-  const { inBottomSheet } = useContext(SectionContext);
-
   return (
     <StyledContainer>
-      <StyledCommentsTab>
-        {!inBottomSheet && (
-          <StyledBackButton
-            onClick={() => {
-              router.push("/");
-            }}
-          >
-            <ChevronLeftIcon size={24} />
-          </StyledBackButton>
-        )}
-      </StyledCommentsTab>
+      <StyledCommentsTab />
     </StyledContainer>
   );
 };
@@ -41,14 +24,6 @@ const StyledCommentsTab = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-`;
-
-const StyledBackButton = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  cursor: pointer;
 `;
 
 export { CommentTab };

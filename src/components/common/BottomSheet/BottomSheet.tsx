@@ -146,13 +146,13 @@ const SheetContainer = styled(motion.div)<{
     }
     return `${maxHeightVh}vh`;
   }};
+
   background-color: white;
   border-radius: 12px 12px 0 0;
   z-index: 999;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   touch-action: none;
   transition: max-height 0.2s ease;
 `;
@@ -173,7 +173,13 @@ const DragHandle = styled.div`
 const Content = styled.div`
   flex: 1;
   overflow: visible;
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   min-height: 0; /* 필수: flex 자식이 overflow를 정상 작동하게 함 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 `;

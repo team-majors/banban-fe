@@ -73,7 +73,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`${pretendardSans.variable} antialiased h-dvh`}>
+      <body
+        className={`${pretendardSans.variable} antialiased h-dvh overflow-hidden`}
+      >
         <StyledComponentsRegistry>
           <NextProvider>
             <AuthManager />
